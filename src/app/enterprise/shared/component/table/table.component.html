@@ -1,0 +1,128 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card dcard">
+      <div class="card-body px-1 px-md-3">
+
+        <form autocomplete="off" *ngFor="let Data of [dataSource]">
+
+          <div class="d-flex justify-content-between flex-column flex-sm-row mb-3 px-2 px-sm-0">
+            <h3 class="text-125 pl-1 mb-3 mb-sm-0 text-secondary-d4">
+              {{ Data.NameTable }}
+            </h3>
+          </div>
+
+          <table id="simple-table"
+            class="mb-0 table table-borderless table-bordered-x brc-secondary-l3 text-dark-m2 radius-1 overflow-hidden">
+            <thead class="text-dark-tp3 bgc-grey-l4 text-90 border-b-1 brc-transparent">
+              <tr>
+                <th *ngFor="let Headers of Data.Headers">
+                  {{ Headers.Name }}
+                </th>
+              </tr>
+            </thead>
+
+            <tbody class="mt-1">
+              <tr class="bgc-h-yellow-l4 d-style" *ngFor="let item of Data.DataTable.data.resultSearch">
+
+                <td *ngFor="let Headers of Data.Headers">
+                  <div *ngIf="(Headers.key && !Headers.IsDate && !Headers.IsStatus)">
+                    {{ item[Headers.key] }}
+                  </div>
+                  <div *ngIf="(Headers.key && Headers.IsDate === true)">
+                    {{ item[Headers.key] | date:'yyyy-MM-dd HH:mm:ss'}}
+                  </div>
+                  <div *ngIf="(Headers.key && Headers.IsStatus === true)">
+                    <span [ngClass]="Headers.IsStatus === true ? Headers.Html[item[Headers.key]] : ''">
+                      {{ item[Headers.key] }}
+                    </span>
+                  </div>
+                  <div *ngIf="(Headers.ColumnAction === true)">
+
+                    <div class="d-none d-lg-flex">
+                      <a *ngFor="let option of Headers.Options">
+
+                        <a *ngIf="(option.Type === 'Url')" href="{{ generateUrl(option,item,Headers) }}"
+                          class="mx-2px btn radius-1 border-2 btn-xs btn-brc-tp btn-light-secondary btn-h-lighter-success btn-a-lighter-success"
+                          (click)="getDataRow(item)"
+                        >
+                          <i class="fa fa-pencil-alt" *ngIf="(option.Name === 'Editar')"></i>
+                          <i class="fa fa-trash-alt" *ngIf="(option.Name === 'Eliminar')"></i>
+                          <i class="fa fa-check" *ngIf="(option.Name === 'Activar')"></i>
+                        </a>
+
+                        <a *ngIf="(option.Type === 'Modal')" href="#" data-toggle="modal"
+                          [attr.data-target]="'#'+option.Name"
+                          class="mx-2px btn radius-1 border-2 btn-xs btn-brc-tp btn-light-secondary btn-h-lighter-success btn-a-lighter-success"
+                          (click)="getDataRow(item)"
+                        >
+                          <i class="fa fa-pencil-alt" *ngIf="(option.Name === 'Editar')"></i>
+                          <i class="fa fa-trash-alt" *ngIf="(option.Name === 'Eliminar')"></i>
+                          <i class="fa fa-check" *ngIf="(option.Name === 'Activar')"></i>
+                        </a>
+
+                      </a>
+                    </div>
+
+                  </div>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="d-flex pl-4 pr-3 pt-35 border-t-1 brc-secondary-l3 flex-column flex-sm-row mt-n1px">
+            <div class="text-nowrap align-self-center align-self-sm-start">
+              <span class="d-inline-block text-grey-d2">
+                Mostrando {{Data.DataTable.data.StarResult}} - {{Data.DataTable.data.EndResult}} de
+                {{Data.DataTable.data.TotalResult}}
+              </span>
+            </div>
+
+            <div class="btn-group ml-sm-auto mt-3 mt-sm-0">
+
+              <div class="float-right pagination">
+                <ul class="pagination">
+                  <div *ngFor="let Item of LoadingPages">
+
+                    <li
+                      [ngClass]="Item.ValueButton > 0 ? 'page-item page-pre' : 'page-item page-pre disabled'"
+                      *ngIf="(Item.NameButton === 'Prev')"
+                    >
+                      <a class="page-link" aria-label="previous page"
+                        (click)="findResultPage(Item.ValueButton)"
+                        href="javascript:void(0)">‹
+                      </a>
+                    </li>
+
+                    <li class="page-item"
+                     [ngClass]="Item.IsCurrent === true ? 'page-item active' : 'page-item'"
+                      *ngIf="(Item.NameButton !== 'Next' && Item.NameButton !== 'Prev')"
+                    >
+                      <a class="page-link" aria-label="to page 2" href="javascript:void(0)" 
+                        (click)="findResultPage(Item.ValueButton)">
+                        {{ Item.ValueButton }}
+                      </a>
+                    </li>
+
+                    <li
+                      [ngClass]="Item.ValueButton > 0 ? 'page-item page-next' : 'page-item page-next disabled'"
+                      *ngIf="(Item.NameButton === 'Next')"
+                    >
+                      <a class="page-link" aria-label="next page"
+                        (click)="findResultPage(Item.ValueButton)"
+                        href="javascript:void(0)">›
+                      </a>
+                    </li>
+                  </div>
+                  
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>

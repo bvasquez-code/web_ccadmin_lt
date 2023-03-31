@@ -1,0 +1,240 @@
+<div role="main" class="main-content">
+
+    <div class="page-content container container-plus">
+      <div class="container px-0">
+
+        <div class="row mt-4">
+          <div class="col-12">
+
+            <div class="page-header border-0 mb-0">
+              <h1 class="page-title text-dark-l3 text-115">
+                Venta
+                <i class="fa fa-angle-right text-80 ml-1"></i>
+                <small class="page-info text-dark-m3">
+                  {{ SaleDetail.Headboard.SaleCod }}
+                </small>
+              </h1>
+
+              <div class="page-tools">
+                <div class="action-buttons">
+                  <a class="btn bg-white btn-light mx-1px text-95 shadow-sm" href="#" data-title="Print">
+                    <i class="mr-1 fa fa-print text-primary text-120 w-2"></i>
+                    Print
+                  </a>
+                  <a class="btn bg-white btn-light mx-1px text-95 shadow-sm" href="#" data-title="PDF">
+                    <i class="mr-1 far fa-file-pdf text-danger text-120 w-2"></i>
+                    Export
+                  </a>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="card dcard mb-4">
+              <div class="card-body px-4 px-lg-5">
+                <div class="row mt-4">
+                  <div class="col-sm-6">
+                    <div *ngIf="(SaleDetail.Headboard.Client!=null)">
+                      <div class="text-100 text-grey-m1 align-middle">
+                        Cliente :
+                      </div>
+
+                      <div class="text-600 text-110 text-primary mt-2">
+                        {{ SaleDetail.Headboard.Client.Person.Names }} {{ SaleDetail.Headboard.Client.Person.LastNames }}
+                      </div>
+
+                      <div class="text-dark-l1">
+                        <div class="my-1">
+                          N° Documento : {{ SaleDetail.Headboard.Client.Person.DocumentNum }}
+                        </div>
+                        <div class="my-1">
+                          <i class="fa fa-phone fa-flip-horizontal text-purple"></i> <b class="text-600">
+                            {{ SaleDetail.Headboard.Client.Person.CellPhone }}
+                          </b>
+                        </div>
+                      </div>
+                    </div>
+                  </div><!-- /.col -->
+
+
+                  <div class="col-sm-6 align-self-start d-sm-flex justify-content-end text-95">
+                    <hr class="d-sm-none">
+                    <div class="text-dark-l1">
+                      <div class="mt-1 mb-2 text-secondary-d1 text-600 text-125">
+                        Datos de venta
+                      </div>
+
+                      <div class="my-2">
+                        <i class="fa fa-circle text-blue-m2 text-xs mr-1"></i>
+                        <span class="text-600 text-90">
+                              ID:
+                          </span>
+                        {{ SaleDetail.Headboard.SaleCod }}
+                      </div>
+
+                      <div class="my-2">
+                        <i class="fa fa-circle text-blue-m2 text-xs mr-1"></i>
+                        <span class="text-600 text-90">
+                              Fecha operación:
+                          </span>
+                        {{ SaleDetail.Headboard.CreationDate | date: 'dd/MM/yyyy hh:mm:ss'}}
+                      </div>
+
+                      <div class="my-2">
+                        <i class="fa fa-circle text-blue-m2 text-xs mr-1"></i>
+                        <span class="text-600 text-90">
+                              Estado:
+                          </span>
+                        <span class="badge bgc-orange-d1 text-white badge-pill px-25">
+                              Pendiente
+                          </span>
+                      </div>
+                    </div>
+                  </div><!-- /.col -->
+                </div><!-- /.قخص -->
+
+
+                <div class="mt-4">
+                  <div class="row text-600 text-95 text-secondary-d3 brc-green-l1 py-25 border-y-2">
+
+                    <div class="d-none d-sm-block col-sm-3">
+                      Producto
+                    </div>
+
+                    <div class="d-none d-sm-block col-sm-1">
+                      Unid
+                    </div>
+
+                    <div class="d-none d-sm-block col-sm-2">
+                      Precio unitario
+                    </div>
+                    
+                    <div class="d-none d-sm-block col-sm-2">
+                      SubTotal
+                    </div>
+                    <div class="d-none d-sm-block col-sm-2">
+                        Descuento
+                      </div>
+                      <div class="d-none d-sm-block col-sm-2">
+                        Total
+                      </div>
+                  </div>
+
+                  <div class="text-95 text-dark-m3">
+                    <div class="row mb-2 mb-sm-0 py-25" [ngClass]="(indexOfelement + 1)%2 == 0 ? 'bgc-green-l4' : ''"
+                     *ngFor="let item of SaleDetail.DetailList,let indexOfelement=index;"
+                    >
+
+                      <div class="col-7 col-sm-3">
+                        {{ item.Product.ProductName }}
+                      </div>
+
+                      <div class="d-none d-sm-block col-1">
+                        {{ item.NumUnit }}
+                      </div>
+
+                      <div class="d-none d-sm-block col-2 text-95">
+                        {{ SaleDetail.Headboard.CurrencyCod + " " + item.NumUnitPriceSale }}
+                      </div>
+
+                      <div class="d-none d-sm-block col-2 text-95">
+                        {{ SaleDetail.Headboard.CurrencyCod + " " + item.NumTotalPrice }}
+                      </div>
+                      <div class="d-none d-sm-block col-2 text-95">
+                        {{ SaleDetail.Headboard.CurrencyCod + " " + item.NumTotalPrice }}
+                      </div>
+                      <div class="col-5 col-sm-2 text-secondary-d3 text-600">
+                        {{ SaleDetail.Headboard.CurrencyCod + " " + item.NumTotalPrice }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row border-b-2 brc-green-l1"></div>
+
+                  <div class="row mt-4">
+                    <div class="col-12 col-sm-7 mt-2 mt-lg-0">
+                      <div class="d-inline-block text-center">
+                        <p class="text-95 text-dark-m2">
+                          <i class="fa fa-exclamation-triangle text-danger-m2 mr-1"></i>
+                          Use one of the following methods
+                          <br>
+                          to make your payment
+                        </p>
+
+                        <div>
+                          <form autocomplete="off" class="p-2 p-sm-3 bgc-secondary-l4 radius-1 btn-group btn-group-toggle mx-n3 mx-sm-0" data-toggle="buttons">
+                            <div role="button" class="mr-1 p-3 border-2 btn btn-brc-tp shadow-sm btn-light btn-text-blue btn-h-lighter-blue btn-a-light-blue bgc-white active">
+                              <input type="radio" name="place" id="place1" value="1">
+                              <i class="fab fa-paypal d-block text-150 text-blue-d1 w-4 mx-2"></i>
+                            </div>
+
+                            <div role="button" class="mr-1 p-3 border-2 btn btn-brc-tp shadow-sm btn-text-purple btn-light btn-h-lighter-purple btn-a-light-purple bgc-white">
+                              <input type="radio" name="place" id="place2" value="1">
+                              <i class="far fa-credit-card d-block text-150 text-purple-d1 w-4 mx-2"></i>
+                            </div>
+
+                            <div role="button" class="p-3 border-2 btn btn-brc-tp shadow-sm btn-light btn-text-orange btn-h-lighter-orange btn-a-light-orange bgc-white">
+                              <input type="radio" name="place" id="place3" value="3">
+                              <i class="fab fa-bitcoin d-block text-150 text-orange-d3 w-4 mx-2"></i>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+
+                    <div class="col-12 col-sm-5 text-dark-l1 text-90 order-first order-sm-last">
+                      <div class="row my-2">
+                        <div class="col-7 text-right">
+                          SubTotal
+                        </div>
+
+                        <div class="col-5">
+                          <span class="text-125 text-secondary-d3">
+                            {{  SaleDetail.Headboard.CurrencyCod + " " +  SaleDetail.Headboard.NumTotalPriceNoTax  }}
+                              </span>
+                        </div>
+                      </div>
+
+                      <div class="row my-2">
+                        <div class="col-7 text-right">
+                          IGV (18%)
+                        </div>
+
+                        <div class="col-5">
+                          <span class="text-115 text-secondary-d3">
+                            {{  SaleDetail.Headboard.CurrencyCod + " " +  SaleDetail.Headboard.NumTotalTax  }}
+                              </span>
+                        </div>
+                      </div>
+
+                      <a class="row my-3 align-items-center bgc-green-d3 p-2 radius-1" href="#">
+                        <div class="col-7 text-right text-white text-110">
+                          Monto Total
+                        </div>
+
+                        <div class="col-5">
+                          <span class="text-150 text-white">
+                            {{  SaleDetail.Headboard.CurrencyCod + " " +  SaleDetail.Headboard.NumTotalPrice  }}
+                              </span>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+
+                  <hr class="brc-secondary-l3 border-t-2">
+
+                  <div class="text-center text-secondary-d3 text-105">
+                    Thank you for your business
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
