@@ -1,5 +1,5 @@
 <app-spinner></app-spinner>
-<div class="body-container" *ngIf="(ExisteSesion == true)">
+<div class="body-container" *ngIf="(getSession() == true)">
     <app-header></app-header>
 
     <div class="main-container bgc-white">
@@ -13,6 +13,6 @@
 
     </div>
 </div>
-<div class="body-container" *ngIf="(ExisteSesion == false)">
+<div class="body-container" *ngIf="(getSession() == false)">
     <router-outlet></router-outlet>
 </div>

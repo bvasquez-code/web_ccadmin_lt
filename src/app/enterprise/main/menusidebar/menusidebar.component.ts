@@ -3,6 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuPagina } from 'src/app/enterprise/menu/model/entity/MenuPagina';
 import { SubMenuPagina } from 'src/app/enterprise/menu/model/entity/SubMenuPagina';
+import { DataSesionService } from '../../compartido/service/datasesion.service';
 
 
 @Component({
@@ -12,12 +13,10 @@ import { SubMenuPagina } from 'src/app/enterprise/menu/model/entity/SubMenuPagin
 export class MenusidebarComponent implements OnInit {
 
   constructor(
-    @Inject(DOCUMENT) document: any
+    @Inject(DOCUMENT) document: any,
+    private dataSesionService : DataSesionService
   ) 
   { 
-    
-    
-
   }
   
 
@@ -33,22 +32,18 @@ export class MenusidebarComponent implements OnInit {
   {
     this.g_list_menu.push( this.getOptionDashboard() );
 
-    this.g_list_menu.push( this.getOptionsAdminSales() );
+    if(this.dataSesionService.PermissionExists("AT000000")) this.g_list_menu.push( this.getOptionsAdminSales() );
 
-    this.g_list_menu.push( this.getOptionSystem() );
+    if(this.dataSesionService.PermissionExists("SI000000")) this.g_list_menu.push( this.getOptionSystem() );
 
-    this.g_list_menu.push( this.getOptionsUser() );
+    if(this.dataSesionService.PermissionExists("US000000")) this.g_list_menu.push( this.getOptionsUser() );
 
-    this.g_list_menu.push( this.getOptionsSale() );
+    if(this.dataSesionService.PermissionExists("VT000000")) this.g_list_menu.push( this.getOptionsSale() );
+
+    if(this.dataSesionService.PermissionExists("PR000000")) this.g_list_menu.push( this.getOptionsProducts() );
+
+    if(this.dataSesionService.PermissionExists("CO000000")) this.g_list_menu.push( this.getOptionsPucharse() );
     
-
-    let l_MenuPagina3 : MenuPagina = new MenuPagina();
-    l_MenuPagina3.url = "#";
-    l_MenuPagina3.des_menu = "Productos";
-    l_MenuPagina3.icono = "nav-icon fa fa-cube";
-    this.g_list_menu.push( l_MenuPagina3 );
-
-
     let url = document.location.href;
     this.isOpenMenu = false;
 
@@ -65,6 +60,7 @@ export class MenusidebarComponent implements OnInit {
             submenu.flg_menu_activo = true;
             menu.flg_menu_activo = true;
             this.isOpenMenu = true;
+            console.log({ submenu : submenu });
         }
       }
     }
@@ -92,8 +88,8 @@ export class MenusidebarComponent implements OnInit {
     CreateUser.icono = "nav-icon fa fa-cube";
     CreateUser.IsVisible = false;
 
-    MainMenu.list_sub_menu.push(ListUser);
-    MainMenu.list_sub_menu.push(CreateUser);
+    if(this.dataSesionService.PermissionExists("US000001")) MainMenu.list_sub_menu.push(ListUser);
+    if(this.dataSesionService.PermissionExists("US000003")) MainMenu.list_sub_menu.push(CreateUser);
 
     //bandeja de perfiles
     let ListProfile : SubMenuPagina = new SubMenuPagina();
@@ -109,8 +105,8 @@ export class MenusidebarComponent implements OnInit {
     CreateProfile.icono = "nav-icon fa fa-cube";
     CreateProfile.IsVisible = false;
 
-    MainMenu.list_sub_menu.push(ListProfile);
-    MainMenu.list_sub_menu.push(CreateProfile);
+    if(this.dataSesionService.PermissionExists("US000002")) MainMenu.list_sub_menu.push(ListProfile);
+    if(this.dataSesionService.PermissionExists("US000004")) MainMenu.list_sub_menu.push(CreateProfile);
 
     return MainMenu;
   }
@@ -136,8 +132,8 @@ export class MenusidebarComponent implements OnInit {
     CreateMenu.icono = "nav-icon fa fa-cube";
     CreateMenu.IsVisible = false;
 
-    MainMenu.list_sub_menu.push(ListMenu);
-    MainMenu.list_sub_menu.push(CreateMenu);
+    if(this.dataSesionService.PermissionExists("SI000001")) MainMenu.list_sub_menu.push(ListMenu);
+    if(this.dataSesionService.PermissionExists("SI000002")) MainMenu.list_sub_menu.push(CreateMenu);
 
     return MainMenu;
   }
@@ -186,12 +182,42 @@ export class MenusidebarComponent implements OnInit {
     CreateSale.icono = "nav-icon fa fa-cube";
     CreateSale.IsVisible = false;
 
+    let ListCreditNote : SubMenuPagina = new SubMenuPagina();
+    ListCreditNote.url = "enterprise/sale/pages/listcreditnote";
+    ListCreditNote.url_position = "enterprise/sale/pages/listcreditnote";
+    ListCreditNote.des_menu = "Nota de credito";
+    ListCreditNote.icono = "nav-icon fa fa-cube";
 
-    MainMenu.list_sub_menu.push(CreatePresale);
-    MainMenu.list_sub_menu.push(ListPresale);
-    MainMenu.list_sub_menu.push(ListSale);
-    MainMenu.list_sub_menu.push(CreateSale);
+    let CreateCreditNote : SubMenuPagina = new SubMenuPagina();
+    CreateCreditNote.url = "enterprise/sale/pages/createcreditnote";
+    CreateCreditNote.url_position = "enterprise/sale/pages/createcreditnote";
+    CreateCreditNote.des_menu = "Crear nota de credito";
+    CreateCreditNote.icono = "nav-icon fa fa-cube";
+    CreateCreditNote.IsVisible = false;
 
+    let ReturnStockCreditnote : SubMenuPagina = new SubMenuPagina();
+    ReturnStockCreditnote.url = "enterprise/sale/pages/returnstockcreditnote";
+    ReturnStockCreditnote.url_position = "enterprise/sale/pages/returnstockcreditnote";
+    ReturnStockCreditnote.des_menu = "Crear nota de credito";
+    ReturnStockCreditnote.icono = "nav-icon fa fa-cube";
+    ReturnStockCreditnote.IsVisible = false;
+
+    let ViewCreditNote : SubMenuPagina = new SubMenuPagina();
+    ViewCreditNote.url = "enterprise/sale/pages/viewcreditnote";
+    ViewCreditNote.url_position = "enterprise/sale/pages/viewcreditnote";
+    ViewCreditNote.des_menu = "Ver nota de crédito";
+    ViewCreditNote.icono = "nav-icon fa fa-cube";
+    ViewCreditNote.IsVisible = false;
+
+
+    if(this.dataSesionService.PermissionExists("VT000004")) MainMenu.list_sub_menu.push(CreatePresale);
+    if(this.dataSesionService.PermissionExists("VT000002")) MainMenu.list_sub_menu.push(ListPresale);
+    if(this.dataSesionService.PermissionExists("VT000003")) MainMenu.list_sub_menu.push(ListSale);
+    if(this.dataSesionService.PermissionExists("VT000005")) MainMenu.list_sub_menu.push(CreateSale);
+    if(this.dataSesionService.PermissionExists("VT000003")) MainMenu.list_sub_menu.push(ListCreditNote);
+    if(this.dataSesionService.PermissionExists("VT000005")) MainMenu.list_sub_menu.push(CreateCreditNote);
+    if(this.dataSesionService.PermissionExists("VT000005")) MainMenu.list_sub_menu.push(ReturnStockCreditnote);
+    if(this.dataSesionService.PermissionExists("VT000005")) MainMenu.list_sub_menu.push(ViewCreditNote);
 
     return MainMenu;
   }
@@ -217,8 +243,120 @@ export class MenusidebarComponent implements OnInit {
     CreateClient.icono = "nav-icon fa fa-cube";
     CreateClient.IsVisible = false;
 
-    MainMenu.list_sub_menu.push(ListClient);
-    MainMenu.list_sub_menu.push(CreateClient);
+    if(this.dataSesionService.PermissionExists("AT000001")) MainMenu.list_sub_menu.push(ListClient);
+    if(this.dataSesionService.PermissionExists("AT000002")) MainMenu.list_sub_menu.push(CreateClient);
+
+    return MainMenu;
+  }
+
+  getOptionsProducts():MenuPagina
+  {
+    let MainMenu : MenuPagina = new MenuPagina();
+
+    MainMenu.url = "#";
+    MainMenu.des_menu = "Productos";
+    MainMenu.icono = "nav-icon fa fa-cube";
+
+    let ListProduct : SubMenuPagina = new SubMenuPagina();
+    ListProduct.url = "enterprise/product/pages/listProduct";
+    ListProduct.url_position = "enterprise/product/pages/listProduct";
+    ListProduct.des_menu = "Bandeja de Productos";
+    ListProduct.icono = "nav-icon fa fa-cube";
+
+    let CreateProduct : SubMenuPagina = new SubMenuPagina();
+    CreateProduct.url = "enterprise/product/pages/createProduct";
+    CreateProduct.url_position = "enterprise/product/pages/createProduct";
+    CreateProduct.des_menu = "Creación de Productos";
+    CreateProduct.icono = "nav-icon fa fa-cube";
+    CreateProduct.IsVisible = false;
+
+    if(this.dataSesionService.PermissionExists("PR000001")) MainMenu.list_sub_menu.push(ListProduct);
+    if(this.dataSesionService.PermissionExists("PR000005")) MainMenu.list_sub_menu.push(CreateProduct);
+
+
+    let ListBrand : SubMenuPagina = new SubMenuPagina();
+    ListBrand.url = "enterprise/product/pages/listBrand";
+    ListBrand.url_position = "enterprise/product/pages/listBrand";
+    ListBrand.des_menu = "Bandeja de Marcas";
+    ListBrand.icono = "nav-icon fa fa-cube";
+
+    let CreateBrand : SubMenuPagina = new SubMenuPagina();
+    CreateBrand.url = "enterprise/product/pages/createBrand";
+    CreateBrand.url_position = "enterprise/product/pages/createBrand";
+    CreateBrand.des_menu = "Creación de Marcas";
+    CreateBrand.icono = "nav-icon fa fa-cube";
+    CreateBrand.IsVisible = false;
+
+    if(this.dataSesionService.PermissionExists("PR000002")) MainMenu.list_sub_menu.push(ListBrand);
+    if(this.dataSesionService.PermissionExists("PR000006")) MainMenu.list_sub_menu.push(CreateBrand);
+
+
+    let ListCategory : SubMenuPagina = new SubMenuPagina();
+    ListCategory.url = "enterprise/product/pages/listCategory";
+    ListCategory.url_position = "enterprise/product/pages/listCategory";
+    ListCategory.des_menu = "Bandeja de Categorias";
+    ListCategory.icono = "nav-icon fa fa-cube";
+
+    let CreateCategory : SubMenuPagina = new SubMenuPagina();
+    CreateCategory.url = "enterprise/product/pages/createCategory";
+    CreateCategory.url_position = "enterprise/product/pages/createCategory";
+    CreateCategory.des_menu = "Creación de categorias";
+    CreateCategory.icono = "nav-icon fa fa-cube";
+    CreateCategory.IsVisible = false;
+
+    if(this.dataSesionService.PermissionExists("PR000003")) MainMenu.list_sub_menu.push(ListCategory);
+    if(this.dataSesionService.PermissionExists("PR000007")) MainMenu.list_sub_menu.push(CreateCategory);
+
+
+    let ListKardex : SubMenuPagina = new SubMenuPagina();
+    ListKardex.url = "enterprise/product/pages/listkardex";
+    ListKardex.url_position = "enterprise/product/pages/listkardex";
+    ListKardex.des_menu = "Kardex";
+    ListKardex.icono = "nav-icon fa fa-cube";
+
+    if(this.dataSesionService.PermissionExists("PR000004")) MainMenu.list_sub_menu.push(ListKardex);
+
+    return MainMenu;
+  }
+
+  getOptionsPucharse(): MenuPagina
+  {
+    let MainMenu : MenuPagina = new MenuPagina();
+
+    MainMenu.url = "#";
+    MainMenu.des_menu = "Compras";
+    MainMenu.icono = "nav-icon fa fa-cube";
+
+    let ListPucharse : SubMenuPagina = new SubMenuPagina();
+    ListPucharse.url = "enterprise/pucharse/pages/listpucharse";
+    ListPucharse.url_position = "enterprise/pucharse/pages/listpucharse";
+    ListPucharse.des_menu = "Bandeja de compras";
+    ListPucharse.icono = "nav-icon fa fa-cube";
+
+    let CreatePucharse : SubMenuPagina = new SubMenuPagina();
+    CreatePucharse.url = "enterprise/pucharse/pages/createpucharse";
+    CreatePucharse.url_position = "enterprise/pucharse/pages/createpucharse";
+    CreatePucharse.des_menu = "Solicitud de compra";
+    CreatePucharse.icono = "nav-icon fa fa-cube";
+    CreatePucharse.IsVisible = false;
+
+    let Confirmpucharse : SubMenuPagina = new SubMenuPagina();
+    Confirmpucharse.url = "enterprise/pucharse/pages/confirmpucharse";
+    Confirmpucharse.url_position = "enterprise/pucharse/pages/confirmpucharse";
+    Confirmpucharse.des_menu = "Solicitud de compra";
+    Confirmpucharse.icono = "nav-icon fa fa-cube";
+    Confirmpucharse.IsVisible = false;
+
+    let Listreception : SubMenuPagina = new SubMenuPagina();
+    Listreception.url = "enterprise/pucharse/pages/listreception";
+    Listreception.url_position = "enterprise/pucharse/pages/listreception";
+    Listreception.des_menu = "Recepción de compras";
+    Listreception.icono = "nav-icon fa fa-cube";
+
+    if(this.dataSesionService.PermissionExists("CO000001")) MainMenu.list_sub_menu.push(ListPucharse);
+    if(this.dataSesionService.PermissionExists("CO000003")) MainMenu.list_sub_menu.push(CreatePucharse);
+    if(this.dataSesionService.PermissionExists("CO000002")) MainMenu.list_sub_menu.push(Listreception);
+    if(this.dataSesionService.PermissionExists("CO000004")) MainMenu.list_sub_menu.push(Confirmpucharse);
 
     return MainMenu;
   }

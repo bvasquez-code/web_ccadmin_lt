@@ -1,6 +1,6 @@
 import { ResponsePageSearch } from "../../shared/model/dto/ResponsePageSearch";
 
-export class RespuestaPaginacionDto{
+export class RespuestaPaginacionDto<T>{
 
     public listaResultado : any[] = [];
     public num_resultados : number = 0;
@@ -16,7 +16,7 @@ export class RespuestaPaginacionDto{
 
     }
 
-    addResultPage( responsePage : ResponsePageSearch)
+    addResultPage( responsePage : ResponsePageSearch<T>)
     {
         this.listaResultado = responsePage.resultSearch;
         this.num_resultados = responsePage.TotalResult;

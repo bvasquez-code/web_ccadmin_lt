@@ -1016,14 +1016,13 @@
                 
                 <a *ngFor="let sub_menu of menu.list_sub_menu">
                   <li class="nav-item" *ngIf="( sub_menu.IsVisible === true )">
-                    <a href="{{ sub_menu.url }}" class="nav-link">
+                    <a href="{{ sub_menu.url }}" class="nav-link" [ngStyle]="{ 'background': sub_menu.flg_menu_activo ? '#eff5ef' : '' }">
                       <span class="nav-text">
                         <span>{{ sub_menu.des_menu }}</span>
                       </span>
                     </a>
                   </li>
                 </a>
-
 
               </ul>
 
@@ -1037,10 +1036,9 @@
       </div><!-- /.sidebar scroll -->
 
 
-      <div class="sidebar-section">
+      <!-- <div class="sidebar-section">
         <div class="sidebar-section-item fadeable-bottom">
           <div class="fadeinable">
-            <!-- shows this when collapsed -->
             <div class="pos-rel">
               <img alt="Alexa's Photo" src="assets/image/avatar/avatar3.jpg" width="42"
                 class="px-1px radius-round mx-2 border-2 brc-default-m2">
@@ -1049,7 +1047,6 @@
           </div>
 
           <div class="fadeable hideable w-100 bg-transparent shadow-none border-0">
-            <!-- shows this when full-width -->
             <div id="sidebar-footer-bg"
               class="d-flex align-items-center bgc-white shadow-sm mx-2 mt-2px py-2 radius-t-1 border-x-1 border-t-2 brc-primary-m3">
               <div class="d-flex mr-auto py-1">
@@ -1081,7 +1078,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
     </div>
   </div>

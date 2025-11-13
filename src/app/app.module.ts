@@ -22,7 +22,6 @@ import { CreatemenuComponent } from './enterprise/menu/pages/createmenu/createme
 import { ListmenuComponent } from './enterprise/menu/pages/listmenu/listmenu.component';
 import { TableComponent } from './enterprise/shared/component/table/table.component';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ModalconfirmComponent } from './enterprise/shared/component/modalconfirm/modalconfirm.component';
 import { ListuserComponent } from './enterprise/user/pages/listuser/listuser.component';
 import { CreateuserComponent } from './enterprise/user/pages/createuser/createuser.component';
 import { ListprofileComponent } from './enterprise/user/pages/listprofile/listprofile.component';
@@ -38,6 +37,26 @@ import { CreateclientComponent } from './enterprise/client/pages/createclient/cr
 import { ModalalertComponent } from './enterprise/shared/component/modalalert/modalalert.component';
 import { ModalsearchclientComponent } from './enterprise/client/pages/modalsearchclient/modalsearchclient.component';
 import { ListpresaleComponent } from './enterprise/sale/pages/listpresale/listpresale.component';
+import { ListbrandComponent } from './enterprise/product/pages/listbrand/listbrand.component';
+import { CreatebrandComponent } from './enterprise/product/pages/createbrand/createbrand.component';
+import { CreatecategoryComponent } from './enterprise/product/pages/createcategory/createcategory.component';
+import { ListcategoryComponent } from './enterprise/product/pages/listcategory/listcategory.component';
+import { CreatepucharseComponent } from './enterprise/pucharse/pages/createpucharse/createpucharse.component';
+import { ListpucharseComponent } from './enterprise/pucharse/pages/listpucharse/listpucharse.component';
+import { FormatoMonedaPeruanaPipe } from './enterprise/shared/pipe/FormatoMonedaPeruana.pipe';
+import { ModalconfirmComponent } from './enterprise/shared/component/modalconfirm/modalconfirm.component';
+import { ConfirmpucharseComponent } from './enterprise/pucharse/pages/confirmpucharse/confirmpucharse.component';
+import { ListreceptionComponent } from './enterprise/pucharse/pages/listreception/listreception.component';
+import { CreatetrxpaymentComponent } from './enterprise/trxpayment/pages/createtrxpayment/createtrxpayment.component';
+import { ListsaleComponent } from './enterprise/sale/pages/listsale/listsale.component';
+import { ListkardexComponent } from './enterprise/product/pages/listkardex/listkardex.component';
+import { AppfileComponent } from './enterprise/system/pages/appfile/appfile.component';
+import { ListcreditnoteComponent } from './enterprise/sale/pages/listcreditnote/listcreditnote.component';
+import { CreatecreditnoteComponent } from './enterprise/sale/pages/createcreditnote/createcreditnote.component';
+import { ReturnstockcreditnoteComponent } from './enterprise/sale/pages/returnstockcreditnote/returnstockcreditnote.component';
+import { SaleStatusPipePipe } from './enterprise/sale/model/pipes/SaleStatusPipe.pipe';
+import { ProductinfosalemodalComponent } from './enterprise/sale/modal/productinfosalemodal/productinfosalemodal.component';
+import { ViewcreditnoteComponent } from './enterprise/sale/pages/viewcreditnote/viewcreditnote.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +77,6 @@ import { ListpresaleComponent } from './enterprise/sale/pages/listpresale/listpr
     CreatemenuComponent,
     ListmenuComponent,
     TableComponent,
-    ModalconfirmComponent,
     ListuserComponent,
     CreateuserComponent,
     ListprofileComponent,
@@ -69,7 +87,27 @@ import { ListpresaleComponent } from './enterprise/sale/pages/listpresale/listpr
     CreateclientComponent,
     ModalalertComponent,
     ModalsearchclientComponent,
-    ListpresaleComponent
+    ListpresaleComponent,
+    ListbrandComponent,
+    CreatebrandComponent,
+    CreatecategoryComponent,
+    ListcategoryComponent,
+    CreatepucharseComponent,
+    ListpucharseComponent,
+    FormatoMonedaPeruanaPipe,
+    ModalconfirmComponent,
+    ConfirmpucharseComponent,
+    ListreceptionComponent,
+    CreatetrxpaymentComponent,
+    ListsaleComponent,
+    ListkardexComponent,
+    AppfileComponent,
+    ListcreditnoteComponent,
+    CreatecreditnoteComponent,
+    ReturnstockcreditnoteComponent,
+    SaleStatusPipePipe,
+    ProductinfosalemodalComponent,
+    ViewcreditnoteComponent
   ],
   imports: [
     BrowserModule,

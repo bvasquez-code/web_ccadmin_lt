@@ -25,15 +25,18 @@
               <tr class="bgc-h-yellow-l4 d-style" *ngFor="let item of Data.DataTable.data.resultSearch">
 
                 <td *ngFor="let Headers of Data.Headers">
-                  <div *ngIf="(Headers.key && !Headers.IsDate && !Headers.IsStatus)">
-                    {{ item[Headers.key] }}
+                  <div *ngIf="(Headers.key && !Headers.IsDate && !Headers.IsStatus && !Headers.IsMoney)">
+                    {{ getValue(item,Headers.key,Headers.FunctionKey) }}
                   </div>
                   <div *ngIf="(Headers.key && Headers.IsDate === true)">
-                    {{ item[Headers.key] | date:'yyyy-MM-dd HH:mm:ss'}}
+                    {{ getValue(item,Headers.key,Headers.FunctionKey) | date:'yyyy-MM-dd HH:mm:ss'}}
+                  </div>
+                  <div *ngIf="(Headers.key && Headers.IsMoney === true)">
+                    {{ getValue(item,Headers.key,Headers.FunctionKey) | FormatoMonedaPeruana : true }}
                   </div>
                   <div *ngIf="(Headers.key && Headers.IsStatus === true)">
-                    <span [ngClass]="Headers.IsStatus === true ? Headers.Html[item[Headers.key]] : ''">
-                      {{ item[Headers.key] }}
+                    <span [ngClass]="Headers.IsStatus === true ? Headers.Html[getValue(item,Headers.key,Headers.FunctionKey)] : ''">
+                      {{  (Headers.Mask) ? Headers.Mask[getValue(item,Headers.key,Headers.FunctionKey)] : getValue(item,Headers.key,Headers.FunctionKey) }}
                     </span>
                   </div>
                   <div *ngIf="(Headers.ColumnAction === true)">
@@ -41,23 +44,19 @@
                     <div class="d-none d-lg-flex">
                       <a *ngFor="let option of Headers.Options">
 
-                        <a *ngIf="(option.Type === 'Url')" href="{{ generateUrl(option,item,Headers) }}"
+                        <a *ngIf="(option.Type === 'Url' && showOption(option,item))" href="{{ generateUrl(option,item,Headers) }}"
                           class="mx-2px btn radius-1 border-2 btn-xs btn-brc-tp btn-light-secondary btn-h-lighter-success btn-a-lighter-success"
                           (click)="getDataRow(item)"
                         >
-                          <i class="fa fa-pencil-alt" *ngIf="(option.Name === 'Editar')"></i>
-                          <i class="fa fa-trash-alt" *ngIf="(option.Name === 'Eliminar')"></i>
-                          <i class="fa fa-check" *ngIf="(option.Name === 'Activar')"></i>
+                          <i [ngClass]="option.Name === '' ? '' : option.Name"></i>
                         </a>
 
-                        <a *ngIf="(option.Type === 'Modal')" href="#" data-toggle="modal"
-                          [attr.data-target]="'#'+option.Name"
+                        <a *ngIf="(option.Type === 'Modal' && showOption(option,item))" href="#" data-toggle="modal"
+                          [attr.data-target]="'#'+option.ID"
                           class="mx-2px btn radius-1 border-2 btn-xs btn-brc-tp btn-light-secondary btn-h-lighter-success btn-a-lighter-success"
                           (click)="getDataRow(item)"
                         >
-                          <i class="fa fa-pencil-alt" *ngIf="(option.Name === 'Editar')"></i>
-                          <i class="fa fa-trash-alt" *ngIf="(option.Name === 'Eliminar')"></i>
-                          <i class="fa fa-check" *ngIf="(option.Name === 'Activar')"></i>
+                          <i [ngClass]="option.Name === '' ? '' : option.Name"></i>
                         </a>
 
                       </a>
@@ -98,10 +97,10 @@
                      [ngClass]="Item.IsCurrent === true ? 'page-item active' : 'page-item'"
                       *ngIf="(Item.NameButton !== 'Next' && Item.NameButton !== 'Prev')"
                     >
-                      <a class="page-link" aria-label="to page 2" href="javascript:void(0)" 
+                      <button class="page-link" aria-label="to page 2" href="javascript:void(0)" [disabled]="(Item.NameButton=='...')"
                         (click)="findResultPage(Item.ValueButton)">
-                        {{ Item.ValueButton }}
-                      </a>
+                        {{ Item.NameButton }}
+                      </button>
                     </li>
 
                     <li

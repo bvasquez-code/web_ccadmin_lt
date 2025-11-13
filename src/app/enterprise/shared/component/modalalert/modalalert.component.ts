@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-// import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from '../../service/ModalService';
 
 @Component({
   selector: 'app-modalalert',
@@ -7,17 +7,10 @@ import { Component } from '@angular/core';
 })
 export class ModalalertComponent {
 
-  // @Input() title: string = "";
-  // @Input() message: string = "";
+  constructor(public modalService: ModalService) { }
 
-  // constructor(public activeModal: NgbActiveModal) {}
-
-  // confirm() {
-  //   this.activeModal.close(true);
-  // }
-
-  // dismiss() {
-  //   this.activeModal.dismiss(false);
-  // }
+  confirmAction(){
+    
+  }
   
 }

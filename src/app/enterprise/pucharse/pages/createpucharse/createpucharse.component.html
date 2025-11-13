@@ -1,0 +1,316 @@
+<div role="main" class="main-content">
+
+    <div class="page-content container container-plus">
+        <div class="card acard mt-2 mt-lg-3">
+            <div class="card-header">
+                <h3 class="card-title text-125 text-primary-d2">
+                    <i class="far fa-edit text-dark-l3 mr-1"></i>
+                    Registrar Producto
+                </h3>
+            </div>
+
+            <div class="card-body px-3 pb-1">
+                <form class="mt-lg-3" autocomplete="off">
+
+                    <div class="form-group row">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                RUC DISTRIBUIDOR
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtDealerCod>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                OPERCIÓN REFERENCIA
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtExternalCod>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                COMENTATARIO
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtCommenter>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                Monto total
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input 
+                                  type="number" 
+                                  class="form-control col-sm-8 col-md-6" 
+                                  value="{{ pucharseRequestRegister.Headboard.NumTotalPrice }}"
+                                  readonly
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-5">
+                            <div class="card dcard">
+                                <div class="card-body px-1 px-md-3">
+              
+                                  <form autocomplete="off">
+                                    <div class="d-flex justify-content-between flex-column flex-sm-row mb-3 px-2 px-sm-0">              
+                                      <div class="pos-rel ml-sm-auto mr-sm-2 order-last order-sm-0">
+                                        <i class="fa fa-search position-lc ml-25 text-primary-m1"></i>
+                                        <input  type="text" 
+                                                class="form-control w-100 pl-45 radius-1 brc-primary-m4" 
+                                                placeholder="Search ..."
+                                                #txtSearch
+                                        >
+                                      </div>
+              
+                                      <div class="mb-2 mb-sm-0">
+                                        <button type="button" 
+                                                class="btn btn-blue px-3 d-block w-100 text-95 radius-round border-2 brc-black-tp10"
+                                                (click)="FindAllProduct(1)"
+                                        >
+                                          <i class="fa fa-plus mr-1"></i>
+                                         Buscar
+                                        </button>
+                                      </div>
+                                    </div>
+              
+                                    <table id="simple-table" class="mb-0 table table-borderless table-bordered-x brc-secondary-l3 text-dark-m2 radius-1 overflow-hidden">
+                                      <thead class="text-dark-tp3 bgc-grey-l4 text-90 border-b-1 brc-transparent">
+                                        <tr>           
+                                          <th>
+                                            Codigo
+                                          </th>
+              
+                                          <th>
+                                            Descripción
+                                          </th>
+                                          <th></th>                                             
+                                        </tr>
+                                      </thead>
+              
+                                      <tbody class="mt-1">
+                                        <tr class="bgc-h-yellow-l4 d-style" *ngFor="let item of productList">            
+                                          <td class="text-600">
+                                            {{ item.ProductCod }}
+                                          </td>
+                                          <td>
+                                            {{ item.ProductName }}
+                                          </td>
+                                          <td>
+                                            <button type="button" 
+                                                class="btn btn-blue px-3 d-block w-100 text-95 radius-round border-2 brc-black-tp10"
+                                                data-toggle="modal" 
+                                                data-target="#PucharseModal"
+                                                (click)="selectProduct(item)"
+                                            >
+                                              <i class="fa fa-plus mr-1"></i>                                     
+                                            </button>
+                                          </td>   
+                                        </tr>       
+                                      </tbody>
+                                    </table>
+              
+                                    <!-- table footer -->
+                                    <div class="d-flex pl-4 pr-3 pt-35 border-t-1 brc-secondary-l3 flex-column flex-sm-row mt-n1px">           
+                                      <div class="btn-group ml-sm-auto mt-3 mt-sm-0">
+                                        <a  href="#" 
+                                            class="btn btn-lighter-default btn-bgc-white btn-a-secondary radius-l-1 px-3 border-2"
+                                            (click)="FindAllProductNext(-1)"
+                                        >
+                                          <i class="fa fa-caret-left mr-1"></i>
+                                          Prev
+                                        </a>
+                                        <a  href="#" 
+                                            class="btn btn-lighter-default btn-bgc-white btn-a-secondary radius-r-1 px-3 border-2 ml-n2px"
+                                            (click)="FindAllProductNext(+1)"
+                                        >
+                                          Next
+                                          <i class="fa fa-caret-right ml-1"></i>
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </form>
+              
+                                </div><!-- /.card-body -->
+                              </div>
+                        </div>
+
+                        <div class="col-sm-7">
+                          <div class="card dcard">
+                              <div class="card-body px-1 px-md-3">
+            
+                                <form autocomplete="off">            
+                                  <table id="simple-table" class="mb-0 table table-borderless table-bordered-x brc-secondary-l3 text-dark-m2 radius-1 overflow-hidden">
+                                    <thead class="text-dark-tp3 bgc-grey-l4 text-90 border-b-1 brc-transparent">
+                                      <tr>           
+                                        <th>
+                                          Codigo
+                                        </th>            
+                                        <th>
+                                          Descripción
+                                        </th>
+                                        <th>
+                                          Cantidad
+                                        </th>
+                                        <th>
+                                          Precio
+                                        </th>
+                                        <th>
+                                          Total
+                                        </th>
+                                        <th></th>                                             
+                                      </tr>
+                                    </thead>
+            
+                                    <tbody class="mt-1">
+                                      <tr class="bgc-h-yellow-l4 d-style" *ngFor="let item of pucharseRequestRegister.DetailList">            
+                                        <td class="text-600">
+                                          {{ item.ProductCod }}
+                                        </td>
+                                        <td class="text-800">
+                                         {{ item.Product.ProductName }}
+                                        </td>
+                                        <td class="text-800">
+                                          {{ item.NumUnit }}
+                                         </td>
+                                         <td class="text-800">
+                                          {{ item.NumUnitPrice | FormatoMonedaPeruana : false }}
+                                         </td>
+                                         <td class="text-800">
+                                          {{ item.NumTotalPrice | FormatoMonedaPeruana : false }}
+                                         </td>
+                                         <td>
+                                          <button type="button" 
+                                              class="btn btn-blue px-3 d-block w-100 text-95 radius-round border-2 brc-black-tp10"
+                                              data-toggle="modal" 
+                                              data-target="#PucharseModal"
+                                              (click)="selectProduct(item.Product)"
+                                          >
+                                            <i class="fa fa-plus mr-1"></i>                                     
+                                          </button>
+                                        </td>  
+                                      </tr>       
+                                    </tbody>
+                                  </table>
+            
+                                  <!-- table footer -->
+                                  <div class="d-flex pl-4 pr-3 pt-35 border-t-1 brc-secondary-l3 flex-column flex-sm-row mt-n1px">           
+                                    <div class="btn-group ml-sm-auto mt-3 mt-sm-0">
+                                      <a  href="#" 
+                                          class="btn btn-lighter-default btn-bgc-white btn-a-secondary radius-l-1 px-3 border-2"
+                                          (click)="FindAllProductNext(-1)"
+                                      >
+                                        <i class="fa fa-caret-left mr-1"></i>
+                                        Prev
+                                      </a>
+                                      <a  href="#" 
+                                          class="btn btn-lighter-default btn-bgc-white btn-a-secondary radius-r-1 px-3 border-2 ml-n2px"
+                                          (click)="FindAllProductNext(+1)"
+                                      >
+                                        Next
+                                        <i class="fa fa-caret-right ml-1"></i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                </form>
+            
+                              </div><!-- /.card-body -->
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <div class="mt-5 border-t-1 bgc-secondary-l4 brc-secondary-l2 py-35 mx-n25">
+                        <div class="offset-md-3 col-md-9 text-nowrap">
+                            <a 
+                                class="btn btn-info btn-bold px-4" 
+                                type="button"
+                                (click)="Save()"
+                            >
+                                <i class="fa fa-check mr-1"></i>
+                                Guardar
+                            </a>
+
+                            <a class="btn btn-outline-lightgrey btn-bgc-white btn-bold ml-2 px-4" 
+                                type="reset"
+                                href="/enterprise/pucharse/pages/listpucharse"
+                            >
+                                <i class="fa fa-undo mr-1"></i>
+                                Volver
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+
+  <div class="modal fade" id="PucharseModal" data-backdrop-bg="bgc-grey-tp4" data-blur="true" tabindex="-1"
+      role="dialog" aria-labelledby="PucharseModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content border-0 shadow radius-1">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary-d2" id="PucharseModal">
+          Realizar venta
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form class="mt-lg-3" autocomplete="off">
+        <div class="form-group row">
+          <div class="col-sm-3 col-form-label text-sm-right pr-0">
+              <label for="id-form-field-1" class="mb-0">
+                  Cantidad
+              </label>
+          </div>
+          <div class="col-sm-9">
+              <input type="number" class="form-control col-sm-8" #txtNumUnit>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-3 col-form-label text-sm-right pr-0">
+              <label for="id-form-field-1" class="mb-0">
+                  Precio
+              </label>
+          </div>
+          <div class="col-sm-9">
+              <input type="number" class="form-control col-sm-8" #txtNumUnitPrice>
+          </div>
+        </div>
+      </form>
+
+      <div class="modal-footer bgc-default-l5">
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="AddProduct(productSelect)"
+          data-dismiss="modal"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

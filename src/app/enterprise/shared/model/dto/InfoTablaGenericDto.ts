@@ -1,7 +1,7 @@
 import { ResponsePageSearch } from "./ResponsePageSearch";
 
-export class InfoTablaGenericDto
+export class InfoTablaGenericDto <T>
 {
     public keys? : string[] = [];
-    public data : ResponsePageSearch = new ResponsePageSearch();
+    public data : ResponsePageSearch<T> = new ResponsePageSearch();
 }

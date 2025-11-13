@@ -9,7 +9,9 @@ export const environment = {
   urlWSPortal: 'http://dev.projectmanagerws.solucionesfps.pe',
   urlDefault: 'https://portal.farmaciasperuanas.pe/login',
   settings: {
-    backend: "http://localhost:9000"
+    // backend: "http://192.168.100.10:8090"
+    backend: "http://localhost:8090"
+    // backend: 'http://backend-app-ccadmin:9001/api'
   }
 };
 

@@ -1,3 +1,5 @@
+import { AppMenuEntity } from "../../menu/model/entity/AppMenuEntity";
+
 export class SessionStorageDto{
 
     public token : string = "";
@@ -15,6 +17,7 @@ export class SessionStorageDto{
     public Names : string = "";
     public SessionID : number = 0;
     public StoreCod : string = "";
+    public AppMenuPermissions : AppMenuEntity[] = [];
 
     constructor()
     {

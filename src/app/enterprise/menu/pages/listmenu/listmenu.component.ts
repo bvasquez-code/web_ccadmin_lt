@@ -7,18 +7,19 @@ import { AppMenuService } from '../../service/appmenu.service';
 import { ActionTableService } from 'src/app/enterprise/shared/interface/ActionTableService';
 import { AppMenuEntity } from '../../model/entity/AppMenuEntity';
 import { ActionModalConfirmService } from 'src/app/enterprise/shared/interface/ActionModalConfirmService';
+import { ModalService } from 'src/app/enterprise/shared/service/ModalService';
 
 @Component({
   selector: 'app-listmenu',
   templateUrl: './listmenu.component.html'
 })
-export class ListmenuComponent implements OnInit,ActionTableService,ActionModalConfirmService {
+export class ListmenuComponent implements OnInit,ActionTableService<AppMenuEntity>,ActionModalConfirmService {
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
   
-  responsePageSearch : ResponsePageSearch = new ResponsePageSearch();
+  responsePageSearch : ResponsePageSearch<AppMenuEntity> = new ResponsePageSearch();
 
-  dataTablaGenetic : DataTablaGeneticDto = new DataTablaGeneticDto();
+  dataTablaGenetic : DataTablaGeneticDto<AppMenuEntity> = new DataTablaGeneticDto();
 
   AppMenuSelectionClick : AppMenuEntity = new AppMenuEntity();
   
@@ -45,9 +46,9 @@ export class ListmenuComponent implements OnInit,ActionTableService,ActionModalC
     this.findAll(Page,Query);
   }
 
-  loadingTable(responsePageSearch : ResponsePageSearch)
+  loadingTable(responsePageSearch : ResponsePageSearch<AppMenuEntity>)
   {
-      const data : DataTablaGeneticDto = new DataTablaGeneticDto();
+      const data : DataTablaGeneticDto<AppMenuEntity> = new DataTablaGeneticDto();
       data.init(
         [
           { Name :  "Codigo" , key : "MenuCod" } ,
@@ -65,9 +66,9 @@ export class ListmenuComponent implements OnInit,ActionTableService,ActionModalC
             ColumnAction : true , 
             Id : ["MenuCod"] , 
             Options : [
-              { Type : "Url" , Name : "Editar" , Url : "/enterprise/menu/pages/createmenu?MenuCod={MenuCod}" },
-              { Type : "Modal" , Name : "Eliminar" , Url : "#" },
-              { Type : "Modal" , Name : "Activar" , Url : "#" }
+              { Type : "Url" , Name : "fa fa-pencil-alt" , Url : "/enterprise/menu/pages/createmenu?MenuCod={MenuCod}" },
+              { Type : "Url" , Name : "fa fa-trash-alt" , Url : "#" },
+              { Type : "Url" , Name : "fa fa-check" , Url : "#" }
             ] 
           }
         ],

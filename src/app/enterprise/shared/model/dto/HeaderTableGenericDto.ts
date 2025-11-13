@@ -10,9 +10,14 @@ export class HeaderTableGenericDto
     public IsDate? : boolean = false;
     public Options? :OptionTableGenericDto[] = [];
     public Html? : any;
+    public Mask? : any = "";
+    public IsMoney? : boolean = false;
+    public FunctionKey?: (...args: any[]) => any;
 
     public constructor()
     {
 
     }
+
+
 }

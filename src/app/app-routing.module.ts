@@ -15,6 +15,24 @@ import { CreatesaleComponent } from './enterprise/sale/pages/createsale/createsa
 import { ListclientComponent } from './enterprise/client/pages/listclient/listclient.component';
 import { CreateclientComponent } from './enterprise/client/pages/createclient/createclient.component';
 import { ListpresaleComponent } from './enterprise/sale/pages/listpresale/listpresale.component';
+import { ListproductComponent } from './enterprise/product/pages/listproduct/listproduct.component';
+import { CreateproductComponent } from './enterprise/product/pages/createproduct/createproduct.component';
+import { ListbrandComponent } from './enterprise/product/pages/listbrand/listbrand.component';
+import { CreatebrandComponent } from './enterprise/product/pages/createbrand/createbrand.component';
+import { ListcategoryComponent } from './enterprise/product/pages/listcategory/listcategory.component';
+import { CreatecategoryComponent } from './enterprise/product/pages/createcategory/createcategory.component';
+import { ListpucharseComponent } from './enterprise/pucharse/pages/listpucharse/listpucharse.component';
+import { CreatepucharseComponent } from './enterprise/pucharse/pages/createpucharse/createpucharse.component';
+import { ConfirmpucharseComponent } from './enterprise/pucharse/pages/confirmpucharse/confirmpucharse.component';
+import { ListreceptionComponent } from './enterprise/pucharse/pages/listreception/listreception.component';
+import { CreatetrxpaymentComponent } from './enterprise/trxpayment/pages/createtrxpayment/createtrxpayment.component';
+import { ListsaleComponent } from './enterprise/sale/pages/listsale/listsale.component';
+import { ListkardexComponent } from './enterprise/product/pages/listkardex/listkardex.component';
+import { AppfileComponent } from './enterprise/system/pages/appfile/appfile.component';
+import { ListcreditnoteComponent } from './enterprise/sale/pages/listcreditnote/listcreditnote.component';
+import { CreatecreditnoteComponent } from './enterprise/sale/pages/createcreditnote/createcreditnote.component';
+import { ReturnstockcreditnoteComponent } from './enterprise/sale/pages/returnstockcreditnote/returnstockcreditnote.component';
+import { ViewcreditnoteComponent } from './enterprise/sale/pages/viewcreditnote/viewcreditnote.component';
 
 const routes: Routes = [
   {
@@ -47,8 +65,28 @@ const routes: Routes = [
         component : ListpresaleComponent
       },
       {
+        path :'enterprise/sale/pages/listsale',
+        component : ListsaleComponent
+      },
+      {
         path :'enterprise/sale/pages/createsale',
         component : CreatesaleComponent
+      },
+      {
+        path :'enterprise/sale/pages/listcreditnote',
+        component : ListcreditnoteComponent
+      },
+      {
+        path :'enterprise/sale/pages/createcreditnote',
+        component : CreatecreditnoteComponent
+      },
+      {
+        path :'enterprise/sale/pages/returnstockcreditnote',
+        component : ReturnstockcreditnoteComponent
+      },
+      {
+        path: 'enterprise/sale/pages/viewcreditnote',
+        component: ViewcreditnoteComponent
       }
     ]
   },
@@ -96,6 +134,79 @@ const routes: Routes = [
       {
         path :'enterprise/client/pages/createclient',
         component : CreateclientComponent
+      }
+    ]
+  },
+  {
+    path :'',
+    children : [
+      {
+        path :'enterprise/product/pages/listProduct',
+        component : ListproductComponent
+      },
+      {
+        path :'enterprise/product/pages/createProduct',
+        component : CreateproductComponent
+      },
+      {
+        path :'enterprise/product/pages/listBrand',
+        component : ListbrandComponent
+      },
+      {
+        path :'enterprise/product/pages/createBrand',
+        component : CreatebrandComponent
+      },
+      {
+        path :'enterprise/product/pages/listCategory',
+        component : ListcategoryComponent
+      },
+      {
+        path :'enterprise/product/pages/createCategory',
+        component : CreatecategoryComponent
+      },
+      {
+        path :'enterprise/product/pages/listkardex',
+        component : ListkardexComponent
+      }
+    ]
+  },
+  {
+    path :'',
+    children : [
+      {
+        path :'enterprise/pucharse/pages/listpucharse',
+        component : ListpucharseComponent
+      },
+      {
+        path :'enterprise/pucharse/pages/createpucharse',
+        component : CreatepucharseComponent
+      },
+      {
+        path :'enterprise/pucharse/pages/confirmpucharse',
+        component : ConfirmpucharseComponent
+      }
+      ,
+      {
+        path :'enterprise/pucharse/pages/listreception',
+        component : ListreceptionComponent
+      }
+    ]
+  },
+  {
+    path :'',
+    children : [
+      {
+        path :'enterprise/pucharse/pages/createtrxpayment',
+        component : CreatetrxpaymentComponent
+      }
+    ]
+  },
+  {
+    path :'',
+    children : [
+      {
+        path :'enterprise/system/pages/appfile',
+        component : AppfileComponent
       }
     ]
   }

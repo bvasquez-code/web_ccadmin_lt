@@ -15,7 +15,8 @@ export class ResponseWsDto{
     }
 
     addError(Error: any) {
-
+        this.ErrorStatus = true;
+        this.Message = Error.Message;
     }
 
 }

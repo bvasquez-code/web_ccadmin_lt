@@ -12,13 +12,13 @@ import { AppProfileEntity } from '../../model/entity/AppProfileEntity';
   selector: 'app-listprofile',
   templateUrl: './listprofile.component.html'
 })
-export class ListprofileComponent implements OnInit,ActionTableService,ActionModalConfirmService {
+export class ListprofileComponent implements OnInit,ActionTableService<AppProfileEntity>,ActionModalConfirmService {
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
   
-  responsePageSearch : ResponsePageSearch = new ResponsePageSearch();
+  responsePageSearch : ResponsePageSearch<AppProfileEntity> = new ResponsePageSearch();
   
-  dataTablaGenetic : DataTablaGeneticDto = new DataTablaGeneticDto();
+  dataTablaGenetic : DataTablaGeneticDto<AppProfileEntity> = new DataTablaGeneticDto();
   
   constructor(private appProfileService : AppProfileService) { }
 
@@ -29,9 +29,9 @@ export class ListprofileComponent implements OnInit,ActionTableService,ActionMod
     const Query = (this.txtSearch?.nativeElement?.value) ? this.txtSearch.nativeElement.value : "";
     this.findAll(Page,Query);
   }
-  loadingTable(responsePageSearch: ResponsePageSearch): void {
+  loadingTable(responsePageSearch: ResponsePageSearch<AppProfileEntity>): void {
 
-    const data : DataTablaGeneticDto = new DataTablaGeneticDto();
+    const data : DataTablaGeneticDto<AppProfileEntity> = new DataTablaGeneticDto();
     data.init(
       [
         { Name :  "Codigo" , key : "ProfileCod" } ,
@@ -50,9 +50,9 @@ export class ListprofileComponent implements OnInit,ActionTableService,ActionMod
           ColumnAction : true , 
           Id : ["ProfileCod"] , 
           Options : [
-            { Type : "Url" , Name : "Editar" , Url : "/enterprise/user/pages/createprofile?ProfileCod={ProfileCod}" },
-            { Type : "Modal" , Name : "Eliminar" , Url : "#" },
-            { Type : "Modal" , Name : "Activar" , Url : "#" }
+            { Type : "Url" , Name : "fa fa-pencil-alt" , Url : "/enterprise/user/pages/createprofile?ProfileCod={ProfileCod}" },
+            { Type : "Url" , Name : "fa fa-trash-alt" , Url : "#" },
+            { Type : "Url" , Name : "fa fa-check" , Url : "#" }
           ] 
         }
       ],

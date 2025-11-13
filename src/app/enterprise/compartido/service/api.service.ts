@@ -4,6 +4,8 @@ import { Observable, of, throwError } from 'rxjs';
 import { RespuestaWsDto } from '../entity/RespuestaWsDto';
 import { ResponseWsDto } from '../../shared/model/dto/ResponseWsDto';
 import { SessionStorageDto } from '../entity/SessionStorageDto';
+import { Router } from '@angular/router';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -11,11 +13,16 @@ import { SessionStorageDto } from '../entity/SessionStorageDto';
 export class ApiService {
 
     constructor(
-         private http: HttpClient
+         private http: HttpClient,
+         private router: Router,
     ){}
 
     generarheaders()
     {
+        if( !sessionStorage.getItem('Token')){
+            this.router.navigate(['/login']);
+            return;
+        }
         let DataToken :string | null = sessionStorage.getItem('Token');
 
         let Token  : string = "";
@@ -83,18 +90,22 @@ export class ApiService {
         return RespuestaWS;
     }
 
-    // async EjecutarServicioPost(URL: string, Request : any)
-    // {
-    //     let RespuestaWS : RespuestaWsDto = new RespuestaWsDto();
-
-    //     this.http.post<any>(URL,Request,{
-    //         headers: new HttpHeaders(this.Myheaders)
-    //     }).subscribe( data => {
-    //         RespuestaWS = data;
-    //     });
-
-    //     return RespuestaWS;
-    // }
+    ExecuteGetService2(URL: string, Request: any): Observable<ResponseWsDto> {
+        return this.InvokeGetService(URL, Request).pipe(
+            map(data => {
+                let respuestaWS: ResponseWsDto = new ResponseWsDto();
+                respuestaWS = data;
+                return respuestaWS;
+            }),
+            catchError(error => {
+                console.log({ ERROR: error });
+                let respuestaWS: ResponseWsDto = new ResponseWsDto();
+                respuestaWS.addError(error);
+                respuestaWS.Message = error.error.mensaje;
+                return [respuestaWS];
+            })
+        );
+    }
 
     public InvokePostService(URL: string, Request : any): Observable<any> {
 
@@ -121,10 +132,7 @@ export class ApiService {
         .then(data => { 
             RespuestaWS = data;
         }).catch( function(e){
-            alert("Error en el servicio :"+e.error.mensaje);
-            RespuestaWS = new ResponseWsDto();
-            RespuestaWS.addError(e);
-            RespuestaWS.Message = e.error.mensaje;
+            RespuestaWS = e.error;
             console.log({ ERROR : e });
         });
         return RespuestaWS;
@@ -139,7 +147,7 @@ export class ApiService {
         .then(data => { 
             RespuestaWS = data;
         }).catch( function(e){
-            alert("Error en el servicio :"+e.error.mensaje);
+            // alert("Error en el servicio :"+e.error.mensaje);
             RespuestaWS = new ResponseWsDto();
             RespuestaWS.addError(e);
             RespuestaWS.Message = e.error.mensaje;
@@ -154,6 +162,9 @@ export class ApiService {
         this.http
             .post<any>(URL, Request,{observe: 'response'})
             .subscribe(resp => {
+
+                console.log({ resp : resp } )
+
                 token = resp.headers.get('Authorization');
                 
                 sessionStorage.setItem('Token', token);
@@ -178,6 +189,7 @@ export class ApiService {
                         sessionStorage.setItem('SessionID',sessionStorageDto.SessionID.toString());
                         sessionStorage.setItem('Names', sessionStorageDto.Names);
                         sessionStorage.setItem('StoreCod', sessionStorageDto.StoreCod);
+                        sessionStorage.setItem('AppMenuPermissions', JSON.stringify(sessionStorageDto.AppMenuPermissions));
                         location.reload();  
                     }
 

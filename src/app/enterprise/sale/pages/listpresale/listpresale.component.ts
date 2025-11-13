@@ -6,22 +6,30 @@ import { ResponsePageSearch } from 'src/app/enterprise/shared/model/dto/Response
 import { PresaleService } from '../../service/presale.service';
 import { SearchDto } from '../../../shared/model/dto/SearchDto';
 import { PresaleHeadEntity } from '../../model/entity/PresaleHeadEntity';
+import { DataSesionService } from 'src/app/enterprise/compartido/service/datasesion.service';
+import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
+import { PresaleRegisterDto } from '../../model/dto/PresaleRegisterDto';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-listpresale',
   templateUrl: './listpresale.component.html'
 })
-export class ListpresaleComponent implements OnInit,ActionTableService,ActionModalConfirmService{
+export class ListpresaleComponent implements OnInit,ActionTableService<PresaleHeadEntity>,ActionModalConfirmService{
 
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
   
-  responsePageSearch : ResponsePageSearch = new ResponsePageSearch();
+  responsePageSearch : ResponsePageSearch<PresaleHeadEntity> = new ResponsePageSearch();
   
-  dataTablaGenetic : DataTablaGeneticDto = new DataTablaGeneticDto();
+  dataTablaGenetic : DataTablaGeneticDto<PresaleHeadEntity> = new DataTablaGeneticDto();
+
+  PresaleHeadSelect : PresaleHeadEntity = new PresaleHeadEntity();
 
   constructor(
-    private presaleService : PresaleService
+    private presaleService : PresaleService,
+    private dataSesionService : DataSesionService,
+    private toastrService : ToastrService
   )
   {
     
@@ -34,13 +42,13 @@ export class ListpresaleComponent implements OnInit,ActionTableService,ActionMod
   filter(Page: number): void {
     this.findAll(Page,this.txtSearch.nativeElement.value);
   }
-  loadingTable(responsePageSearch: ResponsePageSearch): void {
+  loadingTable(responsePageSearch: ResponsePageSearch<PresaleHeadEntity>): void {
     
-    const data : DataTablaGeneticDto = new DataTablaGeneticDto();
+    const data : DataTablaGeneticDto<PresaleHeadEntity> = new DataTablaGeneticDto();
     data.init(
       [
         { Name :  "Codigo" , key : "PresaleCod" } ,
-        { Name :  "Monto total" , key : "NumTotalPrice" } ,
+        { Name :  "Monto total" , key : "NumTotalPrice", IsMoney : true } ,
         { Name :  "Vendedor" , key : "CreationUser"} ,
         { Name :  "Fecha de venta", key : "CreationDate" , IsDate : true },
         { Name :  "Estado" , 
@@ -49,15 +57,19 @@ export class ListpresaleComponent implements OnInit,ActionTableService,ActionMod
           Html : {
             P : 'badge badge-sm bgc-info-d1 text-white pb-1 px-25',
             C : 'badge badge-sm bgc-red-d1 text-white pb-1 px-25'
-          }
+          },
+          Mask : {
+            P : "Pendiente",
+            C : "Confirmado"
+          },
         },
         { Name :  "Opciones" , 
           ColumnAction : true , 
           Id : ["PresaleCod"] , 
           Options : [
-            { Type : "Url" , Name : "Editar" , Url : "/enterprise/sale/pages/createpresale?PresaleCod={PresaleCod}" },
-            { Type : "Modal" , Name : "Eliminar" , Url : "#" },
-            { Type : "Modal" , Name : "Activar" , Url : "#" }
+            { Type : "Url" , Name : "fa fa-pencil-alt" , Url : "/enterprise/sale/pages/createpresale?PresaleCod={PresaleCod}" },
+            { Type : "Url" , Name : "fa fa-trash-alt" , Url : "#" },
+            { Type : "Modal" , Name : "fa fa-check" , Url : "#", ID : "modal_confirm" }
           ] 
         }
       ],
@@ -74,7 +86,7 @@ export class ListpresaleComponent implements OnInit,ActionTableService,ActionMod
     
     const search : SearchDto = new SearchDto();
     search.Page = Page;
-    search.StoreCod = "T76T";
+    search.StoreCod = this.dataSesionService.getSessionStorageDto().StoreCod;
     search.Query = Query;
     const rpt = await this.presaleService.findAll(search);
 
@@ -82,31 +94,33 @@ export class ListpresaleComponent implements OnInit,ActionTableService,ActionMod
     {
       this.responsePageSearch = rpt.Data;  
 
-      // const response : PresaleHeadEntity[] = rpt.Data;
-      // const responseProcess : any[] = [];
-
-      // for(const Item of response)
-      // {
-      //   const ItemProcess = {
-      //     PresaleCod : Item.PresaleCod,
-      //     NumTotalPrice : Item.NumTotalPrice,
-      //     CreationUser : Item.CreationUser,
-      //     CreationDate : Item.CreationDate,
-      //     SaleStatus : Item.SaleStatus
-      //   }
-      //   responseProcess.push(ItemProcess);
-      // }
-
       this.loadingTable(this.responsePageSearch);
     }
 
   }
   getDataRow(item: any): void {
-
+    this.PresaleHeadSelect = item;
   }
   actionModal(ModalId: string): void {
-    throw new Error('Method not implemented.');
+
+    if(ModalId === "modal_confirm") this.Confirm();
+  
   }
 
+
+  async Confirm(){
+
+    const PresaleRegister : PresaleRegisterDto = new PresaleRegisterDto();
+
+    PresaleRegister.Headboard.PresaleCod = this.PresaleHeadSelect.PresaleCod;
+
+    const rpt : ResponseWsDto = await this.presaleService.confirm(PresaleRegister);
+
+    if(!rpt.ErrorStatus){
+      this.toastrService.success("Solicitud de venta confirmada");
+      this.findAll(1,"");
+    }
+
+  }
 
 }

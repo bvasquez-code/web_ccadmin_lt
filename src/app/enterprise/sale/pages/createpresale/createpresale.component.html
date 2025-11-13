@@ -51,8 +51,13 @@
                 <div class="card-body p-0">
                   <div class="p-2 px-25">
                     <div class="input-group">
-                      <input type="text" class="form-control" placeholder="Search within results ..."
-                        #txt_filtro_busqueda />
+                      <input 
+                          type="text" 
+                          class="form-control" 
+                          placeholder="Search within results ..."
+                          #txt_filtro_busqueda
+                          (keydown)="FiltrarProductoEnter($event)"
+                      />
                       <div class="input-group-append">
                         <button class="btn btn-blue px-3 btn-sm" type="button" (click)="FiltrarProducto()">
                           <i class="fa fa-search-plus text-105"></i>
@@ -116,8 +121,6 @@
                   <th class="d-none d-sm-table-cell">
                     Total
                   </th>
-
-                  <th></th>
                   <th></th>
                 </tr>
               </thead>
@@ -134,10 +137,14 @@
 
                   <td class="d-none d-sm-table-cell text-grey-d1">
                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                      <button type="button" class="btn btn-danger">-</button>
-                      <input type="text" value="{{ Product.NumUnit }}" class="form-control"
+                      <button type="button" class="btn btn-danger"
+                      (click)="subtractUnitDirect(Product.ProductCod)"
+                      >-</button>
+                      <input type="text" value="{{ Product.NumUnit }}" class="form-control" [disabled]="true"
                         style="width: 80px; text-align: center;">
-                      <button type="button" class="btn btn-success">+</button>
+                      <button type="button" class="btn btn-success"
+                      (click)="addUnitDirect(Product.ProductCod)"
+                      >+</button>
                     </div>
                   </td>
 
@@ -150,21 +157,6 @@
                   <td class="text-600 text-orange-d2">
                     PEN {{ Product.NumTotalPrice }}
                   </td>
-
-
-                  <td class="text-center pr-0">
-                    <div>
-                      <a href="#" data-toggle="collapse" data-target="#table-detail-0"
-                        class="d-style btn btn-outline-info text-90 text-600 border-0 px-2 collapsed"
-                        title="Show Details">
-                        <span class="d-none d-md-inline mr-1">
-                          Details
-                        </span>
-                        <i class="fa fa-angle-down toggle-icon opacity-1 text-90"></i>
-                      </a>
-                    </div>
-                  </td>
-
                   <td>
                     <!-- action buttons -->
                     <div class="d-none d-lg-flex">
@@ -333,7 +325,7 @@
               <img *ngIf="(product.FileRoute === null)" src="http://localhost:4200/assets/image/avatar/NO_IMAGEN.png"
                 class="radius-1 w-100" alt="Product Image" />
               <img *ngIf="(product.FileRoute !== null)"
-                src="E:\proyectos\c\ws_wa_ccadmin_central\ws_wa_ccadmin_central\{{product.FileRoute}}"
+                src="{{product.FileRoute}}"
                 class="radius-1 w-100" alt="Product Image" />
 
               <div class="my-3 text-90 text-warning-m2">
@@ -420,7 +412,7 @@
     <div class="modal-content" style="width: 150%;">
       <div class="modal-header">
         <h5 class="modal-title text-primary-d3" id="ProductModalLabel">
-          {{ productInfoDtoSelect.Product.ProductName }}
+          Producto : {{ productInfoDtoSelect.Product.ProductCod }}
         </h5>
 
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -435,8 +427,12 @@
               <table class="table table-bordered border-0	table-striped-secondary text-dark-m1 mb-0">
                 <tbody>
                   <tr>
+                    <td><b>Codigo</b></td>
+                    <td>{{productInfoDtoSelect.Product.ProductCod}}</td>
+                  </tr>
+                  <tr>
                     <td><b>Nombre</b></td>
-                    <td>({{productInfoDtoSelect.Product.ProductCod}}) {{productInfoDtoSelect.Product.ProductName}}</td>
+                    <td>{{productInfoDtoSelect.Product.ProductName}}</td>
                   </tr>
                   <tr>
                     <td><b>Descripción</b></td>
@@ -444,7 +440,7 @@
                   </tr>
                   <tr>
                     <td><b>Precio</b></td>
-                    <td>{{ productInfoDtoSelect.Config.NumPrice }}</td>
+                    <td>{{productInfoDtoSelect.Config.NumPrice | currency: CurrencySystem.CurrencyCod + ' '}}</td>
                   </tr>
                   <tr>
                     <td><b>Stock</b></td>
@@ -452,8 +448,7 @@
                   </tr>
                   <tr>
                     <td><b>Total</b></td>
-                    <td>{{ productInfoDtoSelect.Config.NumPrice *
-                      getTotalProduct(productInfoDtoSelect.Product.ProductCod)}}</td>
+                    <td>{{ productInfoDtoSelect.Config.NumPrice * getTotalProduct(productInfoDtoSelect.Product.ProductCod) | currency: CurrencySystem.CurrencyCod + ' ' }}</td>
                   </tr>
                   <tr *ngIf="(productInfoDtoSelect.VariantList.length == 1 )">
                     <td><b>Cantidad</b></td>

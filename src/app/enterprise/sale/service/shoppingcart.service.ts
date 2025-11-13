@@ -99,9 +99,16 @@ export class ShoppingCartService
         
         if(presaleDetEntity)
         {
-            presaleDetEntity.Update(
-                this.GetExistsStock(NumUnit,ProductInfo,ProductVariant)
-            );
+            if( NumUnit === 0)
+            {
+                this.ShoppingCart.DetailList = this.ShoppingCart.DetailList.filter( e => e.ProductCod !== ProductInfo.Product.ProductCod && e.Variant !== ProductVariant.Variant );
+            }
+            else
+            {
+                presaleDetEntity.Update(
+                    this.GetExistsStock(NumUnit,ProductInfo,ProductVariant)
+                );
+            }            
         }
         else
         {   presaleDetEntity = new PresaleDetEntity();
@@ -113,6 +120,16 @@ export class ShoppingCartService
         }
 
         this.ReBuild();
+    }
+
+    public preventZeroSubtract(ProductInfo : ProductInfoDto,ProductVariant : ProductVariantEntity){
+
+        let presaleDetEntity : PresaleDetEntity | undefined = this.GetProductInCart(ProductInfo.Product.ProductCod,ProductVariant.Variant);
+
+        if(presaleDetEntity){
+            return ( presaleDetEntity.NumUnit - 1  === 0);
+        }
+        return false;
     }
 
     public subtractUnit(ProductInfo : ProductInfoDto,ProductVariant : ProductVariantEntity):void

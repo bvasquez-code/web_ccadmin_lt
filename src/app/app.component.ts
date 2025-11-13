@@ -12,4 +12,13 @@ export class AppComponent {
   ExisteSesion : boolean = ( sessionStorage.getItem('Token') ) ? true : false;
 
 
+  getSession(){
+
+    let ExistSesion : boolean = ( sessionStorage.getItem('Token') ) ? true : false;
+
+    return ExistSesion;
+    
+  }
+
+
 }

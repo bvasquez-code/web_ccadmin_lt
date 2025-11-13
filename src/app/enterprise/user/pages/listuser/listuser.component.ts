@@ -12,13 +12,13 @@ import { AppUserEntity } from '../../model/entity/AppUserEntity';
   selector: 'app-listuser',
   templateUrl: './listuser.component.html'
 })
-export class ListuserComponent implements OnInit,ActionTableService,ActionModalConfirmService {
+export class ListuserComponent implements OnInit,ActionTableService<AppUserEntity>,ActionModalConfirmService {
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
   
-  responsePageSearch : ResponsePageSearch = new ResponsePageSearch();
+  responsePageSearch : ResponsePageSearch<AppUserEntity> = new ResponsePageSearch();
   
-  dataTablaGenetic : DataTablaGeneticDto = new DataTablaGeneticDto();
+  dataTablaGenetic : DataTablaGeneticDto<AppUserEntity> = new DataTablaGeneticDto();
   
   constructor(
     private appUserService : AppUserService
@@ -36,9 +36,9 @@ export class ListuserComponent implements OnInit,ActionTableService,ActionModalC
     this.findAll(Page,Query);
   }
 
-  loadingTable(responsePageSearch: ResponsePageSearch): void {
+  loadingTable(responsePageSearch: ResponsePageSearch<AppUserEntity>): void {
 
-    const data : DataTablaGeneticDto = new DataTablaGeneticDto();
+    let data : DataTablaGeneticDto<AppUserEntity> = new DataTablaGeneticDto();
     data.init(
       [
         { Name :  "Codigo" , key : "UserCod" } ,
@@ -57,9 +57,9 @@ export class ListuserComponent implements OnInit,ActionTableService,ActionModalC
           ColumnAction : true , 
           Id : ["UserCod"] , 
           Options : [
-            { Type : "Url" , Name : "Editar" , Url : "/enterprise/user/pages/createuser?UserCod={UserCod}" },
-            { Type : "Modal" , Name : "Eliminar" , Url : "#" },
-            { Type : "Modal" , Name : "Activar" , Url : "#" }
+            { Type : "Url" , Name : "fa fa-pencil-alt" , Url : "/enterprise/user/pages/createuser?UserCod={UserCod}" },
+            { Type : "Url" , Name : "fa fa-trash-alt" , Url : "#" },
+            { Type : "Url" , Name : "fa fa-check" , Url : "#" }
           ] 
         }
       ],

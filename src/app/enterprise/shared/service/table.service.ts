@@ -6,27 +6,27 @@ import { ActionTableService } from "../interface/ActionTableService";
     providedIn: 'root'
 })
 
-export class TableService
+export class TableService<T>
 {
-    dataTablaGenetic : DataTablaGeneticDto = new DataTablaGeneticDto();
+    dataTablaGenetic : DataTablaGeneticDto<T> = new DataTablaGeneticDto();
 
-    actionTableService? : ActionTableService;
+    actionTableService? : ActionTableService<T>;
 
     funcParam : any;
 
     constructor() {
     }
 
-    public setActions(actionTableService : ActionTableService)
+    public setActions(actionTableService : ActionTableService<T>)
     {
         this.actionTableService = actionTableService;
     }
 
-    public get(): DataTablaGeneticDto {
+    public get(): DataTablaGeneticDto<T> {
         return this.dataTablaGenetic;
     }
 
-    public set(dataTablaGenetic: DataTablaGeneticDto): void {
+    public set(dataTablaGenetic: DataTablaGeneticDto<T>): void {
         this.dataTablaGenetic = new DataTablaGeneticDto();
         this.dataTablaGenetic = dataTablaGenetic;
     }

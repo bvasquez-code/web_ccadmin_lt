@@ -8,6 +8,9 @@ export class ClientEntity extends AuditTableEntity
 
     public Person : PersonEntity = new PersonEntity();
 
+    public DocumentNum : string = "";
+    public Names : string = "";
+
     public constructor()
     {
         super();

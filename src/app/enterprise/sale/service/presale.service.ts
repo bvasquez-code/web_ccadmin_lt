@@ -52,4 +52,13 @@ export class PresaleService
 
         return RespuestaWS;
     }
+
+    async createCode(){
+        let url: string = `${AppSetting.API}/api/v1/presale/createCode`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecuteGetService(url,{});
+
+        return RespuestaWS;
+    }
 }

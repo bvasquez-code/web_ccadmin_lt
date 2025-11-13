@@ -6,18 +6,19 @@ import { ClientService } from '../../service/client.service';
 import { ResponseWsDto } from '../../../shared/model/dto/ResponseWsDto';
 import { SearchDto } from 'src/app/enterprise/shared/model/dto/SearchDto';
 import { DataTablaGeneticDto } from 'src/app/enterprise/shared/model/dto/DataTablaGeneticDto';
+import { ClientEntity } from '../../model/entity/ClientEntity';
 
 @Component({
   selector: 'app-listclient',
   templateUrl: './listclient.component.html'
 })
-export class ListclientComponent implements OnInit,ActionTableService,ActionModalConfirmService{
+export class ListclientComponent implements OnInit,ActionTableService<ClientEntity>,ActionModalConfirmService{
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
   
-  responsePageSearch : ResponsePageSearch = new ResponsePageSearch();
+  responsePageSearch : ResponsePageSearch<ClientEntity> = new ResponsePageSearch();
   
-  dataTablaGenetic : DataTablaGeneticDto = new DataTablaGeneticDto();
+  dataTablaGenetic : DataTablaGeneticDto<ClientEntity> = new DataTablaGeneticDto();
 
   public constructor(private clientService : ClientService)
   {
@@ -33,9 +34,9 @@ export class ListclientComponent implements OnInit,ActionTableService,ActionModa
   filter(Page: number): void {
     this.findAll(Page,this.txtSearch.nativeElement.value);
   }
-  loadingTable(responsePageSearch: ResponsePageSearch): void {
+  loadingTable(responsePageSearch: ResponsePageSearch<ClientEntity>): void {
     
-    const data : DataTablaGeneticDto = new DataTablaGeneticDto();
+    const data : DataTablaGeneticDto<ClientEntity> = new DataTablaGeneticDto();
     data.init(
       [
         { Name :  "Codigo" , key : "ClientCod" } ,
@@ -54,9 +55,9 @@ export class ListclientComponent implements OnInit,ActionTableService,ActionModa
           ColumnAction : true , 
           Id : ["ClientCod"] , 
           Options : [
-            { Type : "Url" , Name : "Editar" , Url : "/enterprise/client/pages/createclient?ClientCod={ClientCod}" },
-            { Type : "Modal" , Name : "Eliminar" , Url : "#" },
-            { Type : "Modal" , Name : "Activar" , Url : "#" }
+            { Type : "Url" , Name : "fa fa-pencil-alt" , Url : "/enterprise/client/pages/createclient?ClientCod={ClientCod}" },
+            { Type : "Url" , Name : "fa fa-trash-alt" , Url : "#" },
+            { Type : "Url" , Name : "fa fa-check" , Url : "#" }
           ] 
         }
       ],

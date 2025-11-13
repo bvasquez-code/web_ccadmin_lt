@@ -1,6 +1,6 @@
-export class ResponsePageSearch
+export class ResponsePageSearch <T>
 {
-    public resultSearch  : any[] = [];
+    public resultSearch  : T[] = [];
     public TotalPages : number = 0;
     public TotalResult : number = 0;
     public StarResult : number = 0;

@@ -3,6 +3,8 @@ import { AppMenuService } from '../../service/appmenu.service';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
 import { AppMenuEntity } from '../../model/entity/AppMenuEntity';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { ModalService } from 'src/app/enterprise/shared/service/ModalService';
 
 @Component({
   selector: 'app-createmenu',
@@ -25,7 +27,8 @@ export class CreatemenuComponent   {
 
   constructor(
     private appMenuService : AppMenuService,
-    private router: Router
+    private router: Router,
+    private toastrService : ToastrService
   ) 
   { 
 
@@ -61,13 +64,12 @@ export class CreatemenuComponent   {
 
     if(AppMenu.MenuCod) this.txtMenuCodreadonly = true;
     if(this.cboIsMenuDad.nativeElement.value === "S") this.cboMenuDadCodvisibility = false;
-
   }
 
   async save()
   {
     if(!this.AppMenu) this.AppMenu = new AppMenuEntity();
-    
+  
     this.AppMenu.MenuCod = this.txtMenuCod.nativeElement.value;
     this.AppMenu.Name = this.txtName.nativeElement.value;
     this.AppMenu.Description = this.txtDescription.nativeElement.value;
@@ -76,15 +78,19 @@ export class CreatemenuComponent   {
 
     const rpt : ResponseWsDto = await this.appMenuService.save(this.AppMenu);
 
-    if( !rpt.Status )
+    if( !rpt.ErrorStatus )
     {
-      
+      this.router.navigate(['/enterprise/menu/pages/listmenu']);
     }
   }
 
   IsMenuDad()
   {
     this.cboMenuDadCodvisibility = ( this.cboIsMenuDad.nativeElement.value === "S" ) ? false : true;
+  }
+
+  validate(appMenu : AppMenuEntity){
+
   }
 
 }
