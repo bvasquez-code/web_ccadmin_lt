@@ -13,7 +13,8 @@ import { TicketSunatService } from '../../service/TicketSunatService';
 })
 export class ViewcreditnoteComponent implements OnInit {
 
-  CreditNoteCod = '';
+  CreditNoteCod: string = "";
+  AutoPrint: string = "N";
   Detail: CreditNoteDetailDto = new CreditNoteDetailDto();
 
   loading = false;
@@ -22,12 +23,13 @@ export class ViewcreditnoteComponent implements OnInit {
     private route: ActivatedRoute,
     private creditNoteService: CreditNoteService,
     private toastr: ToastrService,
-    private ticketSunatService : TicketSunatService
-  ) {}
+    private ticketSunatService: TicketSunatService
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(qp => {
       this.CreditNoteCod = qp.get('CreditNoteCod') ?? '';
+      this.AutoPrint = qp.get('AutoPrint') ?? 'N';
       if (this.CreditNoteCod) this.findDataForm(this.CreditNoteCod);
     });
   }
@@ -37,8 +39,10 @@ export class ViewcreditnoteComponent implements OnInit {
     try {
       const rpt: ResponseWsDto = await this.creditNoteService.FindById(CreditNoteCod);
       if (rpt && !rpt.ErrorStatus) {
-        // La API te devuelve { Data: {...} } con la forma de CreditNoteDetailDto
         this.Detail = rpt.Data as CreditNoteDetailDto;
+        if (this.AutoPrint == "Y") {
+          this.print();
+        }
       } else {
         this.toastr.error(rpt?.Message ?? 'No se pudo obtener la nota de crédito', 'Error');
       }
@@ -63,7 +67,7 @@ export class ViewcreditnoteComponent implements OnInit {
       case 'P': return 'Pendiente';
       case 'C': return 'Confirmado';
       case 'A': return 'Activo';
-      default:  return s ?? '-';
+      default: return s ?? '-';
     }
   }
 

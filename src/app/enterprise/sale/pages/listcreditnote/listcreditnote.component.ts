@@ -16,111 +16,122 @@ import { ToastrService } from 'ngx-toastr';
   selector: 'app-listcreditnote',
   templateUrl: './listcreditnote.component.html'
 })
-export class ListcreditnoteComponent implements OnInit,ActionTableService<CreditNoteHeadDto>,ActionModalConfirmService{
+export class ListcreditnoteComponent implements OnInit, ActionTableService<CreditNoteHeadDto>, ActionModalConfirmService {
 
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
 
-  table : TableDto<CreditNoteHeadDto> = new TableDto();
+  table: TableDto<CreditNoteHeadDto> = new TableDto();
 
   constructor(
-    private creditNoteService : CreditNoteService,
-    private session : DataSesionService,
-    private toastrService : ToastrService
-  ){
+    private creditNoteService: CreditNoteService,
+    private session: DataSesionService,
+    private toastrService: ToastrService
+  ) {
 
   }
 
   ngOnInit(): void {
-    this.findAll(1,"");
+    this.findAll(1, "");
   }
 
 
   filter(Page: number): void {
-    this.findAll(Page,this.txtSearch.nativeElement.value);
+    this.findAll(Page, this.txtSearch.nativeElement.value);
   }
 
   loadingTable(responsePageSearch: ResponsePageSearch<CreditNoteHeadDto>): void {
-    
-    const data : DataTablaGeneticDto<CreditNoteHeadDto> = new DataTablaGeneticDto();
 
-    const viewCreditNoteCod = (creditNoteHead : CreditNoteHeadDto) => {
+    const data: DataTablaGeneticDto<CreditNoteHeadDto> = new DataTablaGeneticDto();
+
+    const viewCreditNoteCod = (creditNoteHead: CreditNoteHeadDto) => {
       return creditNoteHead.CreditNoteHead.CreditNoteCod;
     }
 
-    const viewCreationDate = (creditNoteHead : CreditNoteHeadDto) => {
+    const viewCreationDate = (creditNoteHead: CreditNoteHeadDto) => {
       return creditNoteHead.CreditNoteHead.CreationDate;
     }
 
-    const viewDocumentCod = (creditNoteHead : CreditNoteHeadDto) => {
+    const viewDocumentCod = (creditNoteHead: CreditNoteHeadDto) => {
       return creditNoteHead?.CreditNoteDocument?.DocumentCod;
     }
 
-    const viewCreditNoteStatus = (creditNoteHead : CreditNoteHeadDto) => {
+    const viewCreditNoteStatus = (creditNoteHead: CreditNoteHeadDto) => {
       return creditNoteHead.CreditNoteHead.CreditNoteStatus;
     }
 
-    const viewCreationUser = (creditNoteHead : CreditNoteHeadDto) => {
+    const viewCreationUser = (creditNoteHead: CreditNoteHeadDto) => {
       return creditNoteHead.CreditNoteHead.CreationUser;
     }
 
-    const urlCreatecreditnote = (creditNoteHead : CreditNoteHeadDto) => {
+    const urlCreatecreditnote = (creditNoteHead: CreditNoteHeadDto) => {
       return `/enterprise/sale/pages/createcreditnote?CreditNoteCod=${creditNoteHead.CreditNoteHead.CreditNoteCod}`;
     }
 
-    const urlReturnStockCreditnote = (creditNoteHead : CreditNoteHeadDto) => {
+    const urlReturnStockCreditnote = (creditNoteHead: CreditNoteHeadDto) => {
       return `/enterprise/sale/pages/returnstockcreditnote?CreditNoteCod=${creditNoteHead.CreditNoteHead.CreditNoteCod}`;
     }
 
-    const showEditCreditNote = (creditNoteHead : CreditNoteHeadDto) =>{
+    const urlViewCreditNote = (creditNoteHead: CreditNoteHeadDto) => {
+      return `/enterprise/sale/pages/viewcreditnote?CreditNoteCod=${creditNoteHead.CreditNoteHead.CreditNoteCod}`;
+    }
+
+    const showEditCreditNote = (creditNoteHead: CreditNoteHeadDto) => {
       return (creditNoteHead.CreditNoteHead.CreditNoteStatus === "P");
     }
 
-    const showConfirmCreditNote = (creditNoteHead : CreditNoteHeadDto) =>{
+    const showConfirmCreditNote = (creditNoteHead: CreditNoteHeadDto) => {
       return (creditNoteHead.CreditNoteHead.CreditNoteStatus === "P");
     }
 
-    const showReturnStock = (creditNoteHead : CreditNoteHeadDto) =>{
+    const showReturnStock = (creditNoteHead: CreditNoteHeadDto) => {
       return (creditNoteHead.CreditNoteHead.CreditNoteStatus === "C" && creditNoteHead.CreditNoteHead.IsStockReturned !== 'S');
     }
 
-    const showDelete = (creditNoteHead : CreditNoteHeadDto) =>{
+    const showDelete = (creditNoteHead: CreditNoteHeadDto) => {
       return (creditNoteHead.CreditNoteHead.CreditNoteStatus === "P");
     }
-    
+
+    const showViewCreditNote = (creditNoteHead: CreditNoteHeadDto) => {
+      return (creditNoteHead.CreditNoteHead.CreditNoteStatus === "C");
+    }
+
 
     data.init(
       [
-        { Name :  "Codigo" , key : "CreditNoteCod" , FunctionKey : viewCreditNoteCod } ,
-        { Name :  "Nota de credito" , key : "DocumentCod", FunctionKey : viewDocumentCod } ,
-        { Name :  "Vendedor" , key : "CreationUser", FunctionKey : viewCreationUser} ,
-        { Name :  "Fecha de venta", key : "CreationDate" , IsDate : true , FunctionKey : viewCreationDate },
-        { Name :  "Estado" , 
-          key : "CreditNoteStatus" , 
-          IsStatus : true,
-          Html : {
-            P : 'badge badge-sm bgc-info-d1 text-white pb-1 px-25',
-            C : 'badge badge-sm bgc-red-d1 text-white pb-1 px-25'
+        { Name: "Codigo", key: "CreditNoteCod", FunctionKey: viewCreditNoteCod },
+        { Name: "Nota de credito", key: "DocumentCod", FunctionKey: viewDocumentCod },
+        { Name: "Vendedor", key: "CreationUser", FunctionKey: viewCreationUser },
+        { Name: "Fecha de venta", key: "CreationDate", IsDate: true, FunctionKey: viewCreationDate },
+        {
+          Name: "Estado",
+          key: "CreditNoteStatus",
+          IsStatus: true,
+          Html: {
+            P: 'badge badge-sm bgc-info-d1 text-white pb-1 px-25',
+            C: 'badge badge-sm bgc-red-d1 text-white pb-1 px-25'
           },
-          Mask : {
-            P : "Pendiente",
-            C : "Confirmado"
+          Mask: {
+            P: "Pendiente",
+            C: "Confirmado"
           },
-          FunctionKey : viewCreditNoteStatus
+          FunctionKey: viewCreditNoteStatus
         },
-        { Name :  "Opciones" , 
-          ColumnAction : true , 
-          Id : ["CreditNoteCod"] , 
-          Options : [
-            { Type : "Url" , Name : "fa fa-pencil-alt" , Url : "#", FunctionUrl : urlCreatecreditnote , Function : showEditCreditNote},
-            { Type : "Url" , Name : "fa fa-trash-alt" , Url : "#", Function : showDelete },
-            { Type : "Modal" , Name : "fa fa-check" , Url : "#", ID : "modal_confirm" , Function : showConfirmCreditNote },
-            { Type : "Url" , Name : "fa fa-share" , Url : "#", FunctionUrl : urlReturnStockCreditnote , Function : showReturnStock }
+        {
+          Name: "Opciones",
+          ColumnAction: true,
+          Id: ["CreditNoteCod"],
+          Options: [
+            { Type: "Url", Name: "fa fa-pencil-alt", Url: "#", FunctionUrl: urlCreatecreditnote, Function: showEditCreditNote },
+            { Type: "Url", Name: "fa fa-trash-alt", Url: "#", Function: showDelete },
+            { Type: "Modal", Name: "fa fa-check", Url: "#", ID: "modal_confirm", Function: showConfirmCreditNote },
+            { Type: "Url", Name: "fa fa-share", Url: "#", FunctionUrl: urlReturnStockCreditnote, Function: showReturnStock },
+            { Type: "Url", Name: "fa fa-search", Url: "#", FunctionUrl: urlViewCreditNote, Function: showViewCreditNote },
           ]
         }
       ],
       {
-        data : responsePageSearch
+        data: responsePageSearch
       },
       "Lista de solicitudes de venta"
     );
@@ -130,15 +141,14 @@ export class ListcreditnoteComponent implements OnInit,ActionTableService<Credit
   }
 
   async findAll(Page: number, Query: string): Promise<void> {
-    const Search : SearchDto = new SearchDto();
+    const Search: SearchDto = new SearchDto();
     Search.Page = Page;
     Search.Query = Query;
     Search.StoreCod = this.session.getSessionStorageDto().StoreCod;
 
-    const rpt : ResponseWsDto = await this.creditNoteService.FindAll(Search);
-    if( !rpt.ErrorStatus )
-    {
-      this.table.responsePageSearch = rpt.Data; 
+    const rpt: ResponseWsDto = await this.creditNoteService.FindAll(Search);
+    if (!rpt.ErrorStatus) {
+      this.table.responsePageSearch = rpt.Data;
       this.loadingTable(this.table.responsePageSearch);
     }
   }
@@ -148,24 +158,24 @@ export class ListcreditnoteComponent implements OnInit,ActionTableService<Credit
   }
 
   actionModal(ModalId: string): void {
-    if(ModalId === "modal_confirm") this.Confirm();
+    if (ModalId === "modal_confirm") this.Confirm();
   }
 
-  async Confirm(){
+  async Confirm() {
 
     console.log(this.table.itemTableSelect);
 
-    const CreditNoteRegister : CreditNoteRegisterDto = new CreditNoteRegisterDto();
+    const CreditNoteRegister: CreditNoteRegisterDto = new CreditNoteRegisterDto();
 
-    if(this.table.itemTableSelect){
+    if (this.table.itemTableSelect) {
       CreditNoteRegister.Headboard = this.table.itemTableSelect?.CreditNoteHead;
     }
 
-    const rpt : ResponseWsDto = await this.creditNoteService.Confirm(CreditNoteRegister);
+    const rpt: ResponseWsDto = await this.creditNoteService.Confirm(CreditNoteRegister);
 
-    if(!rpt.ErrorStatus){
+    if (!rpt.ErrorStatus) {
       this.toastrService.success("Nota de credito confirmada");
-      this.findAll(1,"");
+      this.findAll(1, "");
     }
 
   }

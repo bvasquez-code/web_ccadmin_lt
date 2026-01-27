@@ -14,27 +14,26 @@ import { ToastrService } from 'ngx-toastr';
   selector: 'app-createsale',
   templateUrl: './createsale.component.html'
 })
-export class CreatesaleComponent implements OnInit{
+export class CreatesaleComponent implements OnInit {
 
-  SaleCod : string = "";
-  SaleDetail : SaleDetailDto = new SaleDetailDto();
-  TrxPaymentList : TrxPaymentEntity[] = [];
-  ItemCount : number = 0;
-  SaleDetailPrintData : ResponseWsDto = new ResponseWsDto();
+  SaleCod: string = "";
+  SaleDetail: SaleDetailDto = new SaleDetailDto();
+  TrxPaymentList: TrxPaymentEntity[] = [];
+  ItemCount: number = 0;
+  SaleDetailPrintData: ResponseWsDto = new ResponseWsDto();
 
-  TrxPaymentComponenRequest : TrxPaymentComponenRequestDto = new TrxPaymentComponenRequestDto();
-  DocumentType : string = "03";
+  TrxPaymentComponenRequest: TrxPaymentComponenRequestDto = new TrxPaymentComponenRequestDto();
+  DocumentType: string = "03";
   enableButtonPay: boolean = false;
 
   constructor(
-     private saleservice : SaleService
-    ,private router: Router
-    ,private ticketSvc: TicketSunatService
-    ,private toastrService: ToastrService
-  )
-  {
-    let urlTree : any = this.router.parseUrl(this.router.url);
-    this.SaleCod =  urlTree.queryParams['SaleCod'];
+    private saleservice: SaleService
+    , private router: Router
+    , private ticketSvc: TicketSunatService
+    , private toastrService: ToastrService
+  ) {
+    let urlTree: any = this.router.parseUrl(this.router.url);
+    this.SaleCod = urlTree.queryParams['SaleCod'];
 
   }
   ngOnInit(): void {
@@ -42,35 +41,30 @@ export class CreatesaleComponent implements OnInit{
     this.findDataForm(this.SaleCod);
   }
 
-  async findDataForm(SaleCod : string)
-  {
-    const rpt : ResponseWsDto = await this.saleservice.findDataForm(SaleCod);
+  async findDataForm(SaleCod: string) {
+    const rpt: ResponseWsDto = await this.saleservice.findDataForm(SaleCod);
 
-    if( !rpt.ErrorStatus )
-    {
-      this.SaleDetail = rpt.DataAdditional.find( e => e.Name == "SaleDetail" )?.Data;
+    if (!rpt.ErrorStatus) {
+      this.SaleDetail = rpt.DataAdditional.find(e => e.Name == "SaleDetail")?.Data;
 
       this.TrxPaymentComponenRequest.InputOutstandingBalance = this.getOutstandingbalance();
       this.TrxPaymentComponenRequest.TrxPaymentList = this.getTrxPaymentList();
-
-      this.findDataPrint(SaleCod);
     }
   }
 
-  async findDataPrint(SaleCod : string){
-    const rpt : ResponseWsDto = await this.saleservice.findDataPrint(SaleCod);
+  async findDataPrint(SaleCod: string) {
+    const rpt: ResponseWsDto = await this.saleservice.findDataPrint(SaleCod);
     this.SaleDetailPrintData = rpt;
   }
 
-  getItemCount():number
-  {
+  getItemCount(): number {
     this.ItemCount++;
     return this.ItemCount;
   }
 
-  ResponseResultFormClient(event : any){
+  ResponseResultFormClient(event: any) {
 
-    const TrxPayment : TrxPaymentEntity = event;
+    const TrxPayment: TrxPaymentEntity = event;
 
     this.TrxPaymentList.push(TrxPayment);
 
@@ -80,46 +74,58 @@ export class CreatesaleComponent implements OnInit{
 
   }
 
-  async AddPayment(TrxPayment : TrxPaymentEntity){
+  async AddPayment(TrxPayment: TrxPaymentEntity) {
 
-    const salePayment : SalePaymentRegisterDto = new SalePaymentRegisterDto();
+    const salePayment: SalePaymentRegisterDto = new SalePaymentRegisterDto();
 
     salePayment.SaleCod = this.SaleDetail.Headboard.SaleCod;
     salePayment.TrxPaymentId = TrxPayment.TrxPaymentId;
     salePayment.DocumentType = this.DocumentType;
 
-    const rpt : ResponseWsDto = await this.saleservice.AddPayment(salePayment);
+    const rpt: ResponseWsDto = await this.saleservice.AddPayment(salePayment);
 
-    if(!rpt.ErrorStatus){
-      this.findDataForm(this.SaleCod);
+    if (!rpt.ErrorStatus) {
+      await this.findDataForm(this.SaleCod);
+
+      if (this.SaleDetail.Headboard.SaleStatus == "C") {
+        this.print();
+      }
+
     }
 
   }
 
-  selectDocumentType(DocumentType : string){
+  selectDocumentType(DocumentType: string) {
     this.DocumentType = DocumentType;
     this.enableButtonPay = (DocumentType == "01" || DocumentType == "03") ? true : false;
   }
 
-  
 
-  OpenTrxPaymentModal(){
+
+  OpenTrxPaymentModal() {
     this.TrxPaymentComponenRequest.InputOutstandingBalance = this.getOutstandingbalance();
   }
 
-  getOutstandingbalance():number{
-    return this.SaleDetail.Headboard.NumTotalPrice - this.SaleDetail.DetailPayment.reduce((sum,e) => sum + e.NumAmountPaid,0);
+  getOutstandingbalance(): number {
+    return this.SaleDetail.Headboard.NumTotalPrice - this.SaleDetail.DetailPayment.reduce((sum, e) => sum + e.NumAmountPaid, 0);
   }
 
-  getTrxPaymentList():TrxPaymentEntity[]{
-    return this.SaleDetail.DetailPayment.map( e => e.TrxPayment );
+  getTrxPaymentList(): TrxPaymentEntity[] {
+    return this.SaleDetail.DetailPayment.map(e => e.TrxPayment);
   }
 
   async print() {
+
+    await this.findDataPrint(this.SaleCod);
+
     await this.ticketSvc.printSalesInvoice(this.SaleDetailPrintData);
   }
 
-  viewAlertSelectDocumentType(){
-    this.toastrService.info("Seleccione un tipo de documento de venta para continuar.","Info");
+  viewAlertSelectDocumentType() {
+    this.toastrService.info("Seleccione un tipo de documento de venta para continuar.", "Info");
+  }
+
+  getAmountReturned(): number {
+    return this.SaleDetail.DetailPayment.reduce((sum, e) => sum + (e.NumAmountReturned ? e.NumAmountReturned : 0), 0);
   }
 }

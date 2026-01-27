@@ -22,24 +22,24 @@ export class TicketSunatService {
   /** ==== Ajustes rápidos (puedes tunear estos) ==== */
   private readonly PAPER_WIDTH_MM = 80;  // ancho del rollo.
   private readonly LEFT_OFFSET_MM = 2;    // empuje a la derecha (2–4mm recomendado)
-  private readonly H_PADDING_MM   = 5;    // padding horizontal interno (más chico = más ancho útil)
-  private readonly BASE_FONT_PX   = 9;   // sube a 13 si quieres “llenar” más
+  private readonly H_PADDING_MM = 5;    // padding horizontal interno (más chico = más ancho útil)
+  private readonly BASE_FONT_PX = 9;   // sube a 13 si quieres “llenar” más
 
   private readonly DEFAULT_IGV_RATE = 0.18;
 
   /** Render principal: imprime con layout SUNAT 80mm */
   async printSalesInvoice(saleDetailPrint: ResponseWsDto) {
     // === Bloques del saleDetailPrint ===
-    const saleBlock : SaleDetailDto = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'SaleDetail')?.Data;
-    const currencies : CurrencyEntity[] = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'CurrencyList')?.Data || [];
-    const storeBlock : StoreInfoDto = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'Store')?.Data;
-    const paymentList : PaymentMethodEntity[] = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'PaymentMethodList')?.Data || [];
-    
-    const cab     : SaleHeadEntity = saleBlock?.Headboard || {};
-    const doc     : SaleDocumentEntity = saleBlock?.SaleDocument || {};
-    const items   : SaleDetEntity[] = saleBlock?.DetailList || [];
-    const payments   : SalePaymentEntity[] = saleBlock?.DetailPayment || [];
-    const person  : PersonEntity = saleBlock?.Headboard?.Client?.Person || {};
+    const saleBlock: SaleDetailDto = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'SaleDetail')?.Data;
+    const currencies: CurrencyEntity[] = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'CurrencyList')?.Data || [];
+    const storeBlock: StoreInfoDto = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'Store')?.Data;
+    const paymentList: PaymentMethodEntity[] = saleDetailPrint?.DataAdditional?.find((x: any) => x.Name === 'PaymentMethodList')?.Data || [];
+
+    const cab: SaleHeadEntity = saleBlock?.Headboard || {};
+    const doc: SaleDocumentEntity = saleBlock?.SaleDocument || {};
+    const items: SaleDetEntity[] = saleBlock?.DetailList || [];
+    const payments: SalePaymentEntity[] = saleBlock?.DetailPayment || [];
+    const person: PersonEntity = saleBlock?.Headboard?.Client?.Person || {};
 
     // === Moneda ===
     const currency = currencies.find((c: any) => c.CurrencyCod === cab?.CurrencyCod) || { CurrencySymbol: 'S/.' };
@@ -51,8 +51,8 @@ export class TicketSunatService {
     // === Compañía / tienda (encabezado) ===
     const company = storeBlock?.Company || {};
     const companyUbigeoTxt = storeBlock?.CompanyUbigeo || '';
-    const store   = storeBlock?.Store || {};
-    const storeUbigeoTxt   = storeBlock?.StoreUbigeo || '';
+    const store = storeBlock?.Store || {};
+    const storeUbigeoTxt = storeBlock?.StoreUbigeo || '';
 
     const issuer = {
       ruc: company?.TaxId || '00000000000',
@@ -71,14 +71,14 @@ export class TicketSunatService {
     };
 
     // === Cliente seguro y tipo doc SUNAT ===
-    const customerFullName   = this.safeFullName(person);
-    const customerDocNumber   = (person?.DocumentNum ?? '').toString().trim() || '00000000';
-    const customerDocTypeSunat  = this.mapCustomerDocTypeToSunat(person?.DocumentType);
+    const customerFullName = this.safeFullName(person);
+    const customerDocNumber = (person?.DocumentNum ?? '').toString().trim() || '00000000';
+    const customerDocTypeSunat = this.mapCustomerDocTypeToSunat(person?.DocumentType);
 
     // === Totales y fechas ===
-    const igvAmount   = this.fmtNum(cab.NumTotalTax);
+    const igvAmount = this.fmtNum(cab.NumTotalTax);
     const totalAmount = this.fmtNum(cab.NumTotalPrice);
-    const issueDate   = this.formatDateDDMMYYYY(String(cab.CreationDate));
+    const issueDate = this.formatDateDDMMYYYY(String(cab.CreationDate));
 
     // === Hash opcional de tu PSE (si lo recibes) ===
     const HASH = '';
@@ -127,13 +127,14 @@ export class TicketSunatService {
         igv: this.fmtNum(cab.NumTotalTax),
         total: this.fmtNum(cab.NumTotalPrice)
       },
-      payments: payments.map((p: any) => ({
-        medio: this.getPaymentDescription(p?.TrxPayment?.PaymentMethodCod,paymentList) || 'OTRO',
+      payments: payments.filter(e => e.TrxPayment?.TypeMovement === 'I').map((p: any) => ({
+        medio: this.getPaymentDescription(p?.TrxPayment?.PaymentMethodCod, paymentList) || 'OTRO',
         monto: this.fmtNum(p.NumAmountPaid),
         ref: p?.TrxPayment?.TransactionId || ''
       })),
       qrDataUrl,
-      qrText
+      qrText,
+      tipDoc: "sale"
     });
 
     this.openAndPrint(html);
@@ -143,14 +144,17 @@ export class TicketSunatService {
   /** Imprime NOTA DE CRÉDITO electrónica (SUNAT tipo 07) usando SOLO los campos del JSON dado */
   async printCreditNote(creditNotePrint: ResponseWsDto) {
     // === Bloques del payload EXACTOS al JSON ===
-    const cnBlock : CreditNoteDetailDto = creditNotePrint?.DataAdditional?.find((x: any) => x.Name === 'CreditNoteDetail')?.Data;
+    const cnBlock: CreditNoteDetailDto = creditNotePrint?.DataAdditional?.find((x: any) => x.Name === 'CreditNoteDetail')?.Data;
     const currencies: CurrencyEntity[] = creditNotePrint?.DataAdditional?.find((x: any) => x.Name === 'CurrencyList')?.Data || [];
     const storeBlock: StoreInfoDto = creditNotePrint?.DataAdditional?.find((x: any) => x.Name === 'Store')?.Data;
+    const paymentList: PaymentMethodEntity[] = creditNotePrint?.DataAdditional?.find((x: any) => x.Name === 'PaymentMethodList')?.Data || [];
 
-    const head : CreditNoteHeadEntity = cnBlock?.Headboard || {};     // tiene: CreationDate, NumTotalPrice, TypeCreditNote, Commenter, SaleCod, CurrencyCod...
-    const doc  : CreditNoteDocumentEntity = cnBlock?.Document  || {};     // tiene: DocumentCod, CounterfoilCod
-    const rows : CreditNoteDetDto[] = cnBlock.DetailList || [];    // arreglo: [{ CreditNoteDet, Product }]
-    const person  : PersonEntity = cnBlock?.Client?.Person || {};
+    const head: CreditNoteHeadEntity = cnBlock?.Headboard || {};     // tiene: CreationDate, NumTotalPrice, TypeCreditNote, Commenter, SaleCod, CurrencyCod...
+    const doc: CreditNoteDocumentEntity = cnBlock?.Document || {};     // tiene: DocumentCod, CounterfoilCod
+    const rows: CreditNoteDetDto[] = cnBlock.DetailList || [];    // arreglo: [{ CreditNoteDet, Product }]
+    const person: PersonEntity = cnBlock?.Client?.Person || {};
+    const payments: SalePaymentEntity[] = cnBlock?.DetailPayment || [];
+    const docRef: SaleDocumentEntity = cnBlock?.DocumentReference || {};
 
     // === Moneda ===
     const currency = currencies.find((c: any) => c.CurrencyCod === head?.CurrencyCod) || { CurrencySymbol: 'S/.' };
@@ -162,8 +166,8 @@ export class TicketSunatService {
     // === Emisor (compañía/tienda) — SOLO con lo que viene en "Store" ===
     const company = storeBlock?.Company || {};
     const companyUbigeoTxt = storeBlock?.CompanyUbigeo || '';
-    const store   = storeBlock?.Store || {};
-    const storeUbigeoTxt   = storeBlock?.StoreUbigeo || '';
+    const store = storeBlock?.Store || {};
+    const storeUbigeoTxt = storeBlock?.StoreUbigeo || '';
 
     const issuer = {
       ruc: company?.TaxId || '00000000000',
@@ -182,9 +186,9 @@ export class TicketSunatService {
     };
 
     // === Cliente: en tu JSON viene "Client": null. No inventamos estructura → usamos valores SUNAT por defecto. ===
-    const customerFullName   = this.safeFullName(person);
-    const customerDocNumber   = (person?.DocumentNum ?? '').toString().trim() || '00000000';
-    const customerDocTypeSunat  = this.mapCustomerDocTypeToSunat(person?.DocumentType);
+    const customerFullName = this.safeFullName(person);
+    const customerDocNumber = (person?.DocumentNum ?? '').toString().trim() || '00000000';
+    const customerDocTypeSunat = this.mapCustomerDocTypeToSunat(person?.DocumentType);
 
     // === Totales/fechas — SOLO con campos presentes ===
     const totalAmount = Number(head?.NumTotalPrice || 0);
@@ -227,7 +231,7 @@ export class TicketSunatService {
     // === Etiquetas propias de NC (también vienen en tu JSON) ===
     const typeNC = (String(head?.TypeCreditNote || '').toUpperCase() === 'T') ? 'TOTAL' : 'PARCIAL';
     const comment = (head?.Commenter || '').toString();
-    const saleRef = (head?.SaleCod || '').toString();
+    const saleRef = (docRef?.DocumentCod || '').toString();
 
     // === HTML base reutilizando tu render ===
     const htmlBase = this.renderHTML({
@@ -252,9 +256,14 @@ export class TicketSunatService {
         igv: this.fmtNum(igvAmount),
         total: this.fmtNum(totalAmount)
       },
-      payments: [], // una NC no muestra pagos
+      payments: payments.map((p: any) => ({
+        medio: this.getPaymentDescription(p?.TrxPayment?.PaymentMethodCod, paymentList) || 'OTRO',
+        monto: this.fmtNum(-1 * p.NumAmountPaid),
+        ref: p?.TrxPayment?.TransactionId || ''
+      })),
       qrDataUrl,
-      qrText
+      qrText,
+      tipDoc: "creditnote"
     });
 
     // === Inyección de bloque informativo de NC (usando SOLO campos del JSON) ===
@@ -334,7 +343,7 @@ export class TicketSunatService {
 
   private escape(s: any): string {
     return String(s ?? '')
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   /** Tipo doc SUNAT para Nota de Crédito (07).
@@ -371,14 +380,14 @@ export class TicketSunatService {
       return { base: Number(baseFromDto), tax: Number(taxFromDto) };
     }
     const base = +(totalN / (1 + rate)).toFixed(2);
-    const tax  = +(totalN - base).toFixed(2);
+    const tax = +(totalN - base).toFixed(2);
     return { base, tax };
   }
 
   private splitTaxValuesFromTotal(total: number, rate = 0.18) {
     const totalN = Number(total || 0);
     const base = +(totalN / (1 + rate)).toFixed(2);
-    const tax  = +(totalN - base).toFixed(2);
+    const tax = +(totalN - base).toFixed(2);
     return { base, tax };
   }
 
@@ -386,7 +395,7 @@ export class TicketSunatService {
   /** ========= HTML 80mm (más ancho útil) ========= */
   private renderHTML(data: {
     issuer: any, document: any, customer: any, items: any[],
-    totals: any, payments: any[], qrDataUrl: string, qrText: string
+    totals: any, payments: any[], qrDataUrl: string, qrText: string, tipDoc: string
   }): string {
 
     const lines = (arr: any[]) => arr.join('');
@@ -405,16 +414,16 @@ export class TicketSunatService {
     ));
 
     // --- Cálculo de anchos efectivos (80mm real) ---
-const LEFT = this.LEFT_OFFSET_MM;
-const PAD  = this.H_PADDING_MM;
+    const LEFT = this.LEFT_OFFSET_MM;
+    const PAD = this.H_PADDING_MM;
 
-// Muchas térmicas 80mm imprimen ~72–80mm. Vamos al límite (79mm).
-const PRINTABLE_MAX_MM = 79;
+    // Muchas térmicas 80mm imprimen ~72–80mm. Vamos al límite (79mm).
+    const PRINTABLE_MAX_MM = 79;
 
-const calcWidth = Math.min(this.PAPER_WIDTH_MM - LEFT, PRINTABLE_MAX_MM);
+    const calcWidth = Math.min(this.PAPER_WIDTH_MM - LEFT, PRINTABLE_MAX_MM);
 
-// --- CSS ---
-const css = `
+    // --- CSS ---
+    const css = `
       @media print {
         @page { size: ${this.PAPER_WIDTH_MM}mm auto; margin: 0; }
         body { margin: 0; }
@@ -514,16 +523,17 @@ const css = `
         <span>${this.escape(data.document.currencySymbol)} ${data.totals.total}</span>
       </div>
 
-      ${data.payments.length ? `<div class="sep"></div><div class="small bold">PAGOS</div>${pagoRows}` : ''}
+      ${data.tipDoc === "sale" ? `<div class="sep"></div><div class="small bold">PAGOS</div>${pagoRows}` : ''}
 
       <div class="subttl small">
-        <span>Total Pagado</span>
+        <span>Importe Total</span>
         <span>${this.escape(data.document.currencySymbol)} ${this.fmtNum(totalPagado)}</span>
       </div>
-      <div class="subttl small">
+
+      ${data.tipDoc === "sale" ? `<div class="subttl small">
         <span>Vuelto</span>
         <span>${this.escape(data.document.currencySymbol)} ${this.fmtNum(vuelto)}</span>
-      </div>
+      </div>` : ''}
 
       <div class="sep"></div>
       <div class="qr">

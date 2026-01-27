@@ -215,7 +215,7 @@
                             {{  SaleDetail.Headboard.CurrencyCod }} {{ SaleDetail.Headboard.NumTotalTax | FormatoMonedaPeruana : false }}
                               </span>
                         </div>
-                      </div>
+                      </div>                      
 
                       <a *ngIf="(SaleDetail.Headboard.SaleStatus !== 'C' && enableButtonPay)"
                         class="row my-3 align-items-center bgc-green-d3 p-2 radius-1" 
@@ -263,6 +263,18 @@
                               Pago total realizado de <b>{{  SaleDetail.Headboard.CurrencyCod }} {{ SaleDetail.Headboard.NumTotalPrice | FormatoMonedaPeruana : false }}</b>
                             </span>
                           </div>
+                        </div>
+                      </div>
+
+                      <div class="row my-2">
+                        <div class="col-7 text-right">
+                          Vuelto
+                        </div>
+
+                        <div class="col-5">
+                          <span class="text-115 text-secondary-d3">
+                            {{  SaleDetail.Headboard.CurrencyCod }} {{ getAmountReturned() | FormatoMonedaPeruana : false }}
+                              </span>
                         </div>
                       </div>
 
@@ -323,8 +335,14 @@
             <h3 class="text-success-d1 text-130">Operación realizada con exito!</h3>
             Pago completado <b>exitosamente</b> ya puede retirar sus productos.
           </div>
-  
         </div>
+        <div class="alert fade show bgc-white text-dark-tp3 border-1 brc-secondary-l2 shadow-sm radius-0 py-3 d-flex align-items-start">
+          <div class="text-dark-tp3" *ngIf="(getAmountReturned() > 0)">
+              <h3 class="text-success-d1 text-130">Entrega el vuelto al cliente</h3>
+              <b>vuelto : </b> {{  SaleDetail.Headboard.CurrencyCod }} {{ getAmountReturned() | FormatoMonedaPeruana : false }}
+          </div>
+        </div>
+      
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal">

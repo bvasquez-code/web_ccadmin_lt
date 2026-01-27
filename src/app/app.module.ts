@@ -57,6 +57,14 @@ import { ReturnstockcreditnoteComponent } from './enterprise/sale/pages/returnst
 import { SaleStatusPipePipe } from './enterprise/sale/model/pipes/SaleStatusPipe.pipe';
 import { ProductinfosalemodalComponent } from './enterprise/sale/modal/productinfosalemodal/productinfosalemodal.component';
 import { ViewcreditnoteComponent } from './enterprise/sale/pages/viewcreditnote/viewcreditnote.component';
+import { ListcashregisterComponent } from './enterprise/cash/pages/listcashregister/listcashregister.component';
+import { CreatecashregisterComponent } from './enterprise/cash/pages/createcashregister/createcashregister.component';
+import { OpencashsessionComponent } from './enterprise/cash/pages/opencashsession/opencashsession.component';
+import { ClosecashsessionComponent } from './enterprise/cash/pages/closecashsession/closecashsession.component';
+import { ViewcashsessionComponent } from './enterprise/cash/pages/viewcashsession/viewcashsession.component';
+import { FormsModule } from '@angular/forms';
+import { ListcounterfoilComponent } from './enterprise/cash/pages/listcounterfoil/listcounterfoil.component';
+import { CreatecounterfoilComponent } from './enterprise/cash/pages/createcounterfoil/createcounterfoil.component';
 
 @NgModule({
   declarations: [
@@ -107,7 +115,14 @@ import { ViewcreditnoteComponent } from './enterprise/sale/pages/viewcreditnote/
     ReturnstockcreditnoteComponent,
     SaleStatusPipePipe,
     ProductinfosalemodalComponent,
-    ViewcreditnoteComponent
+    ViewcreditnoteComponent,
+    ListcashregisterComponent,
+    CreatecashregisterComponent,
+    OpencashsessionComponent,
+    ClosecashsessionComponent,
+    ViewcashsessionComponent,
+    ListcounterfoilComponent,
+    CreatecounterfoilComponent
   ],
   imports: [
     BrowserModule,
@@ -116,6 +131,7 @@ import { ViewcreditnoteComponent } from './enterprise/sale/pages/viewcreditnote/
     CommonModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
+    FormsModule
   ],
   providers: [
     {

@@ -21,8 +21,7 @@ import { AlertService } from 'src/app/enterprise/shared/service/AlertService';
   templateUrl: './createcreditnote.component.html'
 })
 export class CreatecreditnoteComponent
-  implements OnInit, IRegisterFormV2<CreditNoteRegisterDto, string, CreditNoteDetailDto>
-{
+  implements OnInit, IRegisterFormV2<CreditNoteRegisterDto, string, CreditNoteDetailDto> {
   @ViewChild('txtDocumentCod') txtDocumentCod!: ElementRef<HTMLInputElement>;
   @ViewChild('txtCommenter') txtCommenter!: ElementRef<HTMLInputElement>;
 
@@ -42,7 +41,7 @@ export class CreatecreditnoteComponent
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly alertService: AlertService
-  ) {}
+  ) { }
 
   // ===== Requerido por IRegisterFormV2 =====
   GetParamUrl(router: Router): void {
@@ -83,8 +82,8 @@ export class CreatecreditnoteComponent
 
   get currencyCode(): string {
     return this.CreditNoteRegister.Headboard?.CurrencyCod
-        || this.SaleDetail.Headboard?.CurrencyCod
-        || '';
+      || this.SaleDetail.Headboard?.CurrencyCod
+      || '';
   }
 
   trackByProductVariant = (_: number, it: SaleDetEntity) => `${it.ProductCod}#${it.Variant}`;
@@ -219,7 +218,7 @@ export class CreatecreditnoteComponent
       this.CreditNoteRegister.Document = cn.Document;
 
       // heredar campos clave de la venta si faltan
-      const Headboard : CreditNoteHeadEntity = this.CreditNoteRegister.Headboard;
+      const Headboard: CreditNoteHeadEntity = this.CreditNoteRegister.Headboard;
       Headboard.SaleCod = Headboard.SaleCod ?? this.SaleDetail.Headboard?.SaleCod;
       Headboard.StoreCod = Headboard.StoreCod ?? this.SaleDetail.Headboard?.StoreCod;
       Headboard.ClientCod = Headboard.ClientCod ?? this.SaleDetail.Headboard?.ClientCod ?? null;
@@ -302,8 +301,6 @@ export class CreatecreditnoteComponent
 
   async Save(): Promise<void> {
 
-    
-
     if (!this.SaleDetail.Headboard?.SaleCod) {
       this.toastrService.error('no hay una venta seleccionada.');
       return;
@@ -316,7 +313,7 @@ export class CreatecreditnoteComponent
     }
 
     // preparar head
-    const Headboard : CreditNoteHeadEntity = (this.CreditNoteRegister.Headboard);
+    const Headboard: CreditNoteHeadEntity = (this.CreditNoteRegister.Headboard);
     if (!Headboard.CreditNoteCod) Headboard.CreditNoteCod = await this.CreateCode();
 
     Headboard.SaleCod = this.SaleDetail.Headboard.SaleCod;
@@ -360,24 +357,24 @@ export class CreatecreditnoteComponent
     }
   }
 
-  async Confirm(creditNoteHead : CreditNoteHeadEntity): Promise<void> {
+  async Confirm(creditNoteHead: CreditNoteHeadEntity): Promise<void> {
 
-    const CreditNoteRegister : CreditNoteRegisterDto = new CreditNoteRegisterDto();
+    const CreditNoteRegister: CreditNoteRegisterDto = new CreditNoteRegisterDto();
     CreditNoteRegister.Headboard = creditNoteHead;
 
-    const rpt : ResponseWsDto = await this.creditNoteService.Confirm(CreditNoteRegister);
+    const rpt: ResponseWsDto = await this.creditNoteService.Confirm(CreditNoteRegister);
 
-    if(!rpt.ErrorStatus){
+    if (!rpt.ErrorStatus) {
       this.toastrService.success("Nota de credito confirmada");
-      window.location.assign(`/enterprise/sale/pages/viewcreditnote?CreditNoteCod=${creditNoteHead.CreditNoteCod}`);
+      window.location.assign(`/enterprise/sale/pages/viewcreditnote?CreditNoteCod=${creditNoteHead.CreditNoteCod}&AutoPrint=Y`);
     }
   }
 
-  getClient(){
+  getClient() {
     const Client = this.SaleDetail.Headboard.Client;
-    if(Client && Client.Person && Client.Person.DocumentNum){
+    if (Client && Client.Person && Client.Person.DocumentNum) {
       return Client.Person?.DocumentNum + ' - ' + Client.Person.Names + ' ' + Client.Person.LastNames;
-    }else{
+    } else {
       return '';
     }
   }

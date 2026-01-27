@@ -33,56 +33,63 @@ import { ListcreditnoteComponent } from './enterprise/sale/pages/listcreditnote/
 import { CreatecreditnoteComponent } from './enterprise/sale/pages/createcreditnote/createcreditnote.component';
 import { ReturnstockcreditnoteComponent } from './enterprise/sale/pages/returnstockcreditnote/returnstockcreditnote.component';
 import { ViewcreditnoteComponent } from './enterprise/sale/pages/viewcreditnote/viewcreditnote.component';
+import { ClosecashsessionComponent } from './enterprise/cash/pages/closecashsession/closecashsession.component';
+import { ListcashregisterComponent } from './enterprise/cash/pages/listcashregister/listcashregister.component';
+import { CreatecashregisterComponent } from './enterprise/cash/pages/createcashregister/createcashregister.component';
+import { OpencashsessionComponent } from './enterprise/cash/pages/opencashsession/opencashsession.component';
+import { ViewcashsessionComponent } from './enterprise/cash/pages/viewcashsession/viewcashsession.component';
+import { ListcounterfoilComponent } from './enterprise/cash/pages/listcounterfoil/listcounterfoil.component';
+import { CreatecounterfoilComponent } from './enterprise/cash/pages/createcounterfoil/createcounterfoil.component';
 
 const routes: Routes = [
   {
-    path :'',
-    component : MainComponent
+    path: '',
+    component: MainComponent
   },
   {
-    path :'',
-    component : MainComponent,
-    children : [
+    path: '',
+    component: MainComponent,
+    children: [
       {
-        path :'pages/prueba',
-        component : PruebaComponent
+        path: 'pages/prueba',
+        component: PruebaComponent
       }
     ]
   },
   {
-    path :'login',
-    component : LoginComponent
+    path: 'login',
+    component: LoginComponent
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
       {
-        path :'enterprise/sale/pages/createpresale',
-        component : CreatepresaleComponent
+        path: 'enterprise/sale/pages/createpresale',
+        component: CreatepresaleComponent
       },
       {
-        path :'enterprise/sale/pages/listpresale',
-        component : ListpresaleComponent
+        path: 'enterprise/sale/pages/listpresale',
+        component: ListpresaleComponent
       },
       {
-        path :'enterprise/sale/pages/listsale',
-        component : ListsaleComponent
+        path: 'enterprise/sale/pages/listsale',
+        component: ListsaleComponent
       },
       {
-        path :'enterprise/sale/pages/createsale',
-        component : CreatesaleComponent
+        path: 'enterprise/sale/pages/createsale',
+        component: CreatesaleComponent
       },
       {
-        path :'enterprise/sale/pages/listcreditnote',
-        component : ListcreditnoteComponent
+        path: 'enterprise/sale/pages/listcreditnote',
+        component: ListcreditnoteComponent
       },
       {
-        path :'enterprise/sale/pages/createcreditnote',
-        component : CreatecreditnoteComponent
+        path: 'enterprise/sale/pages/createcreditnote',
+        component: CreatecreditnoteComponent
       },
       {
-        path :'enterprise/sale/pages/returnstockcreditnote',
-        component : ReturnstockcreditnoteComponent
+        path: 'enterprise/sale/pages/returnstockcreditnote',
+        component: ReturnstockcreditnoteComponent
       },
       {
         path: 'enterprise/sale/pages/viewcreditnote',
@@ -91,122 +98,138 @@ const routes: Routes = [
     ]
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
       {
-        path :'enterprise/menu/pages/listmenu',
-        component : ListmenuComponent
+        path: 'enterprise/menu/pages/listmenu',
+        component: ListmenuComponent
       },
       {
-        path :'enterprise/menu/pages/createmenu',
-        component : CreatemenuComponent
+        path: 'enterprise/menu/pages/createmenu',
+        component: CreatemenuComponent
       }
     ]
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
       {
-        path :'enterprise/user/pages/listuser',
-        component : ListuserComponent
+        path: 'enterprise/user/pages/listuser',
+        component: ListuserComponent
       },
       {
-        path :'enterprise/user/pages/createuser',
-        component : CreateuserComponent
+        path: 'enterprise/user/pages/createuser',
+        component: CreateuserComponent
       },
       {
-        path :'enterprise/user/pages/listprofile',
-        component : ListprofileComponent
+        path: 'enterprise/user/pages/listprofile',
+        component: ListprofileComponent
       },
       {
-        path :'enterprise/user/pages/createprofile',
-        component : CreateprofileComponent
+        path: 'enterprise/user/pages/createprofile',
+        component: CreateprofileComponent
       }
     ]
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
       {
-        path :'enterprise/client/pages/listclient',
-        component : ListclientComponent
+        path: 'enterprise/client/pages/listclient',
+        component: ListclientComponent
       },
       {
-        path :'enterprise/client/pages/createclient',
-        component : CreateclientComponent
+        path: 'enterprise/client/pages/createclient',
+        component: CreateclientComponent
       }
     ]
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
       {
-        path :'enterprise/product/pages/listProduct',
-        component : ListproductComponent
+        path: 'enterprise/product/pages/listProduct',
+        component: ListproductComponent
       },
       {
-        path :'enterprise/product/pages/createProduct',
-        component : CreateproductComponent
+        path: 'enterprise/product/pages/createProduct',
+        component: CreateproductComponent
       },
       {
-        path :'enterprise/product/pages/listBrand',
-        component : ListbrandComponent
+        path: 'enterprise/product/pages/listBrand',
+        component: ListbrandComponent
       },
       {
-        path :'enterprise/product/pages/createBrand',
-        component : CreatebrandComponent
+        path: 'enterprise/product/pages/createBrand',
+        component: CreatebrandComponent
       },
       {
-        path :'enterprise/product/pages/listCategory',
-        component : ListcategoryComponent
+        path: 'enterprise/product/pages/listCategory',
+        component: ListcategoryComponent
       },
       {
-        path :'enterprise/product/pages/createCategory',
-        component : CreatecategoryComponent
+        path: 'enterprise/product/pages/createCategory',
+        component: CreatecategoryComponent
       },
       {
-        path :'enterprise/product/pages/listkardex',
-        component : ListkardexComponent
+        path: 'enterprise/product/pages/listkardex',
+        component: ListkardexComponent
       }
     ]
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
       {
-        path :'enterprise/pucharse/pages/listpucharse',
-        component : ListpucharseComponent
+        path: 'enterprise/pucharse/pages/listpucharse',
+        component: ListpucharseComponent
       },
       {
-        path :'enterprise/pucharse/pages/createpucharse',
-        component : CreatepucharseComponent
+        path: 'enterprise/pucharse/pages/createpucharse',
+        component: CreatepucharseComponent
       },
       {
-        path :'enterprise/pucharse/pages/confirmpucharse',
-        component : ConfirmpucharseComponent
+        path: 'enterprise/pucharse/pages/confirmpucharse',
+        component: ConfirmpucharseComponent
       }
       ,
       {
-        path :'enterprise/pucharse/pages/listreception',
-        component : ListreceptionComponent
+        path: 'enterprise/pucharse/pages/listreception',
+        component: ListreceptionComponent
       }
     ]
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
+      { path: 'enterprise/cash/pages/listcashregister', component: ListcashregisterComponent },
+      { path: 'enterprise/cash/pages/createcashregister', component: CreatecashregisterComponent },
+
+      { path: 'enterprise/cash/pages/opencashsession', component: OpencashsessionComponent },
+      { path: 'enterprise/cash/pages/closecashsession', component: ClosecashsessionComponent },
+      { path: 'enterprise/cash/pages/viewcashsession', component: ViewcashsessionComponent },
+
+      { path: 'enterprise/cash/pages/listcounterfoil', component: ListcounterfoilComponent },
+      { path: 'enterprise/cash/pages/createcounterfoil', component: CreatecounterfoilComponent },
+
+    ]
+  },
+
+  {
+    path: '',
+    children: [
       {
-        path :'enterprise/pucharse/pages/createtrxpayment',
-        component : CreatetrxpaymentComponent
+        path: 'enterprise/pucharse/pages/createtrxpayment',
+        component: CreatetrxpaymentComponent
       }
     ]
   },
   {
-    path :'',
-    children : [
+    path: '',
+    children: [
       {
-        path :'enterprise/system/pages/appfile',
-        component : AppfileComponent
+        path: 'enterprise/system/pages/appfile',
+        component: AppfileComponent
       }
     ]
   }

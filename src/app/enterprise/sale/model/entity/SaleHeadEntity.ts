@@ -1,8 +1,7 @@
 import { AuditTableEntity } from '../../../shared/model/entity/AuditTableEntity';
 import { ClientEntity } from '../../../client/model/entity/ClientEntity';
-export class SaleHeadEntity extends AuditTableEntity
-{
-    public SaleCod: string = "";
+export class SaleHeadEntity extends AuditTableEntity {
+	public SaleCod: string = "";
 	public PresaleCod: string = "";
 	public StoreCod: string = "";
 	public ClientCod: string = "";
@@ -18,11 +17,11 @@ export class SaleHeadEntity extends AuditTableEntity
 	public CurrencyCodSys: string = "";
 	public NumExchangevalue: number = 0;
 	public IsPaid: string = "";
+	public HasCreditNote: string = "N";
 
-	public Client : ClientEntity  = new ClientEntity();
+	public Client: ClientEntity = new ClientEntity();
 
-    public constructor()
-    {
-        super();
-    }
+	public constructor() {
+		super();
+	}
 }

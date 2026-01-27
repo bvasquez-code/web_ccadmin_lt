@@ -10,14 +10,13 @@ import { ValidationHelper } from 'src/app/enterprise/shared/helper/ValidationHel
   selector: 'app-createcategory',
   templateUrl: './createcategory.component.html'
 })
-export class CreatecategoryComponent implements OnInit,IRegisterForm<CategoryEntity,string> {
+export class CreatecategoryComponent implements OnInit, IRegisterForm<CategoryEntity, string> {
 
-  CategoryCod : string = "";
-  Category : CategoryEntity = new CategoryEntity();
-  CategoryDadList : CategoryEntity[] = [];
-  txtCategoryCodReadOnly : boolean = false;
-  cboCategoryDadCodvisibility : boolean = false;
-  validationHelp : ValidationHelper = new ValidationHelper();
+  CategoryCod: string = "";
+  Category: CategoryEntity = new CategoryEntity();
+  CategoryDadList: CategoryEntity[] = [];
+  txtCategoryCodReadOnly: boolean = false;
+  cboCategoryDadCodvisibility: boolean = false;
 
   @ViewChild('txtCategoryCod') txtCategoryCod!: ElementRef<HTMLInputElement>;
   @ViewChild('txtCategoryName') txtCategoryName!: ElementRef<HTMLInputElement>;
@@ -26,32 +25,30 @@ export class CreatecategoryComponent implements OnInit,IRegisterForm<CategoryEnt
   @ViewChild('cboIsCategoryDad') cboIsCategoryDad!: ElementRef<HTMLSelectElement>;
 
   constructor(
-    private categoryService : CategoryService,
+    private categoryService: CategoryService,
     private router: Router,
-    private toastrService : ToastrService
-  )
-  {
+    private toastrService: ToastrService
+  ) {
     this.GetParamUrl(this.router);
     this.FindDataForm(this.CategoryCod);
   }
 
   GetParamUrl(router: Router): void {
-    let urlTree : any = router.parseUrl(this.router.url);
-    this.CategoryCod =  (urlTree.queryParams['CategoryCod']) ? urlTree.queryParams['CategoryCod'] : "";
+    let urlTree: any = router.parseUrl(this.router.url);
+    this.CategoryCod = (urlTree.queryParams['CategoryCod']) ? urlTree.queryParams['CategoryCod'] : "";
   }
   async FindDataForm(CategoryCod: string): Promise<void> {
     const rpt = await this.categoryService.FindDataForm(this.CategoryCod);
 
-    if( !rpt.ErrorStatus )
-    {
-      this.Category = rpt.DataAdditional.find( e => e.Name === "category" )?.Data;
-      this.CategoryDadList = rpt.DataAdditional.find( e => e.Name === "categoryDadList" )?.Data;
+    if (!rpt.ErrorStatus) {
+      this.Category = rpt.DataAdditional.find(e => e.Name === "category")?.Data;
+      this.CategoryDadList = rpt.DataAdditional.find(e => e.Name === "categoryDadList")?.Data;
 
-      setTimeout(() => {this.LoadingForm(this.Category);}, 100);
+      setTimeout(() => { this.LoadingForm(this.Category); }, 100);
     }
   }
   LoadingForm(Category: CategoryEntity): void {
-    if(!Category) return;
+    if (!Category) return;
     this.txtCategoryCodReadOnly = true;
 
     this.txtCategoryCod.nativeElement.value = Category.CategoryCod;
@@ -63,7 +60,7 @@ export class CreatecategoryComponent implements OnInit,IRegisterForm<CategoryEnt
   }
   async Save(): Promise<void> {
 
-    if(!this.Category) this.Category = new CategoryEntity();
+    if (!this.Category) this.Category = new CategoryEntity();
 
     this.Category.CategoryCod = this.txtCategoryCod.nativeElement.value;
     this.Category.CategoryName = this.txtCategoryName.nativeElement.value;
@@ -71,11 +68,10 @@ export class CreatecategoryComponent implements OnInit,IRegisterForm<CategoryEnt
     this.Category.IsDigital = this.cboIsDigital.nativeElement.value;
     this.Category.IsCategoryDad = this.cboIsCategoryDad.nativeElement.value;
 
-    if(!this.validate(this.Category)) return;
+    if (!this.validate(this.Category)) return;
 
     const rpt = await this.categoryService.Save(this.Category);
-    if( !rpt.ErrorStatus )
-    {
+    if (!rpt.ErrorStatus) {
       this.toastrService.success("Operación realizada con exito.");
 
       this.router.navigate(['/enterprise/product/pages/listCategory']);
@@ -85,36 +81,35 @@ export class CreatecategoryComponent implements OnInit,IRegisterForm<CategoryEnt
     throw new Error('Method not implemented.');
   }
 
-  IsCategoryDad()
-  {
-    this.cboCategoryDadCodvisibility = ( this.cboIsCategoryDad.nativeElement.value === "S" ) ? false : true;
+  IsCategoryDad() {
+    this.cboCategoryDadCodvisibility = (this.cboIsCategoryDad.nativeElement.value === "S") ? false : true;
   }
 
-  validate(Category : CategoryEntity){
-    try{
-      this.validationHelp.validLengthString(Category.CategoryCod,10,"El codigo de cateogia solo puedo tener 10 caracteres");
-      this.validationHelp.validateIsNotEmpty(Category.CategoryCod,"Codigo de cateogia no puede ser vacio");
+  validate(Category: CategoryEntity) {
+    try {
+      ValidationHelper.validLengthString(Category.CategoryCod, 10, "El codigo de cateogia solo puedo tener 10 caracteres");
+      ValidationHelper.validateIsNotEmpty(Category.CategoryCod, "Codigo de cateogia no puede ser vacio");
 
-      this.validationHelp.validLengthString(Category.CategoryName,128,"El nombre de cateogia solo puedo tener 128 caracteres");
-      this.validationHelp.validateIsNotEmpty(Category.CategoryName,"Nombre de cateogia no puede ser vacio");
+      ValidationHelper.validLengthString(Category.CategoryName, 128, "El nombre de cateogia solo puedo tener 128 caracteres");
+      ValidationHelper.validateIsNotEmpty(Category.CategoryName, "Nombre de cateogia no puede ser vacio");
 
-      if(Category.IsCategoryDad === "N"){
-        this.validationHelp.validateIsNotEmpty(Category.CategoryDadCod,"Selecciona el codigo de categoria padre");
+      if (Category.IsCategoryDad === "N") {
+        ValidationHelper.validateIsNotEmpty(Category.CategoryDadCod, "Selecciona el codigo de categoria padre");
       }
-      
+
       return true;
-    }catch(e : any){
+    } catch (e: any) {
       this.toastrService.error(e.message);
       return false;
     }
   }
 
-  validateKeypress(event: KeyboardEvent,id: string){
-    try{
-      if(id === "txtCategoryCod"){
-        this.validationHelp.isValidString(event.key.toString(),"Error",/[a-zA-Z0-9]/);
+  validateKeypress(event: KeyboardEvent, id: string) {
+    try {
+      if (id === "txtCategoryCod") {
+        ValidationHelper.isValidString(event.key.toString(), "Error", /[a-zA-Z0-9]/);
       }
-    }catch(e : any){
+    } catch (e: any) {
       event.preventDefault();
     }
   }

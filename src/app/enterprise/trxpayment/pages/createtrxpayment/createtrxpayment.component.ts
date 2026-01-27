@@ -11,6 +11,7 @@ import { CreditNoteService } from 'src/app/enterprise/sale/service/CreditNote.se
 import { CreditNoteDetailDto } from 'src/app/enterprise/sale/model/dto/CreditNoteDetailDto';
 import { TrxPaymentComponenRequestDto } from '../../model/dto/TrxPaymentComponenRequestDto';
 import { ElementHtmlDto } from 'src/app/enterprise/shared/model/dto/ElementHtmlDto';
+import { AlertService } from 'src/app/enterprise/shared/service/AlertService';
 
 @Component({
   selector: 'app-createtrxpayment',
@@ -39,7 +40,8 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
   constructor(
     private toastrService : ToastrService,
     private trxPaymentService : TrxPaymentService,
-    private creditNoteService : CreditNoteService
+    private creditNoteService : CreditNoteService,
+    private alertService : AlertService
   ){
     setTimeout(() => {this.loadingModal();}, 100);
   }
@@ -74,6 +76,8 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
     let paymentMethod : undefined | PaymentMethodEntity = this.paymentMethodList.find( e => e.PaymentMethodCod ===  PaymentMethodCodSelect );
     let Currency : undefined | CurrencyEntity = this.currencyList.find( e => e.CurrencyCod ===  CurrencyCodSelect );
 
+    let outstandingBalance : number = Number(this.TrxPaymentComponenRequest.InputOutstandingBalance);
+
     if(paymentMethod){
 
       if(this.IsCash(paymentMethod)){
@@ -100,6 +104,23 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
       this.toastrService.error("El monto a pagar debe ser mayor a cero.");
       return;
     }
+
+    if (outstandingBalance == 0) {
+      this.toastrService.error("Ya no existe saldo por pagar.");
+      return;
+    }
+    if(paymentMethod){
+      if(this.IsCard(paymentMethod) && this.trxPayment.AmountPaid > outstandingBalance){
+        this.toastrService.error("Para este tipos de medios de pago no se puede pagar montos superiores al saldo.");
+        return;
+      }
+
+      if(this.IsCash(paymentMethod) && this.trxPayment.AmountPaid > outstandingBalance){
+        this.trxPayment.AmountReturned = this.trxPayment.AmountPaid - outstandingBalance;
+      }
+
+    }
+
 
     const rpt : ResponseWsDto = await this.trxPaymentService.Save(this.trxPayment);
 

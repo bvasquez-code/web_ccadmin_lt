@@ -19,16 +19,15 @@ import { ProductBarcodeEntity } from '../../model/entity/ProductBarcodeEntity';
 })
 export class CreateproductComponent implements OnInit {
 
-  ProductCod : string = "";
-  ProductRegister : ProductRegisterDto = new ProductRegisterDto();
-  BrandList : BrandEntity[] = [];
-  CategoryList : CategoryEntity[] = [];
-  validation : ValidationHelper = new ValidationHelper();
+  ProductCod: string = "";
+  ProductRegister: ProductRegisterDto = new ProductRegisterDto();
+  BrandList: BrandEntity[] = [];
+  CategoryList: CategoryEntity[] = [];
 
   lastKeypressTime: number = 0;
-  inputBuffer: string = ''; 
+  inputBuffer: string = '';
 
-  txtProductCodreadonly : boolean = false;
+  txtProductCodreadonly: boolean = false;
 
   @ViewChild('txtBarCode') txtBarCode!: ElementRef<HTMLInputElement>;
   @ViewChild('txtProductCod') txtProductCod!: ElementRef<HTMLInputElement>;
@@ -41,37 +40,33 @@ export class CreateproductComponent implements OnInit {
   @ViewChild('txtNumMinStock') txtNumMinStock!: ElementRef<HTMLInputElement>;
 
   constructor(
-    private productService : ProductService,
+    private productService: ProductService,
     private router: Router,
-    private toastrService : ToastrService
-  ) 
-  { 
-    let urlTree : any = this.router.parseUrl(this.router.url);
-    this.ProductCod =  (urlTree.queryParams['ProductCod']) ? urlTree.queryParams['ProductCod'] : "";
+    private toastrService: ToastrService
+  ) {
+    let urlTree: any = this.router.parseUrl(this.router.url);
+    this.ProductCod = (urlTree.queryParams['ProductCod']) ? urlTree.queryParams['ProductCod'] : "";
     this.FindDataForm(this.ProductCod);
   }
 
   ngOnInit(): void {
   }
 
-  async FindDataForm(ProductCod : string)
-  {
-    const rpt : ResponseWsDto = await this.productService.FindDataForm(ProductCod);
+  async FindDataForm(ProductCod: string) {
+    const rpt: ResponseWsDto = await this.productService.FindDataForm(ProductCod);
 
-    if( !rpt.ErrorStatus )
-    {
-      this.BrandList = rpt.DataAdditional.find( e => e.Name === "brandList" )?.Data;
-      this.CategoryList = rpt.DataAdditional.find( e => e.Name === "categoryList" )?.Data;
-      this.ProductRegister = rpt.DataAdditional.find( e => e.Name === "product" )?.Data;
+    if (!rpt.ErrorStatus) {
+      this.BrandList = rpt.DataAdditional.find(e => e.Name === "brandList")?.Data;
+      this.CategoryList = rpt.DataAdditional.find(e => e.Name === "categoryList")?.Data;
+      this.ProductRegister = rpt.DataAdditional.find(e => e.Name === "product")?.Data;
 
-      setTimeout(() => {this.loadingForm(this.ProductRegister);}, 100);
-      
+      setTimeout(() => { this.loadingForm(this.ProductRegister); }, 100);
+
     }
   }
 
-  loadingForm(ProductRegister : ProductRegisterDto)
-  {
-    if(!this.ProductRegister) return;
+  loadingForm(ProductRegister: ProductRegisterDto) {
+    if (!this.ProductRegister) return;
 
     this.txtProductCod.nativeElement.value = this.ProductRegister.product.ProductCod;
     this.txtProductName.nativeElement.value = this.ProductRegister.product.ProductName;
@@ -85,15 +80,13 @@ export class CreateproductComponent implements OnInit {
     this.txtNumMinStock.nativeElement.value = String(this.ProductRegister.config.NumMinStock);
     this.txtProductCodreadonly = true;
 
-    if(this.ProductRegister.productBarcode){
+    if (this.ProductRegister.productBarcode) {
       this.txtBarCode.nativeElement.value = this.ProductRegister.productBarcode.BarCode;
     }
   }
 
-  async save()
-  {
-    if(!this.ProductRegister)
-    {
+  async save() {
+    if (!this.ProductRegister) {
       this.ProductRegister = new ProductRegisterDto();
     }
     this.ProductRegister.product.ProductCod = this.txtProductCod.nativeElement.value;
@@ -111,41 +104,39 @@ export class CreateproductComponent implements OnInit {
     this.ProductRegister.config.NumDiscountMax = 0;
     this.ProductRegister.config.Version = "V.1";
 
-    if(!this.ProductRegister.productBarcode){
+    if (!this.ProductRegister.productBarcode) {
       this.ProductRegister.productBarcode = new ProductBarcodeEntity();
     }
 
     this.ProductRegister.productBarcode.ProductCod = this.txtProductCod.nativeElement.value;
     this.ProductRegister.productBarcode.BarCode = this.txtBarCode.nativeElement.value;
 
-    if(!this.validate(this.ProductRegister)) return;
+    if (!this.validate(this.ProductRegister)) return;
 
-    const rpt : ResponseWsDto = await this.productService.Save(this.ProductRegister);
+    const rpt: ResponseWsDto = await this.productService.Save(this.ProductRegister);
 
-    if( !rpt.ErrorStatus )
-    {
+    if (!rpt.ErrorStatus) {
       this.toastrService.success("Operación realizada con exito.");
 
       this.router.navigate(['/enterprise/product/pages/listProduct']);
-    }else{
+    } else {
       this.toastrService.error(rpt.Message);
     }
   }
 
-  ResponseResultFormAppFile(event : any){
+  ResponseResultFormAppFile(event: any) {
 
-    const appFile : AppFileEntity = event;
+    const appFile: AppFileEntity = event;
 
     console.log(appFile);
 
-    if(appFile){
+    if (appFile) {
 
-      if(!this.ProductRegister)
-      {
+      if (!this.ProductRegister) {
         this.ProductRegister = new ProductRegisterDto();
       }
 
-      let productPicture : ProductPictureEntity = new ProductPictureEntity();
+      let productPicture: ProductPictureEntity = new ProductPictureEntity();
 
       productPicture.FileCod = appFile.FileCod;
       productPicture.ProductCod = this.txtProductCod.nativeElement.value;
@@ -158,21 +149,21 @@ export class CreateproductComponent implements OnInit {
 
   }
 
-  setImagePrincipal(FileCod : string){
+  setImagePrincipal(FileCod: string) {
 
     this.ProductRegister.pictureList.forEach(picture => {
       picture.IsPrincipal = 'N';
     });
 
-    const fileImage = this.ProductRegister.pictureList.find( e=> e.FileCod === FileCod);
+    const fileImage = this.ProductRegister.pictureList.find(e => e.FileCod === FileCod);
 
-    if(fileImage){
+    if (fileImage) {
       fileImage.IsPrincipal = "S";
     }
-    
+
   }
 
-  async deleteImage(productPicture : ProductPictureEntity){
+  async deleteImage(productPicture: ProductPictureEntity) {
 
     Swal.fire({
       title: '¿Estás seguro?',
@@ -193,46 +184,46 @@ export class CreateproductComponent implements OnInit {
     });
   }
 
-  validate(productRegister : ProductRegisterDto):boolean{
-    try{
-      
+  validate(productRegister: ProductRegisterDto): boolean {
+    try {
 
-      this.validation.validLengthString(productRegister.product.ProductCod,20,"El codigo de producto solo puedo tener 20 caracteres");
-      this.validation.validateIsNotEmpty(productRegister.product.ProductCod,"Debe ingresar un codigo para el producto");
 
-      this.validation.validLengthString(productRegister.product.ProductName,128,"El nombre del producto solo puede tener 128 caracteres");
-      this.validation.validateIsNotEmpty(productRegister.product.ProductName,"Debe ingresar un nombre para el producto");
+      ValidationHelper.validLengthString(productRegister.product.ProductCod, 20, "El codigo de producto solo puedo tener 20 caracteres");
+      ValidationHelper.validateIsNotEmpty(productRegister.product.ProductCod, "Debe ingresar un codigo para el producto");
 
-      this.validation.validLengthString(productRegister.product.ProductDesc,256,"La descripición del producto solo puede tener 256 caracteres");
+      ValidationHelper.validLengthString(productRegister.product.ProductName, 128, "El nombre del producto solo puede tener 128 caracteres");
+      ValidationHelper.validateIsNotEmpty(productRegister.product.ProductName, "Debe ingresar un nombre para el producto");
 
-      this.validation.validateIsNotEmpty(productRegister.product.BrandCod,"Seleccione una marca");
-      this.validation.validateIsNotEmpty(productRegister.product.CategoryCod,"Seleccione una categoria");
+      ValidationHelper.validLengthString(productRegister.product.ProductDesc, 256, "La descripición del producto solo puede tener 256 caracteres");
 
-      this.validation.validateIsNotEmpty(productRegister.config.NumPrice,"Debe ingresar un precio para el producto");
-      this.validation.validNumber(productRegister.config.NumPrice,null,0,"Precio no valido");
+      ValidationHelper.validateIsNotEmpty(productRegister.product.BrandCod, "Seleccione una marca");
+      ValidationHelper.validateIsNotEmpty(productRegister.product.CategoryCod, "Seleccione una categoria");
+
+      ValidationHelper.validateIsNotEmpty(productRegister.config.NumPrice, "Debe ingresar un precio para el producto");
+      ValidationHelper.validNumber(productRegister.config.NumPrice, null, 0, "Precio no valido");
 
       return true;
-    }catch(e : any){
+    } catch (e: any) {
       this.toastrService.error(e.message);
       return false;
     }
   }
 
-  validateKeypress(event: KeyboardEvent,id: string){
+  validateKeypress(event: KeyboardEvent, id: string) {
 
-    try{
-      if(id === "txtProductCod"){
-        this.validation.isValidString(event.key.toString(),"Error",/[a-zA-Z0-9]/);
+    try {
+      if (id === "txtProductCod") {
+        ValidationHelper.isValidString(event.key.toString(), "Error", /[a-zA-Z0-9]/);
       }
-    }catch(e : any){
+    } catch (e: any) {
       event.preventDefault();
     }
   }
 
-  ProductCodEnter(event: KeyboardEvent){
+  ProductCodEnter(event: KeyboardEvent) {
     const now = Date.now();
     const timeDifference = now - this.lastKeypressTime;
-    let IsBarcodeReaderInput : boolean = false;
+    let IsBarcodeReaderInput: boolean = false;
 
     if (timeDifference < 50) {
       this.inputBuffer += event.key;
