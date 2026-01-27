@@ -1,0 +1,124 @@
+<div role="main" class="main-content">
+  <div class="page-content container container-plus">
+    <div class="card-header">
+      <h3 class="card-title text-125 text-primary-d2">
+        <i class="fa fa-eye text-dark-l3 mr-1"></i>
+        Detalle de transferencia {{ TransferCod }}
+      </h3>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="text-primary">Solicitud (TE)</h5>
+            <p><strong>Origen:</strong> {{ transferDetail.transferHeadTe.StoreCodOrigin }}</p>
+            <p><strong>Destino:</strong> {{ transferDetail.transferHeadTe.StoreCodDest }}</p>
+            <p><strong>Estado:</strong> {{ transferDetail.transferHeadTe.TransferStatus }}</p>
+            <p><strong>Observación:</strong> {{ transferDetail.transferHeadTe.Observation }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="text-primary">Despacho (TS)</h5>
+            <p><strong>Origen:</strong> {{ transferDetail.transferHeadTs.StoreCodOrigin }}</p>
+            <p><strong>Destino:</strong> {{ transferDetail.transferHeadTs.StoreCodDest }}</p>
+            <p><strong>Estado:</strong> {{ transferDetail.transferHeadTs.TransferStatus }}</p>
+            <p><strong>Observación:</strong> {{ transferDetail.transferHeadTs.Observation }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="text-primary">Detalle solicitud</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th class="text-center">Cantidad</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let det of transferDetail.transferDetTeList">
+                    <td>{{ det.Product?.ProductName || det.ProductCod }}</td>
+                    <td class="text-center">{{ det.NumUnit }}</td>
+                  </tr>
+                  <tr *ngIf="transferDetail.transferDetTeList.length === 0">
+                    <td colspan="2" class="text-center text-muted">Sin registros</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="text-primary">Detalle despacho</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th class="text-center">Cantidad</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let det of transferDetail.transferDetTsList">
+                    <td>{{ det.Product?.ProductName || det.ProductCod }}</td>
+                    <td class="text-center">{{ det.NumUnit }}</td>
+                  </tr>
+                  <tr *ngIf="transferDetail.transferDetTsList.length === 0">
+                    <td colspan="2" class="text-center text-muted">Sin registros</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="text-primary">Documentos asociados</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Documento</th>
+                    <th>Modalidad</th>
+                    <th>Motivo</th>
+                    <th>Transportista</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let doc of transferDetail.transferDocumentList">
+                    <td>{{ doc.DocumentCod }}</td>
+                    <td>{{ doc.TransportModeCod }}</td>
+                    <td>{{ doc.ReasonTransferDesc || doc.ReasonTransferCod }}</td>
+                    <td>{{ doc.CarrierName }}</td>
+                  </tr>
+                  <tr *ngIf="transferDetail.transferDocumentList.length === 0">
+                    <td colspan="4" class="text-center text-muted">Sin documentos</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

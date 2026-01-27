@@ -44,6 +44,8 @@ export class MenusidebarComponent implements OnInit {
 
     if (this.dataSesionService.PermissionExists("CJ000000")) this.g_list_menu.push(this.getOptionsCash());
 
+    if (this.dataSesionService.PermissionExists("TR000000")) this.g_list_menu.push(this.getOptionsTransfer());
+
 
     let url = document.location.href;
     this.isOpenMenu = false;
@@ -411,6 +413,62 @@ export class MenusidebarComponent implements OnInit {
     // permiso: usa el mismo que bandeja de cajas o uno nuevo si lo tienes
     if (this.dataSesionService.PermissionExists("CJ000001")) MainMenu.list_sub_menu.push(ListCounterfoil);
 
+
+    return MainMenu;
+  }
+
+  getOptionsTransfer(): MenuPagina {
+    let MainMenu: MenuPagina = new MenuPagina();
+    MainMenu.url = "#";
+    MainMenu.des_menu = "Transferencias";
+    MainMenu.icono = "nav-icon fa fa-truck";
+
+    let ListTransferRequest: SubMenuPagina = new SubMenuPagina();
+    ListTransferRequest.url = "enterprise/transfer/pages/listtransferrequest";
+    ListTransferRequest.url_position = "enterprise/transfer/pages/listtransferrequest";
+    ListTransferRequest.des_menu = "Solicitudes de transferencia";
+    ListTransferRequest.icono = "nav-icon fa fa-truck";
+
+    let CreateTransferRequest: SubMenuPagina = new SubMenuPagina();
+    CreateTransferRequest.url = "enterprise/transfer/pages/createtransferrequest";
+    CreateTransferRequest.url_position = "enterprise/transfer/pages/createtransferrequest";
+    CreateTransferRequest.des_menu = "Crear solicitud";
+    CreateTransferRequest.icono = "nav-icon fa fa-truck";
+    CreateTransferRequest.IsVisible = false;
+
+    let ListTransferDispatch: SubMenuPagina = new SubMenuPagina();
+    ListTransferDispatch.url = "enterprise/transfer/pages/listtransferdispatch";
+    ListTransferDispatch.url_position = "enterprise/transfer/pages/listtransferdispatch";
+    ListTransferDispatch.des_menu = "Despacho de transferencias";
+    ListTransferDispatch.icono = "nav-icon fa fa-truck";
+
+    let DirectTransfer: SubMenuPagina = new SubMenuPagina();
+    DirectTransfer.url = "enterprise/transfer/pages/directtransfer";
+    DirectTransfer.url_position = "enterprise/transfer/pages/directtransfer";
+    DirectTransfer.des_menu = "Envío directo";
+    DirectTransfer.icono = "nav-icon fa fa-truck";
+    DirectTransfer.IsVisible = false;
+
+    let DispatchTransfer: SubMenuPagina = new SubMenuPagina();
+    DispatchTransfer.url = "enterprise/transfer/pages/dispatchtransfer";
+    DispatchTransfer.url_position = "enterprise/transfer/pages/dispatchtransfer";
+    DispatchTransfer.des_menu = "Despachar transferencia";
+    DispatchTransfer.icono = "nav-icon fa fa-truck";
+    DispatchTransfer.IsVisible = false;
+
+    let ReceiveTransfer: SubMenuPagina = new SubMenuPagina();
+    ReceiveTransfer.url = "enterprise/transfer/pages/receivetransfer";
+    ReceiveTransfer.url_position = "enterprise/transfer/pages/receivetransfer";
+    ReceiveTransfer.des_menu = "Recepcionar transferencia";
+    ReceiveTransfer.icono = "nav-icon fa fa-truck";
+    ReceiveTransfer.IsVisible = false;
+
+    if (this.dataSesionService.PermissionExists("TR000001")) MainMenu.list_sub_menu.push(ListTransferRequest);
+    if (this.dataSesionService.PermissionExists("TR000002")) MainMenu.list_sub_menu.push(CreateTransferRequest);
+    if (this.dataSesionService.PermissionExists("TR000003")) MainMenu.list_sub_menu.push(ListTransferDispatch);
+    if (this.dataSesionService.PermissionExists("TR000004")) MainMenu.list_sub_menu.push(DirectTransfer);
+    if (this.dataSesionService.PermissionExists("TR000005")) MainMenu.list_sub_menu.push(DispatchTransfer);
+    if (this.dataSesionService.PermissionExists("TR000006")) MainMenu.list_sub_menu.push(ReceiveTransfer);
 
     return MainMenu;
   }

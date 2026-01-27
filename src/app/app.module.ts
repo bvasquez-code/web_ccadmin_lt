@@ -65,6 +65,13 @@ import { ViewcashsessionComponent } from './enterprise/cash/pages/viewcashsessio
 import { FormsModule } from '@angular/forms';
 import { ListcounterfoilComponent } from './enterprise/cash/pages/listcounterfoil/listcounterfoil.component';
 import { CreatecounterfoilComponent } from './enterprise/cash/pages/createcounterfoil/createcounterfoil.component';
+import { ListtransferrequestComponent } from './enterprise/transfer/pages/listtransferrequest/listtransferrequest.component';
+import { CreatetransferrequestComponent } from './enterprise/transfer/pages/createtransferrequest/createtransferrequest.component';
+import { TransferdetailComponent } from './enterprise/transfer/pages/transferdetail/transferdetail.component';
+import { ReceivetransferComponent } from './enterprise/transfer/pages/receivetransfer/receivetransfer.component';
+import { ListtransferdispatchComponent } from './enterprise/transfer/pages/listtransferdispatch/listtransferdispatch.component';
+import { DispatchtransferComponent } from './enterprise/transfer/pages/dispatchtransfer/dispatchtransfer.component';
+import { DirecttransferComponent } from './enterprise/transfer/pages/directtransfer/directtransfer.component';
 
 @NgModule({
   declarations: [
@@ -122,7 +129,14 @@ import { CreatecounterfoilComponent } from './enterprise/cash/pages/createcounte
     ClosecashsessionComponent,
     ViewcashsessionComponent,
     ListcounterfoilComponent,
-    CreatecounterfoilComponent
+    CreatecounterfoilComponent,
+    ListtransferrequestComponent,
+    CreatetransferrequestComponent,
+    TransferdetailComponent,
+    ReceivetransferComponent,
+    ListtransferdispatchComponent,
+    DispatchtransferComponent,
+    DirecttransferComponent
   ],
   imports: [
     BrowserModule,

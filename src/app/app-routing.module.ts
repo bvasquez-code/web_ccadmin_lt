@@ -40,6 +40,13 @@ import { OpencashsessionComponent } from './enterprise/cash/pages/opencashsessio
 import { ViewcashsessionComponent } from './enterprise/cash/pages/viewcashsession/viewcashsession.component';
 import { ListcounterfoilComponent } from './enterprise/cash/pages/listcounterfoil/listcounterfoil.component';
 import { CreatecounterfoilComponent } from './enterprise/cash/pages/createcounterfoil/createcounterfoil.component';
+import { ListtransferrequestComponent } from './enterprise/transfer/pages/listtransferrequest/listtransferrequest.component';
+import { CreatetransferrequestComponent } from './enterprise/transfer/pages/createtransferrequest/createtransferrequest.component';
+import { TransferdetailComponent } from './enterprise/transfer/pages/transferdetail/transferdetail.component';
+import { ReceivetransferComponent } from './enterprise/transfer/pages/receivetransfer/receivetransfer.component';
+import { ListtransferdispatchComponent } from './enterprise/transfer/pages/listtransferdispatch/listtransferdispatch.component';
+import { DispatchtransferComponent } from './enterprise/transfer/pages/dispatchtransfer/dispatchtransfer.component';
+import { DirecttransferComponent } from './enterprise/transfer/pages/directtransfer/directtransfer.component';
 
 const routes: Routes = [
   {
@@ -231,6 +238,18 @@ const routes: Routes = [
         path: 'enterprise/system/pages/appfile',
         component: AppfileComponent
       }
+    ]
+  },
+  {
+    path: '',
+    children: [
+      { path: 'enterprise/transfer/pages/listtransferrequest', component: ListtransferrequestComponent },
+      { path: 'enterprise/transfer/pages/createtransferrequest', component: CreatetransferrequestComponent },
+      { path: 'enterprise/transfer/pages/transferdetail', component: TransferdetailComponent },
+      { path: 'enterprise/transfer/pages/receivetransfer', component: ReceivetransferComponent },
+      { path: 'enterprise/transfer/pages/listtransferdispatch', component: ListtransferdispatchComponent },
+      { path: 'enterprise/transfer/pages/dispatchtransfer', component: DispatchtransferComponent },
+      { path: 'enterprise/transfer/pages/directtransfer', component: DirecttransferComponent }
     ]
   }
 ];
