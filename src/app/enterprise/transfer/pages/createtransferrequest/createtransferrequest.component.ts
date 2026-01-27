@@ -4,6 +4,9 @@ import { ToastrService } from 'ngx-toastr';
 import { ProductEntity } from 'src/app/enterprise/product/model/entity/ProductEntity';
 import { ProductInfoDto } from 'src/app/enterprise/product/model/dto/ProductInfoDto';
 import { ProductService } from 'src/app/enterprise/product/service/product.service';
+import { ProductSearchService } from 'src/app/enterprise/product/service/productsearch.service';
+import { ProductSearchDto } from 'src/app/enterprise/product/model/dto/ProductSearchDto';
+import { ProductSearchEntity } from 'src/app/enterprise/product/model/entity/ProductSearchEntity';
 import { DataSesionService } from 'src/app/enterprise/compartido/service/datasesion.service';
 import { IRegisterForm } from 'src/app/enterprise/shared/interface/IRegisterForm';
 import { ResponsePageSearch } from 'src/app/enterprise/shared/model/dto/ResponsePageSearch';
@@ -29,14 +32,16 @@ export class CreatetransferrequestComponent implements OnInit, IRegisterForm<Tra
   Page: number = 1;
   TransferCod: string = '';
   transferRegister: TransferRegisterBundleDto = new TransferRegisterBundleDto();
-  responsePageSearch: ResponsePageSearch<ProductEntity> = new ResponsePageSearch();
-  productList: ProductEntity[] = [];
-  productSelect: ProductEntity = new ProductEntity();
+  responsePageSearch: ResponsePageSearch<ProductSearchEntity> = new ResponsePageSearch();
+  productList: ProductSearchEntity[] = [];
+  productSelect: ProductSearchEntity = new ProductSearchEntity();
+  productSearch: ProductSearchDto = new ProductSearchDto();
   storeList: StoreEntity[] = [];
 
   constructor(
     private transferService: TransferService,
     private productService: ProductService,
+    private productSearchService: ProductSearchService,
     private session: DataSesionService,
     private router: Router,
     private toastrService: ToastrService
@@ -77,7 +82,7 @@ export class CreatetransferrequestComponent implements OnInit, IRegisterForm<Tra
       }
     }
 
-    setTimeout(() => this.FindAllProduct(1), 200);
+    this.productList = [];
   }
 
   LoadingForm(Entity: TransferRegisterBundleDto): void {
@@ -136,15 +141,23 @@ export class CreatetransferrequestComponent implements OnInit, IRegisterForm<Tra
   }
 
   async FindAllProduct(Page: number) {
-    this.Page = Page;
-    const query: string = this.txtSearch?.nativeElement.value ?? '';
-    const rpt: ResponseWsDto = await this.productService.FindAll(query, Page);
+    const destStore = this.cboStoreDest?.nativeElement.value ?? '';
+    if (!destStore) {
+      this.toastrService.error('Seleccione un local destino para buscar productos');
+      return;
+    }
 
-    if (!rpt.ErrorStatus) {
-      this.responsePageSearch = rpt.Data;
-      if (this.responsePageSearch.resultSearch.length > 0) {
-        this.productList = this.responsePageSearch.resultSearch;
-      }
+    this.Page = Page;
+    this.productSearch.StoreCod = destStore;
+    this.productSearch.Page = Page;
+    this.productSearch.Query = this.txtSearch?.nativeElement.value ?? '';
+    this.productSearch.StockMin = 1;
+
+    const response: ResponseWsDto = await this.productSearchService.query(this.productSearch);
+
+    if (!response.ErrorStatus) {
+      this.responsePageSearch = response.Data;
+      this.productList = this.responsePageSearch.resultSearch;
     }
   }
 
@@ -153,7 +166,7 @@ export class CreatetransferrequestComponent implements OnInit, IRegisterForm<Tra
     this.FindAllProduct(this.Page);
   }
 
-  selectProduct(product: ProductEntity) {
+  selectProduct(product: ProductSearchEntity) {
     this.txtNumUnit.nativeElement.value = '';
     this.productSelect = product;
 
@@ -184,11 +197,14 @@ export class CreatetransferrequestComponent implements OnInit, IRegisterForm<Tra
     }
 
     let productInfoDto: ProductInfoDto = await this.findDetailById(product.ProductCod);
+    const productEntity: ProductEntity = new ProductEntity();
+    productEntity.ProductCod = product.ProductCod;
+    productEntity.ProductName = product.ProductName;
 
     transferDet.ProductCod = product.ProductCod;
     transferDet.Variant = productInfoDto.VariantList[0]?.Variant ?? '0000';
     transferDet.NumUnit = numUnit;
-    transferDet.Product = product;
+    transferDet.Product = productEntity;
 
     if (!transferDetExist) {
       this.transferRegister.transferDetList.push(transferDet);

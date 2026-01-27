@@ -12,7 +12,7 @@
         <div class="row">
           <div class="col-md-4 mb-3">
             <label>Local destino</label>
-            <select class="form-control" #cboStoreDest>
+            <select class="form-control" #cboStoreDest (change)="FindAllProduct(1)">
               <option value="">Seleccione</option>
               <option *ngFor="let store of storeList" [value]="store.StoreCod">
                 {{ store.Name }}
@@ -51,6 +51,7 @@
                   <tr>
                     <th>Código</th>
                     <th>Producto</th>
+                    <th class="text-center">Stock</th>
                     <th class="text-center">Seleccionar</th>
                   </tr>
                 </thead>
@@ -58,6 +59,7 @@
                   <tr *ngFor="let product of productList">
                     <td>{{ product.ProductCod }}</td>
                     <td>{{ product.ProductName }}</td>
+                    <td class="text-center">{{ product.NumPhysicalStock }}</td>
                     <td class="text-center">
                       <button class="btn btn-sm btn-outline-primary" (click)="selectProduct(product)">
                         Elegir
