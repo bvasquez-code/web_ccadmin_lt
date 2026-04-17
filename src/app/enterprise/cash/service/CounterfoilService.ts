@@ -21,11 +21,11 @@ export class CounterfoilService {
         return RespuestaWS;
     }
 
-    async findAll(Query: string, Page: number): Promise<ResponseWsDto> {
+    async findAll(Query: string, Page: number, StoreCod: string): Promise<ResponseWsDto> {
         let url: string = `${AppSetting.API}/api/v1/counterfoil/findAll`;
         let RespuestaWS: ResponseWsDto;
 
-        RespuestaWS = await this.apiService.ExecuteGetService(url, { Query: Query, Page: Page });
+        RespuestaWS = await this.apiService.ExecuteGetService(url, { Query: Query, Page: Page, StoreCod: StoreCod });
 
         return RespuestaWS;
     }

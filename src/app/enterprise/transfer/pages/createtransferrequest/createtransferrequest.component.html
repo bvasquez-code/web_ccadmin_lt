@@ -13,8 +13,8 @@
           <div class="card-body px-1 px-md-3">
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label>Local destino</label>
-                <select class="form-control" #cboStoreDest (change)="FindAllProduct(1)">
+                <label>Local a solicitar stock</label>
+                <select class="form-control" #cboStoreOrigin (change)="FindAllProduct(1)">
                   <option value="">Seleccione</option>
                   <option *ngFor="let store of storeList" [value]="store.StoreCod">
                     {{ store.Name }}
@@ -36,22 +36,15 @@
             <hr />
 
             <div class="row">
-              <div class="col-md-8">
+              <div class="col-md-6">
                 <h5 class="text-primary">Productos</h5>
                 <div class="d-flex align-items-center mb-2">
-                  <input type="text" class="form-control mr-2" placeholder="Buscar producto" #txtSearch />
+                  <input type="text" class="form-control mr-2" placeholder="Buscar producto" #txtSearch
+                    (keyup.enter)="FindAllProduct(1)" />
                   <button class="btn btn-primary" (click)="FindAllProduct(1)">Buscar</button>
                 </div>
 
-                <div class="d-flex align-items-center mb-2">
-                  <div class="mr-2">
-                    <label class="mb-1">Cantidad</label>
-                    <input type="number" class="form-control" style="max-width: 140px;" #txtNumUnit />
-                  </div>
-                  <div class="mt-3">
-                    <button class="btn btn-success" (click)="AddProduct()">Agregar seleccionado</button>
-                  </div>
-                </div>
+
 
                 <div class="table-responsive">
                   <table class="table table-bordered">
@@ -66,20 +59,30 @@
                     <tbody>
                       <tr *ngFor="let product of productList">
                         <td>{{ product.ProductCod }}</td>
-                        <td>{{ product.ProductName }}</td>
+                        <td>
+                          {{ product.ProductName }}
+                          <i class="fa fa-check text-success ml-2" *ngIf="isProductSelected(product)"></i>
+                        </td>
                         <td class="text-center">{{ product.NumPhysicalStock }}</td>
                         <td class="text-center">
-                          <button class="btn btn-sm btn-outline-primary" (click)="selectProduct(product)">
+                          <button class="btn btn-sm btn-outline-primary" (click)="selectProduct(product)"
+                            data-toggle="modal" data-target="#modalProduct">
                             Elegir
                           </button>
                         </td>
                       </tr>
                     </tbody>
                   </table>
+
+                  <!-- Pagination -->
+                  <div class="d-flex justify-content-end mt-2">
+                    <a type="button" class="btn btn-sm btn-secondary mr-1" (click)="FindAllProductNext(-1)">Prev</a>
+                    <a type="button" class="btn btn-sm btn-secondary" (click)="FindAllProductNext(1)">Next</a>
+                  </div>
                 </div>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <h5 class="text-primary">Detalle de solicitud</h5>
                 <div class="table-responsive">
                   <table class="table table-bordered">
@@ -87,17 +90,21 @@
                       <tr>
                         <th>Producto</th>
                         <th class="text-center">Cantidad</th>
-                        <th></th>
+                        <th class="text-center">Opciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let detail of transferRegister.transferDetList">
+                      <tr *ngFor="let detail of transferRequestRegister.transferDetList">
                         <td>{{ detail.Product.ProductName }}</td>
                         <td class="text-center">{{ detail.NumUnit }}</td>
                         <td class="text-center">
-                          <button class="btn btn-sm btn-danger" (click)="removeProduct(detail)">
+                          <a class="btn btn-sm btn-info mr-1" (click)="editDetail(detail)" data-toggle="modal"
+                            data-target="#modalProduct">
+                            <i class="fa fa-edit"></i>
+                          </a>
+                          <a class="btn btn-sm btn-danger" (click)="removeProduct(detail)">
                             <i class="fa fa-trash"></i>
-                          </button>
+                          </a>
                         </td>
                       </tr>
                       <tr *ngIf="transferRegister.transferDetList.length === 0">
@@ -115,6 +122,38 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Product -->
+<div class="modal fade" id="modalProduct" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary-d3">
+          Agregar Producto
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" #btnCloseModal>
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Producto:</label>
+          <input type="text" class="form-control" [value]="productSelect.ProductName" disabled>
+        </div>
+        <div class="form-group">
+          <label>Cantidad:</label>
+          <input type="number" class="form-control" #txtNumUnit (keyup.enter)="AddProduct()">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="AddProduct()">AddProduct</button>
       </div>
     </div>
   </div>

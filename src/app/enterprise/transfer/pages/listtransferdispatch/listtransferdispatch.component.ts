@@ -7,6 +7,7 @@ import { TransferService } from '../../service/TransferService';
 import { TransferSearchDto } from '../../model/dto/TransferSearchDto';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
 import { StoreEntity } from 'src/app/enterprise/shared/model/entity/StoreEntity';
+import { DataSesionService } from 'src/app/enterprise/compartido/service/datasesion.service';
 
 @Component({
   selector: 'app-listtransferdispatch',
@@ -35,7 +36,10 @@ export class ListtransferdispatchComponent implements OnInit, ActionTableService
     { Code: 'X', Name: 'Anulada' }
   ];
 
-  constructor(private transferService: TransferService) {}
+  constructor(
+    private transferService: TransferService,
+    private dataSesionService: DataSesionService
+  ) { }
 
   ngOnInit(): void {
     this.loadFilterData();
@@ -45,11 +49,8 @@ export class ListtransferdispatchComponent implements OnInit, ActionTableService
   async loadFilterData() {
     const rpt: ResponseWsDto = await this.transferService.FindDataForm('');
     if (!rpt.ErrorStatus) {
-      const storeList = rpt.DataAdditional?.find((e: any) => e.Name === 'StoreList')?.Data
-        ?? rpt.DataAdditional?.find((e: any) => e.Name === 'storeList')?.Data
-        ?? rpt.DataAdditional?.find((e: any) => e.Name === 'stores')?.Data
-        ?? [];
-      this.storeList = storeList;
+      const storeList: StoreEntity[] = rpt.DataAdditional?.find((e: any) => e.Name === 'storeList')?.Data ?? [];
+      this.storeList = storeList.filter(e => e.StoreCod !== this.dataSesionService.getSessionStorageDto().StoreCod);
     }
   }
 
@@ -61,7 +62,7 @@ export class ListtransferdispatchComponent implements OnInit, ActionTableService
     const data: DataTablaGeneticDto<TransferHeadEntity> = new DataTablaGeneticDto();
 
     const showDispatch = (transferHead: TransferHeadEntity) => {
-      return transferHead.TransferStatus === 'P' || transferHead.TransferStatus === 'C';
+      return transferHead.TransferStatus === 'P';
     };
 
     data.init(
@@ -116,10 +117,11 @@ export class ListtransferdispatchComponent implements OnInit, ActionTableService
     search.Page = Page;
     search.TypeOperation = 'TS';
     search.TransferCod = this.txtTransferCod?.nativeElement.value ?? '';
-    search.StoreCodOrigin = this.cboStoreOrigin?.nativeElement.value ?? '';
+    search.StoreCodDest = this.cboStoreOrigin?.nativeElement.value ?? '';
     search.TransferStatus = this.cboStatus?.nativeElement.value ?? '';
     search.DateStart = this.txtDateStart?.nativeElement.value ?? '';
     search.DateEnd = this.txtDateEnd?.nativeElement.value ?? '';
+    search.StoreCodOrigin = this.dataSesionService.getSessionStorageDto().StoreCod;
 
     const rpt: ResponseWsDto = await this.transferService.FindAll(search);
     if (!rpt.ErrorStatus) {

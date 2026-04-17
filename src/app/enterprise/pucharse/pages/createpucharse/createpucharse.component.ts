@@ -17,7 +17,7 @@ import { PucharseRequestDetailsDto } from '../../model/dto/PucharseRequestDetail
   selector: 'app-createpucharse',
   templateUrl: './createpucharse.component.html'
 })
-export class CreatepucharseComponent implements IRegisterForm<PucharseRequestRegisterDto,string> {
+export class CreatepucharseComponent implements IRegisterForm<PucharseRequestRegisterDto, string> {
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
   @ViewChild('txtNumUnit') txtNumUnit!: ElementRef<HTMLInputElement>;
@@ -26,52 +26,52 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
   @ViewChild('txtDealerCod') txtDealerCod!: ElementRef<HTMLInputElement>;
   @ViewChild('txtExternalCod') txtExternalCod!: ElementRef<HTMLInputElement>;
   @ViewChild('txtCommenter') txtCommenter!: ElementRef<HTMLInputElement>;
-  Page : number = 0;
-  PucharseReqCod : string = "";
-  pucharseRequestRegister : PucharseRequestRegisterDto = new PucharseRequestRegisterDto();
-  pucharseRequestDetails : PucharseRequestDetailsDto = new PucharseRequestDetailsDto();
-  productList : ProductEntity[] = [];
-  responsePageSearch : ResponsePageSearch<ProductEntity> = new ResponsePageSearch();
-  productSelect : ProductEntity = new ProductEntity();
+  @ViewChild('btnCloseModal') btnCloseModal!: ElementRef<HTMLButtonElement>;
+  Page: number = 0;
+  PucharseReqCod: string = "";
+  pucharseRequestRegister: PucharseRequestRegisterDto = new PucharseRequestRegisterDto();
+  pucharseRequestDetails: PucharseRequestDetailsDto = new PucharseRequestDetailsDto();
+  productList: ProductEntity[] = [];
+  responsePageSearch: ResponsePageSearch<ProductEntity> = new ResponsePageSearch();
+  productSelect: ProductEntity = new ProductEntity();
+  currentSearchQuery: string = '';
 
   constructor(
-    private pucharseRequestHeadService : PucharseRequestHeadService,
+    private pucharseRequestHeadService: PucharseRequestHeadService,
     private router: Router,
-    private toastrService : ToastrService,
-    private productService : ProductService,
-    private session : DataSesionService
-  )
-  {
+    private toastrService: ToastrService,
+    private productService: ProductService,
+    private session: DataSesionService
+  ) {
     this.GetParamUrl(this.router);
   }
 
   GetParamUrl(router: Router): void {
-    let urlTree : any = this.router.parseUrl(this.router.url);
-    this.PucharseReqCod =  (urlTree.queryParams['PucharseReqCod']) ? urlTree.queryParams['PucharseReqCod'] : "";
+    let urlTree: any = this.router.parseUrl(this.router.url);
+    this.PucharseReqCod = (urlTree.queryParams['PucharseReqCod']) ? urlTree.queryParams['PucharseReqCod'] : "";
     this.FindDataForm(this.PucharseReqCod);
   }
-  
+
   async FindDataForm(PucharseReqCod: string): Promise<void> {
 
     this.Page = 1;
-    setTimeout(() => {this.FindAllProduct(this.Page);}, 100);
+    setTimeout(() => { this.FindAllProduct(this.Page); }, 100);
 
 
-    if(!PucharseReqCod) return;
+    if (!PucharseReqCod) return;
 
     const rpt = await this.pucharseRequestHeadService.FindDataForm(PucharseReqCod);
 
-    if(!rpt.ErrorStatus)
-    {
-      this.pucharseRequestDetails = rpt.DataAdditional.find( e => e.Name === "PucharseRequestDetails")?.Data;
+    if (!rpt.ErrorStatus) {
+      this.pucharseRequestDetails = rpt.DataAdditional.find(e => e.Name === "PucharseRequestDetails")?.Data;
 
       this.pucharseRequestRegister.Headboard = this.pucharseRequestDetails.Headboard;
       this.pucharseRequestRegister.DetailList = this.pucharseRequestDetails.DetailList;
 
-      setTimeout(() => {this.LoadingForm(this.pucharseRequestRegister);}, 100);
+      setTimeout(() => { this.LoadingForm(this.pucharseRequestRegister); }, 100);
 
     }
-    
+
   }
 
   LoadingForm(PucharseRequestRegister: PucharseRequestRegisterDto): void {
@@ -79,9 +79,9 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
     this.txtDealerCod.nativeElement.value = PucharseRequestRegister.Headboard.DealerCod;
     this.txtExternalCod.nativeElement.value = PucharseRequestRegister.Headboard.ExternalCod;
     this.txtCommenter.nativeElement.value = PucharseRequestRegister.Headboard.Commenter;
-    
+
   }
-  
+
   async Save(): Promise<void> {
     this.pucharseRequestRegister.Headboard.DealerCod = this.txtDealerCod.nativeElement.value;
     this.pucharseRequestRegister.Headboard.ExternalCod = this.txtExternalCod.nativeElement.value;
@@ -89,8 +89,7 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
 
     const rpt = await this.pucharseRequestHeadService.Save(this.pucharseRequestRegister);
 
-    if(!rpt.ErrorStatus)
-    {
+    if (!rpt.ErrorStatus) {
       this.toastrService.success("Operación realizada con exito");
       setTimeout(() => {
         this.router.navigate(['/enterprise/pucharse/pages/listpucharse']);
@@ -98,91 +97,124 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
     }
   }
 
-  async FindAllProduct(Page : number)
-  {
-    const txtSearch : string = this.txtSearch.nativeElement.value;
+  async FindAllProduct(Page: number) {
+    if (Page === 1) {
+      this.currentSearchQuery = this.txtSearch.nativeElement.value;
+      this.txtSearch.nativeElement.value = '';
+    }
 
-    const rpt : ResponseWsDto = await this.productService.FindAll(txtSearch,Page);
+    const rpt: ResponseWsDto = await this.productService.FindAll(this.currentSearchQuery, Page);
 
-    if( !rpt.ErrorStatus )
-    {
+    if (!rpt.ErrorStatus) {
       this.responsePageSearch = rpt.Data;
 
-      if(this.responsePageSearch.resultSearch.length > 0)
-      {
+      if (this.responsePageSearch.resultSearch.length > 0) {
         this.productList = this.responsePageSearch.resultSearch;
       }
 
-      
+
     }
   }
 
-  FindAllProductNext(PagePlus : number)
-  {
+  FindAllProductNext(PagePlus: number) {
+    if (this.Page + PagePlus < 1) return;
     this.Page = this.Page + PagePlus;
+    console.log('Navigating to page:', this.Page);
     this.FindAllProduct(this.Page);
   }
 
-  selectProduct(product : ProductEntity)
-  {
-    this.txtNumUnit.nativeElement.value = "";
-    this.txtNumUnitPrice.nativeElement.value = "";
+  selectProduct(product: ProductEntity) {
+    this.txtNumUnit.nativeElement.value = '';
+    this.txtNumUnitPrice.nativeElement.value = '';
     this.productSelect = product;
-    console.log({ product : product});
 
-    let PucharseRequestDetExist : PucharseRequestDetEntity | undefined = this.pucharseRequestRegister.DetailList.find( e => e.ProductCod === product.ProductCod );
+    const existing = this.pucharseRequestRegister.DetailList.find(e => e.ProductCod === product.ProductCod);
 
-    if(PucharseRequestDetExist)
-    {
-      this.txtNumUnit.nativeElement.value = String(PucharseRequestDetExist.NumUnit);
-      this.txtNumUnitPrice.nativeElement.value = String(PucharseRequestDetExist.NumUnitPrice);
+    if (existing) {
+      this.txtNumUnit.nativeElement.value = String(existing.NumUnit);
+      this.txtNumUnitPrice.nativeElement.value = String(existing.NumUnitPrice);
     }
   }
 
-  async AddProduct(product : ProductEntity)
-  {
-    let PucharseRequestDet : PucharseRequestDetEntity = new PucharseRequestDetEntity();
-    let PucharseRequestDetExist : PucharseRequestDetEntity | undefined = this.pucharseRequestRegister.DetailList.find( e => e.ProductCod === product.ProductCod );
+  editDetail(detail: PucharseRequestDetEntity) {
+    this.productSelect = detail.Product;
+    this.txtNumUnit.nativeElement.value = String(detail.NumUnit);
+    this.txtNumUnitPrice.nativeElement.value = String(detail.NumUnitPrice);
+  }
 
-    if(PucharseRequestDetExist)
-    {
-      PucharseRequestDet = PucharseRequestDetExist;
+  async removeProduct(detail: PucharseRequestDetEntity) {
+    this.pucharseRequestRegister.DetailList = this.pucharseRequestRegister.DetailList.filter(e => e.ProductCod !== detail.ProductCod);
+    this.calculateTotal();
+  }
+
+  async AddProduct() {
+    const product = this.productSelect;
+    if (!product || !product.ProductCod) {
+      this.toastrService.error('Seleccione un producto');
+      return;
     }
 
-    let productInfoDto : ProductInfoDto = await this.findDetailById(product.ProductCod);
+    const numUnit = Number(this.txtNumUnit.nativeElement.value);
+    const numUnitPrice = Number(this.txtNumUnitPrice.nativeElement.value);
 
-    PucharseRequestDet.ProductCod = product.ProductCod;
-    PucharseRequestDet.Variant = productInfoDto.VariantList[0].Variant;
-    PucharseRequestDet.NumUnit = Number(this.txtNumUnit.nativeElement.value);
-    PucharseRequestDet.NumUnitPrice = Number(this.txtNumUnitPrice.nativeElement.value);
-    PucharseRequestDet.NumTotalPrice = PucharseRequestDet.NumUnit * PucharseRequestDet.NumUnitPrice;
-    PucharseRequestDet.Product = product;
-    
-    if(!PucharseRequestDetExist)
-    {
-      this.pucharseRequestRegister.DetailList.push(
-        PucharseRequestDet 
-      );
+    if (numUnit <= 0) {
+      this.toastrService.error('La cantidad debe ser mayor a cero');
+      return;
     }
-    this.txtNumUnit.nativeElement.value = "";
-    this.txtNumUnitPrice.nativeElement.value = "";
+
+    // Allow 0 price? Assuming yes for now, but usually it's cost. Let's warn if negative.
+    if (numUnitPrice < 0) {
+      this.toastrService.error('El precio no puede ser negativo');
+      return;
+    }
+
+    let purchaseDet: PucharseRequestDetEntity = new PucharseRequestDetEntity();
+    const existing = this.pucharseRequestRegister.DetailList.find(e => e.ProductCod === product.ProductCod);
+
+    if (existing) {
+      purchaseDet = existing;
+    }
+
+    const productInfoDto: ProductInfoDto = await this.findDetailById(product.ProductCod);
+
+    purchaseDet.ProductCod = product.ProductCod;
+    purchaseDet.Variant = productInfoDto.VariantList[0]?.Variant || '0000';
+    purchaseDet.NumUnit = numUnit;
+    purchaseDet.NumUnitPrice = numUnitPrice;
+    purchaseDet.NumTotalPrice = numUnit * numUnitPrice;
+    purchaseDet.Product = product;
+
+    if (!existing) {
+      this.pucharseRequestRegister.DetailList.push(purchaseDet);
+    }
+
+    this.calculateTotal();
+    this.closeModal();
+
+    // Clear inputs
+    this.txtNumUnit.nativeElement.value = '';
+    this.txtNumUnitPrice.nativeElement.value = '';
+  }
+
+  calculateTotal() {
     this.pucharseRequestRegister.Headboard.NumTotalPrice = this.pucharseRequestRegister.DetailList
-                                                            .map( e => e.NumTotalPrice )
-                                                            .reduce((a , b)=>a + b , 0);
-
+      .map(e => e.NumTotalPrice)
+      .reduce((a, b) => a + b, 0);
   }
 
-  async findDetailById(ProductCod : string):Promise<ProductInfoDto>
-  {
-    let productInfoDto : ProductInfoDto = new ProductInfoDto();
+  closeModal() {
+    this.btnCloseModal.nativeElement.click();
+  }
 
-    const rpt : ResponseWsDto = await this.productService.findDetailById(
+  async findDetailById(ProductCod: string): Promise<ProductInfoDto> {
+    let productInfoDto: ProductInfoDto = new ProductInfoDto();
+
+    const rpt: ResponseWsDto = await this.productService.findDetailById(
       ProductCod,
       this.session.getSessionStorageDto().StoreCod
     );
 
-    if(!rpt.ErrorStatus)
-    {
+    if (!rpt.ErrorStatus) {
       productInfoDto = rpt.Data;
     }
 

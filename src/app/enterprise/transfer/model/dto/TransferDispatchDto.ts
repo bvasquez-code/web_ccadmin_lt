@@ -1,3 +1,5 @@
+import { TransferDetEntity } from "../entity/TransferDetEntity";
+
 export class TransferDispatchDto {
     public transferCod: string;
     public user: string;
@@ -10,6 +12,7 @@ export class TransferDispatchDto {
     public carrierRuc: string;
     public carrierName: string;
     public observation: string;
+    public detailListRequest: TransferDetEntity[];
 
     constructor() {
         this.transferCod = '';
@@ -23,5 +26,6 @@ export class TransferDispatchDto {
         this.carrierRuc = '';
         this.carrierName = '';
         this.observation = '';
+        this.detailListRequest = [];
     }
 }

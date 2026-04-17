@@ -1,8 +1,9 @@
 import { ProductEntity } from "src/app/enterprise/product/model/entity/ProductEntity";
 import { AuditTableEntity } from "src/app/enterprise/shared/model/entity/AuditTableEntity";
+import { TransferDetEntity } from "./TransferDetEntity";
 
-export class TransferDetEntity extends AuditTableEntity {
-    public TransferCod: string;
+export class TransferRequestDetEntity extends AuditTableEntity {
+    public TransferReqCod: string;
     public TypeOperation: string;
     public ProductCod: string;
     public Variant: string;
@@ -19,7 +20,7 @@ export class TransferDetEntity extends AuditTableEntity {
 
     constructor() {
         super();
-        this.TransferCod = '';
+        this.TransferReqCod = '';
         this.TypeOperation = '';
         this.ProductCod = '';
         this.Variant = '';
@@ -32,5 +33,23 @@ export class TransferDetEntity extends AuditTableEntity {
         this.LotNumber = '';
         this.ExpirationDate = null;
         this.Product = new ProductEntity();
+    }
+
+    public buildTransferDet(): TransferDetEntity {
+        const entity = new TransferDetEntity();
+        entity.TransferCod = this.TransferReqCod;
+        entity.TypeOperation = this.TypeOperation;
+        entity.ProductCod = this.ProductCod;
+        entity.Variant = this.Variant;
+        entity.ItemNumber = this.ItemNumber;
+        entity.WarehouseCodOrigin = this.WarehouseCodOrigin;
+        entity.WarehouseCodDest = this.WarehouseCodDest;
+        entity.NumUnit = this.NumUnit;
+        entity.NumUnitDispatch = this.NumUnitDispatch;
+        entity.NumUnitReception = this.NumUnitReception;
+        entity.LotNumber = this.LotNumber;
+        entity.ExpirationDate = this.ExpirationDate;
+        entity.Product = this.Product;
+        return entity;
     }
 }

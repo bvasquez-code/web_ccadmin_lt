@@ -62,7 +62,7 @@ export class DirecttransferComponent implements OnInit {
     private session: DataSesionService,
     private router: Router,
     private toastrService: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadFormData();
@@ -176,6 +176,7 @@ export class DirecttransferComponent implements OnInit {
         throw new Error('Debe agregar al menos un producto');
       }
 
+      this.transferRegister.transferHead.TransferCod = await this.createCode(destStore);
       this.transferRegister.transferHead.StoreCodOrigin = this.session.getSessionStorageDto().StoreCod;
       this.transferRegister.transferHead.StoreCodDest = destStore;
       this.transferRegister.transferHead.StoreCodRequestedBy = this.session.getSessionStorageDto().StoreCod;
@@ -226,5 +227,14 @@ export class DirecttransferComponent implements OnInit {
     }
 
     return productInfoDto;
+  }
+
+  async createCode(StoreCod: string) {
+    const rpt: ResponseWsDto = await this.transferService.CreateCode(StoreCod);
+    if (rpt?.ErrorStatus) {
+      this.toastrService.error(rpt.Message);
+      throw new Error(rpt.Message);
+    }
+    return String(rpt.Data);
   }
 }

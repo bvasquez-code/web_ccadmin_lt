@@ -120,52 +120,89 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <div class="card acard">      
+                            <div class="card acard">
                                 <div class="card-body p-0">
-                                  <div class="table-responsive-md">
-                                    <table class="table table-bordered border-0	table-striped-secondary text-dark-m1 mb-0">
-                                      <thead>
-                                        <tr class="bgc-info text-white brc-black-tp10">
-                                          <th>Lista de perfiles</th>
-                                          <th></th>
-                                        </tr>
-                                      </thead>
-              
-                                      <tbody *ngFor="let item of ProfileList">
-                                        <tr>
-                                          <td>
-                                            {{ item.Name }}                                         
-                                          </td>
-                                          <td>
-                                            <label>
-                                                <input type="checkbox" class="align-middle" (click)="CheckedMenu(item)" [checked]="IsChecked(item)">
-                                            </label>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
+                                    <div class="table-responsive-md">
+                                        <table
+                                            class="table table-bordered border-0	table-striped-secondary text-dark-m1 mb-0">
+                                            <thead>
+                                                <tr class="bgc-info text-white brc-black-tp10">
+                                                    <th>Lista de perfiles</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody *ngFor="let item of ProfileList">
+                                                <tr>
+                                                    <td>
+                                                        {{ item.Name }}
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="align-middle"
+                                                                (click)="CheckedMenu(item)" [checked]="IsChecked(item)">
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                              </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                Tiendas
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <div class="card acard">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive-md">
+                                        <table
+                                            class="table table-bordered border-0	table-striped-secondary text-dark-m1 mb-0">
+                                            <thead>
+                                                <tr class="bgc-info text-white brc-black-tp10">
+                                                    <th>Lista de tiendas</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody *ngFor="let item of StoreList">
+                                                <tr>
+                                                    <td>
+                                                        {{ item.Name }}
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="align-middle"
+                                                                (click)="CheckedStore(item)"
+                                                                [checked]="IsCheckedStore(item)">
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
 
                     <div class="mt-5 border-t-1 bgc-secondary-l4 brc-secondary-l2 py-35 mx-n25">
                         <div class="offset-md-3 col-md-9 text-nowrap">
-                            <a 
-                                class="btn btn-info btn-bold px-4" 
-                                type="button"
-                                (click)="save()"
-                            >
+                            <a class="btn btn-info btn-bold px-4" type="button" (click)="save()">
                                 <i class="fa fa-check mr-1"></i>
                                 Guardar
                             </a>
 
-                            <a class="btn btn-outline-lightgrey btn-bgc-white btn-bold ml-2 px-4" 
-                                type="reset"
-                                href="/enterprise/user/pages/listuser"
-                            >
+                            <a class="btn btn-outline-lightgrey btn-bgc-white btn-bold ml-2 px-4" type="reset"
+                                href="/enterprise/user/pages/listuser">
                                 <i class="fa fa-undo mr-1"></i>
                                 Cancelar
                             </a>

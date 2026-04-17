@@ -7,12 +7,16 @@ import { TransferService } from '../../service/TransferService';
 import { TransferSearchDto } from '../../model/dto/TransferSearchDto';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
 import { StoreEntity } from 'src/app/enterprise/shared/model/entity/StoreEntity';
+import { TransferConstants } from '../../model/constants/TransferConstants';
+import { TransferRequestHeadEntity } from '../../model/entity/TransferRequestHeadEntity';
+import { TransferRequestService } from '../../service/TransferRequestService';
+import { DataSesionService } from 'src/app/enterprise/compartido/service/datasesion.service';
 
 @Component({
   selector: 'app-listtransferrequest',
   templateUrl: './listtransferrequest.component.html'
 })
-export class ListtransferrequestComponent implements OnInit, ActionTableService<TransferHeadEntity> {
+export class ListtransferrequestComponent implements OnInit, ActionTableService<TransferRequestHeadEntity> {
 
   @ViewChild('txtTransferCod') txtTransferCod!: ElementRef<HTMLInputElement>;
   @ViewChild('txtDateStart') txtDateStart!: ElementRef<HTMLInputElement>;
@@ -21,22 +25,24 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
   @ViewChild('cboStoreDest') cboStoreDest!: ElementRef<HTMLSelectElement>;
   @ViewChild('cboStatus') cboStatus!: ElementRef<HTMLSelectElement>;
 
-  responsePageSearch: ResponsePageSearch<TransferHeadEntity> = new ResponsePageSearch();
-  dataTablaGenetic: DataTablaGeneticDto<TransferHeadEntity> = new DataTablaGeneticDto();
-  transferHeadSelect: TransferHeadEntity = new TransferHeadEntity();
+  responsePageSearch: ResponsePageSearch<TransferRequestHeadEntity> = new ResponsePageSearch();
+  dataTablaGenetic: DataTablaGeneticDto<TransferRequestHeadEntity> = new DataTablaGeneticDto();
+  transferHeadSelect: TransferRequestHeadEntity = new TransferRequestHeadEntity();
   storeList: StoreEntity[] = [];
 
   statusList = [
     { Code: '', Name: 'Todos' },
     { Code: 'P', Name: 'Pendiente' },
     { Code: 'C', Name: 'Confirmada' },
-    { Code: 'D', Name: 'Despachada' },
-    { Code: 'F', Name: 'Finalizada' },
     { Code: 'R', Name: 'Rechazada' },
-    { Code: 'X', Name: 'Anulada' }
+    { Code: 'X', Name: 'Anulada' },
+    { Code: 'A', Name: 'Aprobada' }
   ];
 
-  constructor(private transferService: TransferService) {}
+  constructor(
+    private transferRequestService: TransferRequestService,
+    private sessionService: DataSesionService
+  ) { }
 
   ngOnInit(): void {
     this.loadFilterData();
@@ -44,7 +50,7 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
   }
 
   async loadFilterData() {
-    const rpt: ResponseWsDto = await this.transferService.FindDataForm('');
+    const rpt: ResponseWsDto = await this.transferRequestService.FindDataForm('');
     if (!rpt.ErrorStatus) {
       const storeList = rpt.DataAdditional?.find((e: any) => e.Name === 'StoreList')?.Data
         ?? rpt.DataAdditional?.find((e: any) => e.Name === 'storeList')?.Data
@@ -58,11 +64,11 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
     this.findAll(Page);
   }
 
-  loadingTable(responsePageSearch: ResponsePageSearch<TransferHeadEntity>): void {
-    const data: DataTablaGeneticDto<TransferHeadEntity> = new DataTablaGeneticDto();
+  loadingTable(responsePageSearch: ResponsePageSearch<TransferRequestHeadEntity>): void {
+    const data: DataTablaGeneticDto<TransferRequestHeadEntity> = new DataTablaGeneticDto();
 
-    const showReceive = (transferHead: TransferHeadEntity) => {
-      return transferHead.TransferStatus === 'D';
+    const showReceive = (transferHead: TransferRequestHeadEntity) => {
+      return transferHead.TransferStatus === 'A';
     };
 
     const hasDocument = (transferHead: any) => {
@@ -74,10 +80,10 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
 
     data.init(
       [
-        { Name: 'Código', key: 'TransferCod' },
+        { Name: 'Código', key: 'TransferReqCod' },
         { Name: 'Local origen', key: 'StoreCodOrigin' },
         { Name: 'Local destino', key: 'StoreCodDest' },
-        { Name: 'Documento', key: 'TransferCod', FunctionKey: hasDocument },
+        { Name: 'Documento', key: 'TransferReqCod', FunctionKey: hasDocument },
         {
           Name: 'Estado',
           key: 'TransferStatus',
@@ -88,7 +94,8 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
             D: 'badge badge-sm bgc-warning-d1 text-white pb-1 px-25',
             F: 'badge badge-sm bgc-success-d1 text-white pb-1 px-25',
             R: 'badge badge-sm bgc-dark text-white pb-1 px-25',
-            X: 'badge badge-sm bgc-secondary text-white pb-1 px-25'
+            X: 'badge badge-sm bgc-secondary text-white pb-1 px-25',
+            A: 'badge badge-sm bgc-secondary text-white pb-1 px-25'
           },
           Mask: {
             P: 'Pendiente',
@@ -96,17 +103,18 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
             D: 'Despachada',
             F: 'Finalizada',
             R: 'Rechazada',
-            X: 'Anulada'
+            X: 'Anulada',
+            A: 'Aprobada'
           }
         },
         { Name: 'Creación', key: 'CreationDate', IsDate: true },
         {
           Name: 'Opciones',
           ColumnAction: true,
-          Id: ['TransferCod'],
+          Id: ['TransferReqCod'],
           Options: [
-            { Type: 'Url', Name: 'fa fa-eye', Url: '/enterprise/transfer/pages/transferdetail?TransferCod={TransferCod}' },
-            { Type: 'Url', Name: 'fa fa-check', Url: '/enterprise/transfer/pages/receivetransfer?TransferCod={TransferCod}', Function: showReceive }
+            { Type: 'Url', Name: 'fa fa-eye', Url: '/enterprise/transfer/pages/transferdetail?TransferCod={TransferReqCod}' },
+            { Type: 'Url', Name: 'fa fa-check', Url: '/enterprise/transfer/pages/receivetransfer?TransferReqCod={TransferReqCod}', Function: showReceive }
           ]
         }
       ],
@@ -122,15 +130,15 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
   async findAll(Page: number): Promise<void> {
     const search: TransferSearchDto = new TransferSearchDto();
     search.Page = Page;
-    search.TypeOperation = 'TE';
+    search.TypeOperation = TransferConstants.TYPE_OPERATION_REQUEST;
     search.TransferCod = this.txtTransferCod?.nativeElement.value ?? '';
     search.StoreCodOrigin = this.cboStoreOrigin?.nativeElement.value ?? '';
-    search.StoreCodDest = this.cboStoreDest?.nativeElement.value ?? '';
+    search.StoreCodDest = this.sessionService.getSessionStorageDto().StoreCod;
     search.TransferStatus = this.cboStatus?.nativeElement.value ?? '';
     search.DateStart = this.txtDateStart?.nativeElement.value ?? '';
     search.DateEnd = this.txtDateEnd?.nativeElement.value ?? '';
 
-    const rpt: ResponseWsDto = await this.transferService.FindAll(search);
+    const rpt: ResponseWsDto = await this.transferRequestService.FindAll(search);
     if (!rpt.ErrorStatus) {
       this.responsePageSearch = rpt.Data;
       this.loadingTable(this.responsePageSearch);
@@ -139,5 +147,9 @@ export class ListtransferrequestComponent implements OnInit, ActionTableService<
 
   getDataRow(item: any): void {
     this.transferHeadSelect = item;
+  }
+
+  getStoreList() {
+    return this.storeList.filter(e => e.StoreCod !== this.sessionService.getSessionStorageDto().StoreCod);
   }
 }

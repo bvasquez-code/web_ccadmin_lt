@@ -11,6 +11,7 @@ import { DataTablaGeneticDto } from 'src/app/enterprise/shared/model/dto/DataTab
 import { CounterfoilEntity } from '../../model/entity/CounterfoilEntity';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
 import { CounterfoilService } from '../../service/CounterfoilService';
+import { DataSesionService } from 'src/app/enterprise/compartido/service/datasesion.service';
 
 @Component({
   selector: 'app-listcounterfoil',
@@ -24,7 +25,8 @@ export class ListcounterfoilComponent implements OnInit, ActionTableService<Coun
 
   constructor(
     private counterfoilService: CounterfoilService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private sessionService: DataSesionService
   ) { }
 
   ngOnInit(): void {
@@ -104,7 +106,11 @@ export class ListcounterfoilComponent implements OnInit, ActionTableService<Coun
   }
 
   async findAll(Page: number, Query: string): Promise<void> {
-    const rpt: ResponseWsDto = await this.counterfoilService.findAll(Query, Page);
+    const rpt: ResponseWsDto = await this.counterfoilService.findAll(
+      Query,
+      Page,
+      this.sessionService.getSessionStorageDto().StoreCod
+    );
 
     if (!rpt.ErrorStatus) {
       this.table.responsePageSearch = rpt.Data;

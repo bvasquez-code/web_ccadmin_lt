@@ -14,7 +14,8 @@
                         <div autocomplete="off">
                             <div class="d-flex justify-content-between flex-column flex-sm-row mb-3 px-2 px-sm-0">
                                 <div class="mb-2 mb-sm-0">
-                                    <a class="btn px-4 btn-primary mb-1" href="enterprise/transfer/pages/createtransferrequest">
+                                    <a class="btn px-4 btn-primary mb-1"
+                                        href="enterprise/transfer/pages/createtransferrequest">
                                         Nueva solicitud
                                     </a>
                                 </div>
@@ -26,16 +27,8 @@
                                 </div>
                                 <div class="col-md-2 mb-2">
                                     <select class="form-control" #cboStoreOrigin>
-                                        <option value="">Local origen</option>
-                                        <option *ngFor="let store of storeList" [value]="store.StoreCod">
-                                            {{ store.Name }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2 mb-2">
-                                    <select class="form-control" #cboStoreDest>
-                                        <option value="">Local destino</option>
-                                        <option *ngFor="let store of storeList" [value]="store.StoreCod">
+                                        <option value="">Local</option>
+                                        <option *ngFor="let store of getStoreList()" [value]="store.StoreCod">
                                             {{ store.Name }}
                                         </option>
                                     </select>
