@@ -12,6 +12,7 @@ import { PucharseRequestDetEntity } from '../../model/entity/PucharseRequestDetE
 import { DataSesionService } from 'src/app/enterprise/compartido/service/datasesion.service';
 import { ProductInfoDto } from 'src/app/enterprise/product/model/dto/ProductInfoDto';
 import { PucharseRequestDetailsDto } from '../../model/dto/PucharseRequestDetailsDto';
+import { ProductRegisterDto } from 'src/app/enterprise/product/model/dto/ProductRegisterDto';
 
 @Component({
   selector: 'app-createpucharse',
@@ -27,7 +28,9 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
   @ViewChild('txtExternalCod') txtExternalCod!: ElementRef<HTMLInputElement>;
   @ViewChild('txtCommenter') txtCommenter!: ElementRef<HTMLInputElement>;
   @ViewChild('btnCloseModal') btnCloseModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnCloseModalCreateProduct') btnCloseModalCreateProduct!: ElementRef<HTMLButtonElement>;
   Page: number = 0;
+  showCreateProduct: boolean = false;
   PucharseReqCod: string = "";
   pucharseRequestRegister: PucharseRequestRegisterDto = new PucharseRequestRegisterDto();
   pucharseRequestDetails: PucharseRequestDetailsDto = new PucharseRequestDetailsDto();
@@ -219,6 +222,27 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
     }
 
     return productInfoDto;
+  }
+
+  isProductSelected(product: ProductEntity): boolean {
+    return this.pucharseRequestRegister.DetailList.some(e => e.ProductCod === product.ProductCod);
+  }
+
+  handleProductCreated(event: ProductRegisterDto) {
+    this.btnCloseModalCreateProduct.nativeElement.click();
+    this.txtSearch.nativeElement.value = event.product.ProductCod;
+    this.FindAllProduct(1);
+    this.showCreateProduct = false;
+  }
+
+  handleCancelCreateProduct() {
+    this.btnCloseModalCreateProduct.nativeElement.click();
+    this.showCreateProduct = false;
+  }
+
+  openCreateProductModal() {
+    this.showCreateProduct = false;
+    setTimeout(() => this.showCreateProduct = true, 50);
   }
 
 }

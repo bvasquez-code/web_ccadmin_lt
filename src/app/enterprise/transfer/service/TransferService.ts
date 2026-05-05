@@ -6,6 +6,8 @@ import { TransferDispatchDto } from "../model/dto/TransferDispatchDto";
 import { TransferReceiveDto } from "../model/dto/TransferReceiveDto";
 import { TransferRegisterBundleDto } from "../model/dto/TransferRegisterBundleDto";
 import { TransferSearchDto } from "../model/dto/TransferSearchDto";
+import { TransferDetEntity } from "../model/entity/TransferDetEntity";
+import { TransferDetRegisterMassiveDto } from "../model/dto/TransferDetRegisterMassiveDto";
 
 @Injectable({
     providedIn: 'root'
@@ -68,5 +70,10 @@ export class TransferService {
     async CreateCode(StoreCod: string): Promise<ResponseWsDto> {
         const url: string = `${AppSetting.API}/api/v1/transfers/createCode`;
         return await this.apiService.ExecuteGetService(url, { storeCod: StoreCod });
+    }
+
+    async SaveDet(request: TransferDetRegisterMassiveDto): Promise<ResponseWsDto> {
+        const url: string = `${AppSetting.API}/api/v1/transfers/saveDet`;
+        return await this.apiService.ExecutePostService(url, request);
     }
 }

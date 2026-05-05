@@ -9,24 +9,29 @@
 
     <div class="row">
       <div class="col-md-6 mb-3">
-        <div class="card" *ngIf="transferDetail.transferHeadTe">
+        <div class="card" *ngIf="transferDetail.transferHeadRequest">
           <div class="card-body">
             <h5 class="text-primary">Solicitud</h5>
-            <p><strong>Origen:</strong> {{ getStoreDescription(transferDetail.transferHeadTe.StoreCodOrigin) }}</p>
-            <p><strong>Destino:</strong> {{ getStoreDescription(transferDetail.transferHeadTe.StoreCodDest) }}</p>
-            <p><strong>Estado:</strong> <span [class]="statusHtml[transferDetail.transferHeadTe.TransferStatus] || ''">{{ statusMask[transferDetail.transferHeadTe.TransferStatus] || transferDetail.transferHeadTe.TransferStatus }}</span></p>
-            <p><strong>Observación:</strong> {{ transferDetail.transferHeadTe.Observation }}</p>
+            <p><strong>Origen:</strong> {{ getStoreDescription(transferDetail.transferHeadRequest.StoreCodOrigin) }}</p>
+            <p><strong>Destino:</strong> {{ getStoreDescription(transferDetail.transferHeadRequest.StoreCodDest) }}</p>
+            <p><strong>Estado:</strong> <span
+                [class]="statusHtml[transferDetail.transferHeadRequest.TransferStatus] || ''">{{
+                statusMask[transferDetail.transferHeadRequest.TransferStatus] ||
+                transferDetail.transferHeadRequest.TransferStatus }}</span></p>
+            <p><strong>Observación:</strong> {{ transferDetail.transferHeadRequest.Observation }}</p>
           </div>
         </div>
       </div>
       <div class="col-md-6 mb-3">
-        <div class="card" *ngIf="transferDetail.transferHeadTs">
+        <div class="card" *ngIf="transferDetail.transferHead">
           <div class="card-body">
             <h5 class="text-primary">Despacho</h5>
-            <p><strong>Origen:</strong> {{ getStoreDescription(transferDetail.transferHeadTs.StoreCodOrigin) }}</p>
-            <p><strong>Destino:</strong> {{ getStoreDescription(transferDetail.transferHeadTs.StoreCodDest) }}</p>
-            <p><strong>Estado:</strong> <span [class]="statusHtml[transferDetail.transferHeadTs.TransferStatus] || ''">{{ statusMask[transferDetail.transferHeadTs.TransferStatus] || transferDetail.transferHeadTs.TransferStatus }}</span></p>
-            <p><strong>Observación:</strong> {{ transferDetail.transferHeadTs.Observation }}</p>
+            <p><strong>Origen:</strong> {{ getStoreDescription(transferDetail.transferHead.StoreCodOrigin) }}</p>
+            <p><strong>Destino:</strong> {{ getStoreDescription(transferDetail.transferHead.StoreCodDest) }}</p>
+            <p><strong>Estado:</strong> <span [class]="statusHtml[transferDetail.transferHead.TransferStatus] || ''">{{
+                statusMask[transferDetail.transferHead.TransferStatus] || transferDetail.transferHead.TransferStatus
+                }}</span></p>
+            <p><strong>Observación:</strong> {{ transferDetail.transferHead.Observation }}</p>
           </div>
         </div>
       </div>
@@ -34,7 +39,7 @@
 
     <div class="row">
       <div class="col-md-6 mb-3">
-        <div class="card" *ngIf="transferDetail.transferDetTeList">
+        <div class="card" *ngIf="transferDetail.transferDetRequestList">
           <div class="card-body">
             <h5 class="text-primary">Detalle solicitud</h5>
             <div class="table-responsive">
@@ -46,11 +51,11 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let det of transferDetail.transferDetTeList">
+                  <tr *ngFor="let det of transferDetail.transferDetRequestList">
                     <td>{{ det.Product.ProductName || det.ProductCod }}</td>
                     <td class="text-center">{{ det.NumUnit }}</td>
                   </tr>
-                  <tr *ngIf="transferDetail.transferDetTeList.length === 0">
+                  <tr *ngIf="transferDetail.transferDetRequestList.length === 0">
                     <td colspan="2" class="text-center text-muted">Sin registros</td>
                   </tr>
                 </tbody>
@@ -61,7 +66,7 @@
       </div>
 
       <div class="col-md-6 mb-3">
-        <div class="card" *ngIf="transferDetail.transferDetTsList">
+        <div class="card" *ngIf="transferDetail.transferDetList">
           <div class="card-body">
             <h5 class="text-primary">Detalle despacho</h5>
             <div class="table-responsive">
@@ -69,15 +74,17 @@
                 <thead>
                   <tr>
                     <th>Producto</th>
-                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">Cantidad despachada</th>
+                    <th class="text-center">Cantidad recepcionada</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let det of transferDetail.transferDetTsList">
+                  <tr *ngFor="let det of transferDetail.transferDetList">
                     <td>{{ det.Product.ProductName || det.ProductCod }}</td>
                     <td class="text-center">{{ det.NumUnitDispatch }}</td>
+                    <td class="text-center">{{ det.NumUnitReception }}</td>
                   </tr>
-                  <tr *ngIf="transferDetail.transferDetTsList.length === 0">
+                  <tr *ngIf="transferDetail.transferDetList.length === 0">
                     <td colspan="2" class="text-center text-muted">Sin registros</td>
                   </tr>
                 </tbody>

@@ -72,6 +72,9 @@ import { ReceivetransferComponent } from './enterprise/transfer/pages/receivetra
 import { ListtransferdispatchComponent } from './enterprise/transfer/pages/listtransferdispatch/listtransferdispatch.component';
 import { DispatchtransferComponent } from './enterprise/transfer/pages/dispatchtransfer/dispatchtransfer.component';
 import { DirecttransferComponent } from './enterprise/transfer/pages/directtransfer/directtransfer.component';
+import { CreateproductmassiveComponent } from './enterprise/product/pages/createproductmassive/createproductmassive.component';
+import { CreatecategorymassiveComponent } from './enterprise/product/pages/createcategorymassive/createcategorymassive.component';
+import { CreatebrandmassiveComponent } from './enterprise/product/pages/createbrandmassive/createbrandmassive.component';
 
 @NgModule({
   declarations: [
@@ -136,7 +139,10 @@ import { DirecttransferComponent } from './enterprise/transfer/pages/directtrans
     ReceivetransferComponent,
     ListtransferdispatchComponent,
     DispatchtransferComponent,
-    DirecttransferComponent
+    DirecttransferComponent,
+    CreateproductmassiveComponent,
+    CreatecategorymassiveComponent,
+    CreatebrandmassiveComponent
   ],
   imports: [
     BrowserModule,

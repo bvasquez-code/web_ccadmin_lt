@@ -47,6 +47,9 @@ import { ReceivetransferComponent } from './enterprise/transfer/pages/receivetra
 import { ListtransferdispatchComponent } from './enterprise/transfer/pages/listtransferdispatch/listtransferdispatch.component';
 import { DispatchtransferComponent } from './enterprise/transfer/pages/dispatchtransfer/dispatchtransfer.component';
 import { DirecttransferComponent } from './enterprise/transfer/pages/directtransfer/directtransfer.component';
+import { CreateproductmassiveComponent } from './enterprise/product/pages/createproductmassive/createproductmassive.component';
+import { CreatecategorymassiveComponent } from './enterprise/product/pages/createcategorymassive/createcategorymassive.component';
+import { CreatebrandmassiveComponent } from './enterprise/product/pages/createbrandmassive/createbrandmassive.component';
 
 const routes: Routes = [
   {
@@ -181,6 +184,18 @@ const routes: Routes = [
       {
         path: 'enterprise/product/pages/listkardex',
         component: ListkardexComponent
+      },
+      {
+        path: 'enterprise/product/pages/createproductmassive',
+        component: CreateproductmassiveComponent
+      },
+      {
+        path: 'enterprise/product/pages/createcategorymassive',
+        component: CreatecategorymassiveComponent
+      },
+      {
+        path: 'enterprise/product/pages/createbrandmassive',
+        component: CreatebrandmassiveComponent
       }
     ]
   },

@@ -12,6 +12,7 @@ export class TransferDetEntity extends AuditTableEntity {
     public NumUnit: number;
     public NumUnitDispatch: number;
     public NumUnitReception: number;
+    public FlgRequested: string;
     public LotNumber: string;
     public ExpirationDate?: Date | any;
 
@@ -29,6 +30,7 @@ export class TransferDetEntity extends AuditTableEntity {
         this.NumUnit = 0;
         this.NumUnitDispatch = 0;
         this.NumUnitReception = 0;
+        this.FlgRequested = 'S';
         this.LotNumber = '';
         this.ExpirationDate = null;
         this.Product = new ProductEntity();

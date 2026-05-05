@@ -42,6 +42,10 @@
                   <input type="text" class="form-control mr-2" placeholder="Buscar producto" #txtSearch
                     (keyup.enter)="FindAllProduct(1)" />
                   <button class="btn btn-primary" (click)="FindAllProduct(1)">Buscar</button>
+                  <button class="btn btn-success ml-2" data-toggle="modal" data-target="#modalCreateProduct"
+                    style="white-space: nowrap;" (click)="openCreateProductModal()">
+                    <i class="fa fa-plus"></i> Crear Producto
+                  </button>
                 </div>
 
                 <div class="table-responsive">
@@ -58,6 +62,7 @@
                         <td>{{ product.ProductCod }}</td>
                         <td>
                           {{ product.ProductName }}
+                          <i class="fa fa-check text-success ml-2" *ngIf="isProductSelected(product)"></i>
                         </td>
                         <td class="text-center">
                           <a class="btn btn-sm btn-outline-primary" (click)="selectProduct(product)" data-toggle="modal"
@@ -160,6 +165,28 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-primary" (click)="AddProduct()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Create Product -->
+<div class="modal fade" id="modalCreateProduct" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+    <div class="modal-content mx-auto" style="width: 60%;">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary-d3">
+          Crear Nuevo Producto
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" #btnCloseModalCreateProduct>
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body p-0">
+        <app-createproduct *ngIf="showCreateProduct" [isModal]="true" (ProductCreated)="handleProductCreated($event)"
+          (CancelModal)="handleCancelCreateProduct()">
+        </app-createproduct>
       </div>
     </div>
   </div>

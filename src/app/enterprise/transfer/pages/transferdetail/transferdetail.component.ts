@@ -4,6 +4,7 @@ import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto
 import { TransferDetailDto } from '../../model/dto/TransferDetailDto';
 import { TransferRequestService } from '../../service/TransferRequestService';
 import { StoreEntity } from 'src/app/enterprise/shared/model/entity/StoreEntity';
+import { TransferRequestDetailDto } from '../../model/dto/TransferRequestDetailDto';
 
 @Component({
   selector: 'app-transferdetail',
@@ -12,7 +13,7 @@ import { StoreEntity } from 'src/app/enterprise/shared/model/entity/StoreEntity'
 export class TransferdetailComponent implements OnInit {
 
   TransferCod: string = '';
-  transferDetail: TransferDetailDto = new TransferDetailDto();
+  transferDetail: TransferRequestDetailDto = new TransferRequestDetailDto();
   storeList: StoreEntity[] = [];
 
   statusHtml: any = {
