@@ -33,6 +33,8 @@ import { ViewtrxpaymentComponent } from './enterprise/trxpayment/pages/viewtrxpa
 import { ListsaleComponent } from './enterprise/sale/pages/listsale/listsale.component';
 import { ListkardexComponent } from './enterprise/product/pages/listkardex/listkardex.component';
 import { AppfileComponent } from './enterprise/system/pages/appfile/appfile.component';
+import { CreatecurrencyComponent } from './enterprise/system/pages/createcurrency/createcurrency.component';
+import { ListcurrencyComponent } from './enterprise/system/pages/listcurrency/listcurrency.component';
 import { ListcreditnoteComponent } from './enterprise/sale/pages/listcreditnote/listcreditnote.component';
 import { CreatecreditnoteComponent } from './enterprise/sale/pages/createcreditnote/createcreditnote.component';
 import { ReturnstockcreditnoteComponent } from './enterprise/sale/pages/returnstockcreditnote/returnstockcreditnote.component';
@@ -307,6 +309,14 @@ const routes: Routes = [
       {
         path: 'enterprise/system/pages/appfile',
         component: AppfileComponent
+      },
+      {
+        path: 'enterprise/system/pages/listcurrency',
+        component: ListcurrencyComponent
+      },
+      {
+        path: 'enterprise/system/pages/createcurrency',
+        component: CreatecurrencyComponent
       }
     ]
   },

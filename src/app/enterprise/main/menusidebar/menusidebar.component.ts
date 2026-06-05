@@ -170,6 +170,24 @@ export class MenusidebarComponent implements OnInit {
     if (this.dataSesionService.PermissionExists("SI000003")) MainMenu.list_sub_menu.push(ListStore);
     if (this.dataSesionService.PermissionExists("SI000004")) MainMenu.list_sub_menu.push(CreateStore);
 
+    let ListCurrency: SubMenuPagina = new SubMenuPagina();
+    ListCurrency.url = "enterprise/system/pages/listcurrency";
+    ListCurrency.url_position = "enterprise/system/pages/listcurrency";
+    ListCurrency.url_shade = "enterprise/system/pages/listcurrency";
+    ListCurrency.des_menu = "Monedas";
+    ListCurrency.icono = "nav-icon fa fa-money-bill";
+
+    let CreateCurrency: SubMenuPagina = new SubMenuPagina();
+    CreateCurrency.url = "enterprise/system/pages/createcurrency";
+    CreateCurrency.url_position = "enterprise/system/pages/createcurrency";
+    CreateCurrency.url_shade = "enterprise/system/pages/listcurrency";
+    CreateCurrency.des_menu = "Crear moneda";
+    CreateCurrency.icono = "nav-icon fa fa-money-bill";
+    CreateCurrency.IsVisible = false;
+
+    if (this.dataSesionService.PermissionExists("SI000001")) MainMenu.list_sub_menu.push(ListCurrency);
+    if (this.dataSesionService.PermissionExists("SI000002")) MainMenu.list_sub_menu.push(CreateCurrency);
+
     let ListBusinessConfigGroup: SubMenuPagina = new SubMenuPagina();
     ListBusinessConfigGroup.url = "enterprise/businessconfiggroup/pages/listbusinessconfiggroup";
     ListBusinessConfigGroup.url_position = "enterprise/businessconfiggroup/pages/listbusinessconfiggroup";
