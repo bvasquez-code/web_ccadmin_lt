@@ -14,6 +14,8 @@ import { CreateprofileComponent } from './enterprise/user/pages/createprofile/cr
 import { CreatesaleComponent } from './enterprise/sale/pages/createsale/createsale.component';
 import { ListclientComponent } from './enterprise/client/pages/listclient/listclient.component';
 import { CreateclientComponent } from './enterprise/client/pages/createclient/createclient.component';
+import { ListsupplierComponent } from './enterprise/supplier/pages/listsupplier/listsupplier.component';
+import { CreatesupplierComponent } from './enterprise/supplier/pages/createsupplier/createsupplier.component';
 import { ListpresaleComponent } from './enterprise/sale/pages/listpresale/listpresale.component';
 import { ListproductComponent } from './enterprise/product/pages/listproduct/listproduct.component';
 import { CreateproductComponent } from './enterprise/product/pages/createproduct/createproduct.component';
@@ -26,6 +28,8 @@ import { CreatepucharseComponent } from './enterprise/pucharse/pages/createpucha
 import { ConfirmpucharseComponent } from './enterprise/pucharse/pages/confirmpucharse/confirmpucharse.component';
 import { ListreceptionComponent } from './enterprise/pucharse/pages/listreception/listreception.component';
 import { CreatetrxpaymentComponent } from './enterprise/trxpayment/pages/createtrxpayment/createtrxpayment.component';
+import { ListtrxpaymentComponent } from './enterprise/trxpayment/pages/listtrxpayment/listtrxpayment.component';
+import { ViewtrxpaymentComponent } from './enterprise/trxpayment/pages/viewtrxpayment/viewtrxpayment.component';
 import { ListsaleComponent } from './enterprise/sale/pages/listsale/listsale.component';
 import { ListkardexComponent } from './enterprise/product/pages/listkardex/listkardex.component';
 import { AppfileComponent } from './enterprise/system/pages/appfile/appfile.component';
@@ -50,6 +54,12 @@ import { DirecttransferComponent } from './enterprise/transfer/pages/directtrans
 import { CreateproductmassiveComponent } from './enterprise/product/pages/createproductmassive/createproductmassive.component';
 import { CreatecategorymassiveComponent } from './enterprise/product/pages/createcategorymassive/createcategorymassive.component';
 import { CreatebrandmassiveComponent } from './enterprise/product/pages/createbrandmassive/createbrandmassive.component';
+import { ViewpucharseComponent } from './enterprise/pucharse/pages/viewpucharse/viewpucharse.component';
+import { ListstoreComponent } from './enterprise/store/pages/liststore/liststore.component';
+import { CreatestoreComponent } from './enterprise/store/pages/createstore/createstore.component';
+import { ListbusinessconfiggroupComponent } from './enterprise/businessconfiggroup/pages/listbusinessconfiggroup/listbusinessconfiggroup.component';
+import { CreatebusinessconfiggroupComponent } from './enterprise/businessconfiggroup/pages/createbusinessconfiggroup/createbusinessconfiggroup.component';
+import { CreatebusinessconfigComponent } from './enterprise/businessconfiggroup/pages/createbusinessconfig/createbusinessconfig.component';
 
 const routes: Routes = [
   {
@@ -117,6 +127,26 @@ const routes: Routes = [
       {
         path: 'enterprise/menu/pages/createmenu',
         component: CreatemenuComponent
+      },
+      {
+        path: 'enterprise/store/pages/liststore',
+        component: ListstoreComponent
+      },
+      {
+        path: 'enterprise/store/pages/createstore',
+        component: CreatestoreComponent
+      },
+      {
+        path: 'enterprise/businessconfiggroup/pages/listbusinessconfiggroup',
+        component: ListbusinessconfiggroupComponent
+      },
+      {
+        path: 'enterprise/businessconfiggroup/pages/createbusinessconfiggroup',
+        component: CreatebusinessconfiggroupComponent
+      },
+      {
+        path: 'enterprise/businessconfiggroup/pages/createbusinessconfig',
+        component: CreatebusinessconfigComponent
       }
     ]
   },
@@ -151,6 +181,19 @@ const routes: Routes = [
       {
         path: 'enterprise/client/pages/createclient',
         component: CreateclientComponent
+      }
+    ]
+  },
+  {
+    path: '',
+    children: [
+      {
+        path: 'enterprise/supplier/pages/listsupplier',
+        component: ListsupplierComponent
+      },
+      {
+        path: 'enterprise/supplier/pages/createsupplier',
+        component: CreatesupplierComponent
       }
     ]
   },
@@ -218,6 +261,10 @@ const routes: Routes = [
       {
         path: 'enterprise/pucharse/pages/listreception',
         component: ListreceptionComponent
+      },
+      {
+        path: 'enterprise/pucharse/pages/viewpucharse',
+        component: ViewpucharseComponent
       }
     ]
   },
@@ -241,7 +288,15 @@ const routes: Routes = [
     path: '',
     children: [
       {
-        path: 'enterprise/pucharse/pages/createtrxpayment',
+        path: 'enterprise/trxpayment/pages/listtrxpayment',
+        component: ListtrxpaymentComponent
+      },
+      {
+        path: 'enterprise/trxpayment/pages/viewtrxpayment',
+        component: ViewtrxpaymentComponent
+      },
+      {
+        path: 'enterprise/trxpayment/pages/createtrxpayment',
         component: CreatetrxpaymentComponent
       }
     ]

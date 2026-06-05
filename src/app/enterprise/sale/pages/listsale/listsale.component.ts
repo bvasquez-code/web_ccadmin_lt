@@ -50,7 +50,11 @@ export class ListsaleComponent implements OnInit,ActionTableService<SaleHeadEnti
 
     const viewClient = (SaleHead : SaleHeadEntity) =>{
       if(SaleHead.ClientCod !== null && SaleHead.ClientCod !== ""){
-        return SaleHead.Client.ClientCod + " - " + SaleHead.Client.Person.Names + " " + SaleHead.Client.Person.LastNames;
+        if(SaleHead.Client.Person.PersonType === "01"){
+          return SaleHead.Client.ClientCod + " - " + SaleHead.Client.Person.Names + " " + SaleHead.Client.Person.LastNames;
+        }else{
+          return SaleHead.Client.ClientCod + " - " + SaleHead.Client.Person.BusinessName;
+        }
       }
       if(SaleHead.ClientCod === null){
         return "";

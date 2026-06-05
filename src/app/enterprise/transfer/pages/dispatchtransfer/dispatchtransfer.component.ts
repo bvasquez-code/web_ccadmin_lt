@@ -14,6 +14,8 @@ import { TransferRequestService } from '../../service/TransferRequestService';
 import { AlertService } from 'src/app/enterprise/shared/service/AlertService';
 import { ProductService } from 'src/app/enterprise/product/service/product.service';
 import { ProductEntity } from 'src/app/enterprise/product/model/entity/ProductEntity';
+import { CarrierService } from '../../service/CarrierService';
+import { CarrierEntity } from '../../model/entity/CarrierEntity';
 
 @Component({
   selector: 'app-dispatchtransfer',
@@ -66,7 +68,8 @@ export class DispatchtransferComponent implements OnInit, ActionModalConfirmServ
     private router: Router,
     private toastrService: ToastrService,
     private alertService: AlertService,
-    private productService: ProductService
+    private productService: ProductService,
+    private carrierService: CarrierService
   ) {
     let urlTree: any = this.router.parseUrl(this.router.url);
     this.TransferCod = (urlTree.queryParams['TransferCod']) ? urlTree.queryParams['TransferCod'] : '';
@@ -177,6 +180,32 @@ export class DispatchtransferComponent implements OnInit, ActionModalConfirmServ
 
   numUnitDispatchConfirm(det: TransferDetEntity): boolean {
     return det.NumUnitDispatch > 0;
+  }
+
+  async searchCarrier() {
+    if (!this.txtDriverDocNumber) return;
+
+    const carrierCod = this.txtDriverDocNumber.nativeElement.value.trim();
+    if (!carrierCod) {
+      this.toastrService.warning('Ingrese el N° doc. conductor');
+      return;
+    }
+
+    const rpt: ResponseWsDto = await this.carrierService.findById(carrierCod);
+    if (rpt.ErrorStatus || !rpt.Data) {
+      this.toastrService.warning(rpt.Message || 'Transportista no encontrado');
+      return;
+    }
+
+    const carrier: CarrierEntity = rpt.Data;
+    this.cboDriverDocType.nativeElement.value = carrier.DriverDocType || '';
+    this.txtDriverDocNumber.nativeElement.value = carrier.DriverDocNumber || carrier.CarrierCod || carrierCod;
+    this.txtDriverLicenseNumber.nativeElement.value = carrier.DriverLicenseNumber || '';
+    this.txtVehiclePlate.nativeElement.value = carrier.VehiclePlate || '';
+    this.txtCarrierRuc.nativeElement.value = carrier.CarrierRuc || '';
+    this.txtCarrierName.nativeElement.value = carrier.CarrierName || '';
+
+    this.toastrService.success('Datos del transportista cargados');
   }
 
   preDispatch() {

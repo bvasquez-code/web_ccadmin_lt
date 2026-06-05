@@ -150,21 +150,21 @@ export class CreatecategorymassiveComponent implements OnInit {
         }
 
         // Logic for CategoryDadCod
-        if (propName === 'CategoryDadCod') {
+        if (propName === 'CategoryDadName') {
           if (value !== "" && this.getCategoryDadCodLike(value.toString()) === "") {
             rowErrors.push(`Categoría Padre "${value}" no encontrada en el sistema`);
           }
         }
 
         (entity as any)[propName] = value;
-        if (propName === 'CategoryDadCod') {
+        if (propName === 'CategoryDadName') {
           entity.CategoryDadCod = this.getCategoryDadCodLike(value.toString());
         }
       }
 
       if (rowErrors.length > 0) {
         this.failedProducts.push({
-          Codigo: row['CategoryCod'] || 'Desconocido',
+          Codigo: row['CategoryDadName'] || 'Desconocido',
           ErrorDesc: rowErrors.join(' | ')
         });
         continue;

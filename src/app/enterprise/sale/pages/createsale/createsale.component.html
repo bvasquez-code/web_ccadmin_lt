@@ -42,7 +42,7 @@
                       </div>
 
                       <div class="text-600 text-110 text-primary mt-2">
-                        {{ SaleDetail.Headboard.Client.Person.Names }} {{ SaleDetail.Headboard.Client.Person.LastNames }}
+                        {{ getNameClient() }}
                       </div>
 
                       <div class="text-dark-l1">
@@ -55,6 +55,19 @@
                           </b>
                         </div>
                       </div>
+                    </div>
+                    <div *ngIf="(SaleDetail.Headboard.ClientCod === '' || SaleDetail.Headboard.ClientCod === null)">
+                      <div class="alert bgc-warning-l4 brc-warning-m3 border-1 text-dark-m2" *ngIf="requiresClientForSelectedDocument()">
+                        Debe seleccionar un cliente para el documento de venta seleccionado.
+                        <button class="btn btn-sm btn-primary ml-2" type="button" (click)="OpenClientModal()">
+                          Buscar cliente
+                        </button>
+                      </div>
+                    </div>
+                    <div class="mt-2" *ngIf="(SaleDetail.Headboard.SaleStatus !== 'C')">
+                      <button class="btn btn-sm btn-outline-primary" type="button" (click)="OpenClientModal()">
+                        {{ hasClient() ? 'Cambiar cliente' : 'Agregar cliente' }}
+                      </button>
                     </div>
                   </div><!-- /.col -->
 
@@ -304,7 +317,9 @@
 
       </div>
     </div>
-  </div>
+</div>
+
+<button type="button" class="d-none" data-toggle="modal" data-target="#ClientModal" #btnOpenClientModal></button>
 
 <div class="modal fade" id="TrxPaymentModal" tabindex="-1" role="dialog" aria-labelledby="TrxPaymentModal"
   aria-hidden="true">
@@ -352,4 +367,100 @@
     </div>
 
   </div>
+</div>
+
+<div class="modal fade" id="ClientModal" tabindex="-1" role="dialog" aria-labelledby="ClientModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document" *ngIf="(ShowClientSearch === true)">
+    <div class="modal-content" style="width: 100%;">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary-d3" id="ClientModalLabel">
+          Buscar cliente
+        </h5>
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="mb-3 row">
+          <label class="col-sm-4 col-form-label">Tipo documento</label>
+          <div class="col-sm-8">
+            <select class="form-control" #cboDocumentType [disabled]="DocumentType === '01'">
+              <option value="06" *ngIf="DocumentType === '01'">RUC</option>
+              <option value="01" *ngIf="DocumentType === '03'">DNI</option>
+              <option value="04" *ngIf="DocumentType === '03'">CARNET DE EXTRANJERIA</option>
+              <option value="06" *ngIf="DocumentType === '03'">RUC</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-4 col-form-label">N° Documento</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" #txtDocumentNum>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">
+          Cerrar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="findByDocumentNum()">
+          Buscar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-dialog" role="document" *ngIf="(ShowClientRegister === true)">
+    <div class="modal-content" style="width: 180%;">
+
+      <div class="modal-body">
+        <app-createclient
+          (ResultForm)="ResponseResultFormSaleClient($event)"
+          [InputDocumentNum]="ClientDocumentNum"
+          [InputDocumentType]="ClientDocumentType"
+          [InvokeType]="'modal'">
+        </app-createclient>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">
+          Ok
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-dialog" role="document" *ngIf="(ShowClient === true)">
+    <div class="modal-content" style="width: 120%;">
+
+      <div class="modal-body" *ngIf="(SaleDetail.Headboard.Client!=null)">
+        <div class="p-2 py-lg-3 d-flex pos-rel mx-1 justify-content-start justify-content-lg-center ccard">
+          <div class="pl-1">
+            <span class="d-inline-block bgc-purple-tp1 p-3 radius-round text-center border-2 brc-black-tp11">
+              <i class="far fa-user text-white text-170 w-3 mx-3px"></i>
+            </span>
+          </div>
+          <div class="pl-25">
+            <div class="d-flex align-items-center justify-content-between justify-content-md-start">
+              <span class="text-grey-d3 text-160 mr-4">
+                {{ getInfoClient() }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">
+          Ok
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>

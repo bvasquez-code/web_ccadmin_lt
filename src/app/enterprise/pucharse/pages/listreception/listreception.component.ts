@@ -13,73 +13,76 @@ import { DataTablaGeneticDto } from 'src/app/enterprise/shared/model/dto/DataTab
   selector: 'app-listreception',
   templateUrl: './listreception.component.html'
 })
-export class ListreceptionComponent implements OnInit,ActionTableService<PucharseHeadEntity>,ActionModalConfirmService{
+export class ListreceptionComponent implements OnInit, ActionTableService<PucharseHeadEntity>, ActionModalConfirmService {
 
   @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
-  
-  responsePageSearch : ResponsePageSearch<PucharseHeadEntity> = new ResponsePageSearch();
 
-  dataTablaGenetic : DataTablaGeneticDto<PucharseHeadEntity> = new DataTablaGeneticDto();
+  responsePageSearch: ResponsePageSearch<PucharseHeadEntity> = new ResponsePageSearch();
 
-  PucharseHeadSelect : PucharseHeadEntity = new PucharseHeadEntity();
-  
+  dataTablaGenetic: DataTablaGeneticDto<PucharseHeadEntity> = new DataTablaGeneticDto();
+
+  PucharseHeadSelect: PucharseHeadEntity = new PucharseHeadEntity();
+
   constructor(
-    private pucharseService : PucharseService,
-    private session : DataSesionService
-  ){
+    private pucharseService: PucharseService,
+    private session: DataSesionService
+  ) {
 
   }
 
   ngOnInit(): void {
-    this.findAll(1,"");
+    this.findAll(1, "");
   }
 
   actionModal(ModalId: string): void {
-    
+
   }
 
   filter(Page: number): void {
-    const Query : string = this.txtSearch.nativeElement.value;
+    const Query: string = this.txtSearch.nativeElement.value;
 
-    this.findAll(Page,Query);
+    this.findAll(Page, Query);
   }
 
   loadingTable(responsePageSearch: ResponsePageSearch<PucharseHeadEntity>): void {
-    
-    const data : DataTablaGeneticDto<PucharseHeadEntity> = new DataTablaGeneticDto();
 
-    const showConfirmPucharse = (PucharseHead : PucharseHeadEntity) =>{
+    const data: DataTablaGeneticDto<PucharseHeadEntity> = new DataTablaGeneticDto();
+
+    const showConfirmPucharse = (PucharseHead: PucharseHeadEntity) => {
       return (PucharseHead.PurchaseStatus !== "F");
     }
 
     data.init(
       [
-        { Name :  "Codigo" , key : "PucharseCod" } ,
-        { Name :  "Monto total" , key : "NumTotalPrice" , IsMoney : true} ,
-        { Name :  "Proveedor" , key : "DealerCod"} ,
-        { Name :  "Modificación", key : "ModifyDate" , IsDate : true },
-        { Name :  "Estado" , 
-          key : "PurchaseStatus" , 
-          IsStatus : true,
-          Html : {
-            F : 'badge badge-sm bgc-info-d1 text-white pb-1 px-25',
-            P : 'badge badge-sm bgc-red-d1 text-white pb-1 px-25'
+        { Name: "Codigo", key: "PucharseCod" },
+        { Name: "Monto total", key: "NumTotalPrice", IsMoney: true },
+        { Name: "Proveedor", key: "DealerCod" },
+        { Name: "Modificación", key: "ModifyDate", IsDate: true },
+        {
+          Name: "Estado",
+          key: "PurchaseStatus",
+          IsStatus: true,
+          Html: {
+            F: 'badge badge-sm bgc-info-d1 text-white pb-1 px-25',
+            P: 'badge badge-sm bgc-red-d1 text-white pb-1 px-25'
           },
-          Mask : {
-            F : "Finalizado",
-            P : "Pendiente"
+          Mask: {
+            F: "Finalizado",
+            P: "Pendiente"
           }
         },
-        { Name :  "Opciones" , 
-          ColumnAction : true , 
-          Id : ["PucharseCod"] , 
-          Options : [
-            { Type : "Url" , Name : "fa fa-shopping-cart" , Url : "/enterprise/pucharse/pages/confirmpucharse?PucharseCod={PucharseCod}", Function : showConfirmPucharse }
-          ] 
+        {
+          Name: "Opciones",
+          ColumnAction: true,
+          Id: ["PucharseCod"],
+          Options: [
+            { Type: "Url", Name: "fa fa-search", Url: "/enterprise/pucharse/pages/viewpucharse?PucharseCod={PucharseCod}" },
+            { Type: "Url", Name: "fa fa-shopping-cart", Url: "/enterprise/pucharse/pages/confirmpucharse?PucharseCod={PucharseCod}", Function: showConfirmPucharse }
+          ]
         }
       ],
       {
-        data : responsePageSearch
+        data: responsePageSearch
       },
       "Lista de solicitudes de compra"
     );
@@ -89,15 +92,14 @@ export class ListreceptionComponent implements OnInit,ActionTableService<Puchars
   }
 
   async findAll(Page: number, Query: string): Promise<void> {
-    const Search : SearchDto = new SearchDto();
+    const Search: SearchDto = new SearchDto();
     Search.Page = Page;
     Search.Query = Query;
     Search.StoreCod = this.session.getSessionStorageDto().StoreCod;
 
-    const rpt : ResponseWsDto = await this.pucharseService.FindAll(Search);
-    if( !rpt.ErrorStatus )
-    {
-      this.responsePageSearch = rpt.Data; 
+    const rpt: ResponseWsDto = await this.pucharseService.FindAll(Search);
+    if (!rpt.ErrorStatus) {
+      this.responsePageSearch = rpt.Data;
       this.loadingTable(this.responsePageSearch);
     }
   }

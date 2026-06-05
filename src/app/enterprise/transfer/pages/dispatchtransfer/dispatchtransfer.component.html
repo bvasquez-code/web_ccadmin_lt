@@ -87,10 +87,6 @@
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label>Placa vehículo</label>
-            <input type="text" class="form-control" #txtVehiclePlate />
-          </div>
-          <div class="col-md-4 mb-3">
             <label>Tipo doc. conductor</label>
             <select class="form-control" #cboDriverDocType>
               <option value="01">DNI (01)</option>
@@ -99,7 +95,18 @@
           </div>
           <div class="col-md-4 mb-3">
             <label>N° doc. conductor</label>
-            <input type="text" class="form-control" #txtDriverDocNumber />
+            <div class="input-group">
+              <input type="text" class="form-control" #txtDriverDocNumber (keyup.enter)="searchCarrier()" />
+              <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="button" (click)="searchCarrier()">
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label>Placa vehículo</label>
+            <input type="text" class="form-control" #txtVehiclePlate />
           </div>
           <div class="col-md-4 mb-3">
             <label>Licencia conductor</label>

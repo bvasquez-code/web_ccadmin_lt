@@ -9,51 +9,55 @@ import { SearchDto } from "../../shared/model/dto/SearchDto";
     providedIn: 'root'
 })
 
-export class AppMenuService
-{
+export class AppMenuService {
 
     constructor(private apiService: ApiService) {
     }
 
-    async findAll(search : SearchDto)
-    {
+    async findAll(search: SearchDto) {
         let url: string = `${AppSetting.API}/api/v1/appMenu/findAll`;
-        let RespuestaWS : ResponseWsDto;
+        let RespuestaWS: ResponseWsDto;
 
-        RespuestaWS = await this.apiService.ExecuteGetService(url,search);
+        RespuestaWS = await this.apiService.ExecuteGetService(url, search);
 
         return RespuestaWS;
     }
 
-    async findDataForm(Id : string)
-    {
+    async findDataForm(Id: string) {
         let url: string = `${AppSetting.API}/api/v1/appMenu/findDataForm`;
-        let RespuestaWS : ResponseWsDto;
+        let RespuestaWS: ResponseWsDto;
 
-        RespuestaWS = await this.apiService.ExecuteGetService(url,{ Id : Id });
+        RespuestaWS = await this.apiService.ExecuteGetService(url, { Id: Id });
 
         return RespuestaWS;
     }
 
-    async save(appMenu : AppMenuEntity)
-    {
+    async save(appMenu: AppMenuEntity) {
         let url: string = `${AppSetting.API}/api/v1/appMenu/save`;
-        let RespuestaWS : ResponseWsDto;
+        let RespuestaWS: ResponseWsDto;
 
-        RespuestaWS = await this.apiService.ExecutePostService(url,appMenu);
+        RespuestaWS = await this.apiService.ExecutePostService(url, appMenu);
 
         return RespuestaWS;
     }
 
-    async updateStatus(appMenu : AppMenuEntity)
-    {
+    async updateStatus(appMenu: AppMenuEntity) {
         let url: string = `${AppSetting.API}/api/v1/appMenu/updateStatus`;
-        let RespuestaWS : ResponseWsDto;
+        let RespuestaWS: ResponseWsDto;
 
-        RespuestaWS = await this.apiService.ExecutePostService(url,appMenu);
+        RespuestaWS = await this.apiService.ExecutePostService(url, appMenu);
 
         return RespuestaWS;
     }
 
-    
+    async FindById(MenuCod: string) {
+        let url: string = `${AppSetting.API}/api/v1/appMenu/findById`;
+        let RespuestaWS: ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecuteGetService(url, { MenuCod: MenuCod });
+
+        return RespuestaWS;
+    }
+
+
 }

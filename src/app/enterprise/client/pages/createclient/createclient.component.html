@@ -21,7 +21,7 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <select class="form-control col-sm-8 col-md-6" #cboPersonType>
+                            <select class="form-control col-sm-8 col-md-6" #cboPersonType [disabled]="IsEdit || ExistingRegisterMessage" (change)="changePersonType()">
                                 <option value="01">NATURAL</option>
                                 <option value="04">JURIDICA</option>
                             </select>
@@ -36,9 +36,10 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <select class="form-control col-sm-8 col-md-6" #cboDocumentType>
+                            <select class="form-control col-sm-8 col-md-6" #cboDocumentType [disabled]="IsLegalPerson || IsEdit || ExistingRegisterMessage">
                                 <option value="01">DNI</option>
-                                <option value="04">CARNET EXTRANJERIA</option>
+                                <option value="04" *ngIf="!IsLegalPerson">CARNET EXTRANJERIA</option>
+                                <option value="06" *ngIf="IsLegalPerson">RUC</option>
                             </select>
                         </div>
                     </div>
@@ -51,15 +52,28 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" 
-                                    class="form-control col-sm-8 col-md-6" 
-                                    #txtDocumentNum
-                                    (change)="findByDocumentNum()"
-                            >
+                            <div class="input-group col-sm-8 col-md-6 p-0">
+                                <input type="text" 
+                                        class="form-control" 
+                                        #txtDocumentNum
+                                        maxlength="16"
+                                        [readonly]="IsEdit || ExistingRegisterMessage"
+                                        (input)="clearExistingRegisterMessage()"
+                                >
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button" [disabled]="IsEdit || ExistingRegisterMessage" (click)="findPersonByDocumentNum()">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="text-danger mt-1" *ngIf="ExistingRegisterMessage">
+                                {{ ExistingRegisterMessage }}
+                                <a [href]="ExistingRegisterUrl">Ir al registro</a>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="form-group row" *ngIf="!IsLegalPerson">
                         <div class="col-sm-3 col-form-label text-sm-right pr-0">
                             <label for="id-form-field-1" class="mb-0">
                                 Nombres
@@ -67,11 +81,11 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtNames>
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtNames maxlength="128" [readonly]="ExistingRegisterMessage" (keypress)="validateKeypress($event, 'txtNames')">
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="form-group row" *ngIf="!IsLegalPerson">
                         <div class="col-sm-3 col-form-label text-sm-right pr-0">
                             <label for="id-form-field-1" class="mb-0">
                                 Apellidos
@@ -79,7 +93,43 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtLastNames>
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtLastNames maxlength="128" [readonly]="ExistingRegisterMessage" (keypress)="validateKeypress($event, 'txtLastNames')">
+                        </div>
+                    </div>
+
+                    <div class="form-group row" *ngIf="IsLegalPerson">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                Nombre comercial
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtCommercialName maxlength="128" [readonly]="ExistingRegisterMessage">
+                        </div>
+                    </div>
+
+                    <div class="form-group row" *ngIf="IsLegalPerson">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                Razon social
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtBusinessName maxlength="128" [readonly]="ExistingRegisterMessage">
+                        </div>
+                    </div>
+
+                    <div class="form-group row" *ngIf="IsLegalPerson">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label for="id-form-field-1" class="mb-0">
+                                Direccion
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtAddress maxlength="256" [readonly]="ExistingRegisterMessage">
                         </div>
                     </div>
 
@@ -91,7 +141,7 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtCellPhone>
+                            <input type="tel" class="form-control col-sm-8 col-md-6" #txtCellPhone maxlength="20" inputmode="numeric" pattern="[0-9]*" [readonly]="ExistingRegisterMessage" (keypress)="validateKeypress($event, 'txtCellPhone')">
                         </div>
                     </div>
 
@@ -103,7 +153,7 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtEmail>
+                            <input type="email" class="form-control col-sm-8 col-md-6" #txtEmail maxlength="32" [readonly]="ExistingRegisterMessage">
                         </div>
                     </div>
 
@@ -115,7 +165,7 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtPhone>
+                            <input type="tel" class="form-control col-sm-8 col-md-6" #txtPhone maxlength="20" inputmode="numeric" pattern="[0-9]*" [readonly]="ExistingRegisterMessage" (keypress)="validateKeypress($event, 'txtPhone')">
                         </div>
                     </div>
 
@@ -124,7 +174,8 @@
                             <a 
                                 class="btn btn-info btn-bold px-4" 
                                 type="button"
-                                (click)="save()"
+                                [class.disabled]="ExistingRegisterMessage"
+                                (click)="!ExistingRegisterMessage && save()"
                             >
                                 <i class="fa fa-check mr-1"></i>
                                 Guardar

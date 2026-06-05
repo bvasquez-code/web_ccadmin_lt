@@ -15,6 +15,9 @@ import { CreditNoteDocumentEntity } from '../model/entity/CreditNoteDocumentEnti
 import { CreditNoteDetDto } from '../model/dto/CreditNoteDetDto';
 import { CreditNoteDetEntity } from '../model/entity/CreditNoteDetEntity';
 import { CreditNoteDetailDto } from '../model/dto/CreditNoteDetailDto';
+import { TransferRequestDetailDto } from '../../transfer/model/dto/TransferRequestDetailDto';
+import { TransferDocumentEntity } from '../../transfer/model/entity/TransferDocumentEntity';
+import { TransferDetEntity } from '../../transfer/model/entity/TransferDetEntity';
 
 @Injectable({ providedIn: 'root' })
 export class TicketSunatService {
@@ -282,6 +285,98 @@ export class TicketSunatService {
     this.openAndPrint(html);
   }
 
+  async printTransferReferralGuide(transferPrint: ResponseWsDto) {
+    const detail: TransferRequestDetailDto = transferPrint?.DataAdditional?.find((x: any) => x.Name === 'transferDetail')?.Data;
+    const storeOrigin: StoreInfoDto = transferPrint?.DataAdditional?.find((x: any) => x.Name === 'storeOrigin')?.Data;
+    const storeDest: StoreInfoDto = transferPrint?.DataAdditional?.find((x: any) => x.Name === 'storeDest')?.Data;
+
+    const head = detail?.transferHead || detail?.transferHeadRequest || {};
+    const doc: TransferDocumentEntity = detail?.transferDocumentList?.find((x: any) => x.DocumentRole === 'R') || detail?.transferDocumentList?.[0] || new TransferDocumentEntity();
+    const items: TransferDetEntity[] = detail?.transferDetList?.length ? detail.transferDetList : (detail?.transferDetRequestList || []);
+
+    const company = storeOrigin?.Company || {};
+    const originStore = storeOrigin?.Store || {};
+    const destStore = storeDest?.Store || {};
+    const [series, number] = String(doc?.DocumentCod || '').split('-');
+    const issueDate = this.formatDateDDMMYYYY(String(doc?.CreationDate || head?.DispatchDate || head?.CreationDate));
+    const issueTime = this.formatTimeHHMM(String(doc?.CreationDate || head?.DispatchDate || head?.CreationDate));
+    const transferDate = this.formatDateDDMMYYYY(String(head?.DispatchDate || doc?.CreationDate || head?.CreationDate));
+    const docTypeCode: '09' = '09';
+
+    const qrText = [
+      company?.TaxId || '',
+      docTypeCode,
+      series || '',
+      (number || '').replace(/^0+/, ''),
+      issueDate,
+      doc?.DriverDocType || '',
+      doc?.DriverDocNumber || '',
+      doc?.XmlHash || ''
+    ].join('|');
+
+    let qrDataUrl = '';
+    try { qrDataUrl = await (QRCode as any).toDataURL(qrText, { margin: 0 }); } catch { /* noop */ }
+
+    const html = this.renderTransferReferralGuideHTML({
+      issuer: {
+        ruc: company?.TaxId || '',
+        legalName: company?.LegalName || company?.TradeName || '',
+        tradeName: company?.TradeName || '',
+        fiscalAddress: company?.FiscalAddress || company?.Address || '',
+        companyUbigeo: storeOrigin?.CompanyUbigeo || '',
+        phone: company?.Phone || '',
+        email: company?.Email || ''
+      },
+      document: {
+        typeText: 'GUIA DE REMISION REMITENTE ELECTRONICA',
+        typeCode: docTypeCode,
+        code: doc?.DocumentCod || '',
+        series: series || '',
+        number: number || '',
+        issueDate,
+        issueTime,
+        transferDate,
+        reason: this.getTransferReasonDescription(doc?.ReasonTransferCod, doc?.ReasonTransferDesc),
+        transportMode: this.getTransportModeDescription(doc?.TransportModeCod),
+        totalWeight: doc?.TotalWeightKg,
+        packages: doc?.NumPackages
+      },
+      origin: {
+        storeName: originStore?.Name || '',
+        address: doc?.DepartureAddress || originStore?.Address || '',
+        ubigeo: doc?.DepartureUbigeo || originStore?.UbigeoCod || '',
+        ubigeoText: storeOrigin?.StoreUbigeo || ''
+      },
+      destination: {
+        storeName: destStore?.Name || '',
+        address: doc?.ArrivalAddress || destStore?.Address || '',
+        ubigeo: doc?.ArrivalUbigeo || destStore?.UbigeoCod || '',
+        ubigeoText: storeDest?.StoreUbigeo || ''
+      },
+      carrier: {
+        ruc: doc?.CarrierRuc || '',
+        name: doc?.CarrierName || '',
+        vehiclePlate: doc?.VehiclePlate || '',
+        driverDocType: doc?.DriverDocType || '',
+        driverDocNumber: doc?.DriverDocNumber || '',
+        driverLicense: doc?.DriverLicenseNumber || ''
+      },
+      items: items.map((it: any, index: number) => ({
+        item: it?.ItemNumber || index + 1,
+        productCod: it?.ProductCod || '',
+        description: it?.Product?.ProductName || it?.Product?.ProductDesc || it?.ProductCod || '',
+        quantity: it?.NumUnitDispatch || it?.NumUnit || 0,
+        unit: 'NIU',
+        lot: it?.LotNumber || ''
+      })),
+      observation: head?.Observation || '',
+      qrDataUrl,
+      qrText
+    });
+
+    this.openAndPrint(html);
+  }
+
 
 
   /** ========= Helpers ========= */
@@ -309,15 +404,20 @@ export class TicketSunatService {
   }
 
   private mapCustomerDocTypeToSunat(code: string | undefined): string {
-    // admite '01' (DNI), '06' (RUC), 'CE', 'DNI', 'RUC', y ya mapeados '1'/'6'/'4'
-    const c = (code || '').toString().toUpperCase();
-    if (c === '06' || c === 'RUC' || c === '6') return '6';
-    if (c === '01' || c === 'DNI' || c === '1') return '1';
-    if (c === 'CE' || c === '4') return '4';
-    return '0'; // sin doc
+
+    const mapDocumentSunat = {
+      listDoc : [
+        { code: '01', name: 'DNI' }, // DNI
+        { code: '06', name: 'RUC' }, // RUC
+        { code: '04', name: 'CE' },  // Carnet de extranjería
+      ]
+    };
+
+    const nameDocument = mapDocumentSunat.listDoc.find((d) => d.code === code)?.name;
+    return nameDocument || ''; // '0' para “sin documento” o tipo no reconocido
   }
 
-  private getSunatDocTypeCode(doc: any): '01' | '03' {
+  private getSunatDocTypeCode(doc: SaleDocumentEntity): '01' | '03' {
     const cc = String(doc?.CounterfoilCod || '');
     const pref2 = cc.substring(0, 2);
     if (pref2 === '01') return '01';
@@ -325,11 +425,18 @@ export class TicketSunatService {
     return '03';
   }
 
-  private safeFullName(person: any): string {
-    const n = (person?.Names ?? '').toString().trim();
-    const a = (person?.LastNames ?? '').toString().trim();
-    const full = `${n} ${a}`.trim();
-    return full || 'CLIENTE VARIOS';
+  private safeFullName(person: PersonEntity): string {
+
+    if(person?.PersonType === "01"){
+      const Names = (person?.Names ?? '').toString().trim();
+      const LastNames = (person?.LastNames ?? '').toString().trim();
+      const full = `${Names} ${LastNames}`.trim();
+      return full || '';
+    }else if(person?.PersonType === "04"){
+      return (person?.BusinessName ?? '').toString().trim() || '';
+    }else{
+      return '';
+    }
   }
 
   private openAndPrint(html: string) {
@@ -389,6 +496,163 @@ export class TicketSunatService {
     const base = +(totalN / (1 + rate)).toFixed(2);
     const tax = +(totalN - base).toFixed(2);
     return { base, tax };
+  }
+
+  private getTransferReasonDescription(code: string, desc?: string): string {
+    if (desc) return desc;
+    const reasons: any = {
+      '01': 'Venta',
+      '02': 'Compra',
+      '03': 'Consignacion',
+      '04': 'Traslado entre establecimientos de la misma empresa',
+      '13': 'Otros'
+    };
+    return reasons[code] || code || '';
+  }
+
+  private getTransportModeDescription(code: string): string {
+    const modes: any = {
+      '01': 'Transporte publico',
+      '02': 'Transporte privado'
+    };
+    return modes[code] || code || '';
+  }
+
+  private renderTransferReferralGuideHTML(data: {
+    issuer: any,
+    document: any,
+    origin: any,
+    destination: any,
+    carrier: any,
+    items: any[],
+    observation: string,
+    qrDataUrl: string,
+    qrText: string
+  }): string {
+    const lines = (arr: any[]) => arr.join('');
+    const itemRows = lines(data.items.map((it: any) => `
+      <div class="item">
+        <div class="row">
+          <div class="desc">${this.escape(it.item)}. ${this.escape(it.description)}</div>
+          <div class="amt">${this.escape(it.quantity)} ${this.escape(it.unit)}</div>
+        </div>
+        <div class="small">${this.escape(it.productCod)}${it.lot ? ` | Lote: ${this.escape(it.lot)}` : ''}</div>
+      </div>`
+    ));
+
+    const LEFT = this.LEFT_OFFSET_MM;
+    const PAD = this.H_PADDING_MM;
+    const PRINTABLE_MAX_MM = 79;
+    const calcWidth = Math.min(this.PAPER_WIDTH_MM - LEFT, PRINTABLE_MAX_MM);
+
+    const css = `
+      @media print {
+        @page { size: ${this.PAPER_WIDTH_MM}mm auto; margin: 0; }
+        body { margin: 0; }
+      }
+      body { font-family: monospace; margin: 0; background:#fff; }
+      .wrap {
+        width: ${this.PAPER_WIDTH_MM}mm;
+        padding-left: ${LEFT}mm;
+        box-sizing: border-box;
+      }
+      .ticket {
+        width: ${calcWidth}mm;
+        padding: ${PAD}mm ${PAD}mm ${PAD + 3}mm ${PAD}mm;
+        box-sizing: border-box;
+        font-size: ${this.BASE_FONT_PX}px;
+        line-height: 1.25;
+      }
+      .center { text-align: center; }
+      .bold { font-weight: bold; }
+      .small { font-size: ${Math.max(this.BASE_FONT_PX - 1, 8)}px; }
+      .sep { border-top: 1px dashed #000; margin: 6px 0; }
+      .row { display: flex; flex-direction: row; justify-content: space-between; gap: 6px; }
+      .desc { width: 70%; word-wrap: break-word; }
+      .amt { width: 28%; text-align: right; }
+      .line { margin: 2px 0; word-wrap: break-word; }
+      .label { font-weight: bold; }
+      .item { margin-bottom: 4px; }
+      .qr { display:flex; justify-content:center; margin-top:6px; }
+      .qr img { width: 28mm; height: 28mm; }
+      h3,h4 { margin: 0; }
+      .header { margin-bottom: 4px; }
+      .footer { margin-top: 8px; text-align:center; }
+    `;
+
+    return `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>${this.escape(data.document.typeText)} ${this.escape(data.document.code)}</title>
+<style>${css}</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="ticket">
+      <div class="center header">
+        <h3 class="bold">${this.escape(data.issuer.legalName)}</h3>
+        <div class="bold">RUC: ${this.escape(data.issuer.ruc)}</div>
+
+        <div class="sep"></div>
+        <div class="small bold">DOMICILIO FISCAL</div>
+        <div class="small">${this.escape(data.issuer.fiscalAddress)}</div>
+        <div class="small">${this.escape(data.issuer.companyUbigeo)}</div>
+        ${data.issuer.phone ? `<div class="small">Tel: ${this.escape(data.issuer.phone)}</div>` : ''}
+
+        <div class="sep"></div>
+        <h4 class="bold">${this.escape(data.document.typeText)}</h4>
+        <div>${this.escape(data.document.code)}</div>
+        <div class="small">Fec: ${this.escape(data.document.issueDate)} ${this.escape(data.document.issueTime)}</div>
+      </div>
+
+      <div class="sep"></div>
+      <div class="small bold">DATOS DEL TRASLADO</div>
+      <div class="small line"><span class="label">Fec. traslado:</span> ${this.escape(data.document.transferDate)}</div>
+      <div class="small line"><span class="label">Motivo:</span> ${this.escape(data.document.reason)}</div>
+      <div class="small line"><span class="label">Modalidad:</span> ${this.escape(data.document.transportMode)}</div>
+      <div class="small line"><span class="label">Peso bruto:</span> ${this.escape(data.document.totalWeight || '')} KG</div>
+      <div class="small line"><span class="label">Bultos:</span> ${this.escape(data.document.packages || '')}</div>
+
+      <div class="sep"></div>
+      <div class="small bold">PUNTO DE PARTIDA</div>
+      <div class="small line">${this.escape(data.origin.storeName)}</div>
+      <div class="small line">${this.escape(data.origin.address)}</div>
+      <div class="small line">Ubigeo: ${this.escape(data.origin.ubigeo)} ${this.escape(data.origin.ubigeoText)}</div>
+
+      <div class="sep"></div>
+      <div class="small bold">PUNTO DE LLEGADA</div>
+      <div class="small line">${this.escape(data.destination.storeName)}</div>
+      <div class="small line">${this.escape(data.destination.address)}</div>
+      <div class="small line">Ubigeo: ${this.escape(data.destination.ubigeo)} ${this.escape(data.destination.ubigeoText)}</div>
+
+      <div class="sep"></div>
+      <div class="small bold">TRANSPORTE</div>
+      <div class="small line"><span class="label">Transportista:</span> ${this.escape(data.carrier.name)}</div>
+      <div class="small line"><span class="label">RUC:</span> ${this.escape(data.carrier.ruc)}</div>
+      <div class="small line"><span class="label">Placa:</span> ${this.escape(data.carrier.vehiclePlate)}</div>
+      <div class="small line"><span class="label">Conductor:</span> ${this.escape(data.carrier.driverDocType)} - ${this.escape(data.carrier.driverDocNumber)}</div>
+      <div class="small line"><span class="label">Licencia:</span> ${this.escape(data.carrier.driverLicense)}</div>
+
+      <div class="sep"></div>
+      <div class="small bold">BIENES TRANSPORTADOS</div>
+      ${itemRows}
+
+      ${data.observation ? `<div class="sep"></div><div class="small bold">OBSERVACION</div><div class="small line">${this.escape(data.observation)}</div>` : ''}
+
+      <div class="sep"></div>
+      <div class="qr">
+        ${data.qrDataUrl ? `<img src="${data.qrDataUrl}" alt="QR" />` : ''}
+      </div>
+      <div class="small center">* ${this.escape(data.document.typeText)} *</div>
+      <div class="small center">Representacion impresa del documento electronico</div>
+      <div class="small center">${this.escape(data.qrText)}</div>
+      <div class="footer small">Consulte la validez del documento electronico en SUNAT.</div>
+    </div>
+  </div>
+</body>
+</html>`;
   }
 
 
@@ -501,8 +765,8 @@ export class TicketSunatService {
       </div>
 
       <div class="small">
-        <div>Cliente: ${this.escape(data.customer.name)}</div>
-        <div>Doc: ${this.escape(data.customer.docType)} - ${this.escape(data.customer.docNumber)}</div>
+        ${data.customer.name ? `<div>Cliente: ${this.escape(data.customer.name)}</div>` : ''}
+        ${data.customer.docType ? `<div>Doc: ${this.escape(data.customer.docType)} - ${this.escape(data.customer.docNumber)}</div>` : ''}
       </div>
 
       <div class="sep"></div>

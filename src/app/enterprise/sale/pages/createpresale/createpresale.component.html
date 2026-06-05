@@ -1,6 +1,6 @@
 <div class="page-content container container-plus">
 
-  <div class="row">
+  <div class="row d-none" *ngIf="false">
     <div class="col-12 col-lg-12">
       <div class="d-lg-none my-2">
         <!-- the button to toggle filters modal in small devices -->
@@ -52,7 +52,7 @@
                   <div class="p-2 px-25">
                     <div class="input-group">
                       <input type="text" class="form-control" placeholder="Search within results ..."
-                        #txt_filtro_busqueda (keydown)="filterProductEnter($event)" />
+                        (keydown)="filterProductEnter($event)" />
                       <div class="input-group-append">
                         <button class="btn btn-blue px-3 btn-sm" type="button" (click)="filterProduct()">
                           <i class="fa fa-search-plus text-105"></i>
@@ -319,13 +319,22 @@
       <hr class="brc-secondary-l3 m-2" />
 
       <div class="bgc-default-l4 radius-1 p-25 border-1 brc-default-l3 mt-4 pt-lg-3 mb-1">
-        <div class="d-flex flex-column flex-sm-row">
-          <h3 class="text-dark-tp3 text-125 mb-0 ml-sm-2">
-            <span class="text-primary-d4 text-115">{{ RptSearchProduct.num_resultados }}</span> productos
-            encontrados
-          </h3>
-
-          <div class="ml-auto mt-2 mt-sm-0">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center">
+          <div class="ml-lg-auto mt-2 mt-lg-0 w-100" style="max-width: 100%;">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Buscar producto ..." #txt_filtro_busqueda
+                (keydown)="filterProductEnter($event)" />
+              <div class="input-group-append">
+                <button class="btn btn-blue px-3 btn-sm" type="button" (click)="filterProduct()">
+                  <i class="fa fa-search-plus text-105"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center">
+          <div class="mr-md-3 mb-2 mb-md-0">
             <label class="mb-0 d-inline-block text-sm">
               Ordenar por:
             </label>
@@ -337,7 +346,9 @@
                 <option value="price">Precio</option>
               </select>
             </div>
-            <div class="ml-2 d-inline-block"></div>
+          </div>
+
+          <div class="mr-md-3 mb-2 mb-md-0">
             <label class="mb-0 d-inline-block text-sm">
               Orden:
             </label>
@@ -348,7 +359,9 @@
                 <option value="asc">Ascendente</option>
               </select>
             </div>
-            <div class="ml-2 d-inline-block"></div>
+          </div>
+
+          <div class="mb-2 mb-md-0">
             <label class="mb-0 d-inline-block text-sm">
               Mostrar solo con stock:
             </label>
@@ -359,6 +372,17 @@
                 <option value="S">Si</option>
               </select>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bgc-default-l4 radius-1 p-25 border-1 brc-default-l3 mt-4 pt-lg-3 mb-1">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center">
+          <div>
+            <h3 class="text-dark-tp3 text-125 mb-0 ml-sm-2">
+              <span class="text-primary-d4 text-115">{{ RptSearchProduct.num_resultados }}</span> productos
+              encontrados
+            </h3>
           </div>
         </div>
       </div>

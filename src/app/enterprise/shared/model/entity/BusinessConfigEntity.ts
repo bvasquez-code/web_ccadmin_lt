@@ -1,4 +1,5 @@
 export class BusinessConfigEntity {
+    [key: string]: any;
 
     public GroupId: number;
     public GroupCod: string;

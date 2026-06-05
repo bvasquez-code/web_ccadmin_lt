@@ -7,6 +7,8 @@ import { AppProfileEntity } from '../../model/entity/AppProfileEntity';
 import { UserProfileEntity } from '../../model/entity/UserProfileEntity';
 import { StoreEntity } from 'src/app/enterprise/shared/model/entity/StoreEntity';
 import { UserStoreEntity } from '../../model/entity/UserStoreEntity';
+import { ToastrService } from 'ngx-toastr';
+import { ValidationHelper } from 'src/app/enterprise/shared/helper/ValidationHelper';
 
 @Component({
   selector: 'app-createuser',
@@ -29,7 +31,8 @@ export class CreateuserComponent implements OnInit {
 
   constructor(
     private appUserService: AppUserService,
-    private router: Router
+    private router: Router,
+    private toastrService: ToastrService
   ) {
 
     let urlTree: any = this.router.parseUrl(this.router.url);
@@ -79,8 +82,52 @@ export class CreateuserComponent implements OnInit {
     this.AppUser.Person.CellPhone = this.txtCellPhone.nativeElement.value;
     this.AppUser.Person.Email = this.txtEmail.nativeElement.value;
 
+    if (!this.validate(this.AppUser)) return;
+
     const rpt: ResponseWsDto = await this.appUserService.save(this.AppUser);
 
+    if (!rpt.ErrorStatus) {
+      this.toastrService.success("Usuario guardado correctamente.");
+      this.router.navigate(['/enterprise/user/pages/listuser']);
+    }
+
+  }
+
+  validate(appUser: AppUserEntity): boolean {
+    try {
+      ValidationHelper.validLengthString(appUser.UserCod, 16, "El código de usuario solo puede tener 16 caracteres");
+      ValidationHelper.validateIsNotEmpty(appUser.UserCod, "Debe ingresar un código de usuario");
+
+      if (appUser.PasswordDecoded) {
+        ValidationHelper.validLengthString(appUser.PasswordDecoded, 100, "La contraseña solo puede tener 100 caracteres");
+      }
+      ValidationHelper.validateIsNotEmpty(appUser.PasswordDecoded, "Debe ingresar una contraseña");
+
+      ValidationHelper.validateIsNotEmpty(appUser.Person.DocumentType, "Debe seleccionar un tipo de documento");
+      ValidationHelper.validLengthString(appUser.Person.DocumentType, 2, "El tipo de documento solo puede tener 2 caracteres");
+
+      ValidationHelper.validLengthString(appUser.Person.DocumentNum, 16, "El número de documento solo puede tener 16 caracteres");
+      ValidationHelper.validateIsNotEmpty(appUser.Person.DocumentNum, "Debe ingresar un número de documento");
+
+      ValidationHelper.validLengthString(appUser.Person.Names, 128, "Los nombres solo pueden tener 128 caracteres");
+      ValidationHelper.validateIsNotEmpty(appUser.Person.Names, "Debe ingresar los nombres");
+
+      ValidationHelper.validLengthString(appUser.Person.LastNames, 128, "Los apellidos solo pueden tener 128 caracteres");
+      ValidationHelper.validateIsNotEmpty(appUser.Person.LastNames, "Debe ingresar los apellidos");
+
+      if (appUser.Person.CellPhone) {
+        ValidationHelper.validLengthString(appUser.Person.CellPhone, 20, "El celular solo puede tener 20 caracteres");
+      }
+
+      if (appUser.Person.Email) {
+        ValidationHelper.validLengthString(appUser.Person.Email, 32, "El email solo puede tener 32 caracteres");
+      }
+
+      return true;
+    } catch (e: any) {
+      this.toastrService.error(e.message);
+      return false;
+    }
   }
 
   CheckedMenu(AppUser: AppProfileEntity) {

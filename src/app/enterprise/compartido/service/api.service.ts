@@ -123,6 +123,13 @@ export class ApiService {
         });
     }
 
+    public InvokeDeleteService(URL: string): Observable<any> {
+
+        return this.http.delete<any>(URL, {
+            headers: new HttpHeaders(this.generarheaders())
+        });
+    }
+
     async ExecutePostService(URL: string, Request : any)
     {
         let RespuestaWS : ResponseWsDto = new ResponseWsDto();
@@ -148,6 +155,23 @@ export class ApiService {
             RespuestaWS = data;
         }).catch( function(e){
             // alert("Error en el servicio :"+e.error.mensaje);
+            RespuestaWS = new ResponseWsDto();
+            RespuestaWS.addError(e);
+            RespuestaWS.Message = e.error.mensaje;
+            console.log({ ERROR : e });
+        });
+        return RespuestaWS;
+    }
+
+    async ExecuteDeleteService(URL: string)
+    {
+        let RespuestaWS : ResponseWsDto = new ResponseWsDto();
+
+        await this.InvokeDeleteService(URL)
+        .toPromise()
+        .then(data => {
+            RespuestaWS = data;
+        }).catch( function(e){
             RespuestaWS = new ResponseWsDto();
             RespuestaWS.addError(e);
             RespuestaWS.Message = e.error.mensaje;

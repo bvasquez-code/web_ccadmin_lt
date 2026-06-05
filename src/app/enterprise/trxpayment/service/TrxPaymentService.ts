@@ -14,12 +14,35 @@ export class TrxPaymentService implements ICrudService<TrxPaymentEntity,number>{
     constructor(private apiService: ApiService) {
     }
     
-    FindById(Id: number): Promise<ResponseWsDto> {
-        throw new Error("Method not implemented.");
+    async FindById(Id: number): Promise<ResponseWsDto> {
+        let url: string = `${AppSetting.API}/api/v1/TrxPayment/findById`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecuteGetService(url,{ TrxPaymentId: Id });
+
+        return RespuestaWS;
     }
 
-    FindAll(Search: SearchDto): Promise<ResponseWsDto> {
-        throw new Error("Method not implemented.");
+    async FindAll(Search: SearchDto): Promise<ResponseWsDto> {
+        return this.findAll(Search.Query, Search.Page);
+    }
+
+    async findAll(Query: string, Page: number): Promise<ResponseWsDto> {
+        let url: string = `${AppSetting.API}/api/v1/TrxPayment/findAll`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecuteGetService(url,{ Query: Query, Page: Page });
+
+        return RespuestaWS;
+    }
+
+    async FindByTransactionId(TransactionId: string): Promise<ResponseWsDto> {
+        let url: string = `${AppSetting.API}/api/v1/TrxPayment/findByTransactionId`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecuteGetService(url,{ TransactionId: TransactionId });
+
+        return RespuestaWS;
     }
 
     async Save(TrxPayment: TrxPaymentEntity): Promise<ResponseWsDto> {
@@ -31,8 +54,13 @@ export class TrxPaymentService implements ICrudService<TrxPaymentEntity,number>{
         return RespuestaWS;
     }
 
-    SaveAll(EntityList: TrxPaymentEntity[]): Promise<ResponseWsDto> {
-        throw new Error("Method not implemented.");
+    async SaveAll(EntityList: TrxPaymentEntity[]): Promise<ResponseWsDto> {
+        let url: string = `${AppSetting.API}/api/v1/TrxPayment/saveAll`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecutePostService(url,EntityList);
+
+        return RespuestaWS;
     }
 
     FindAllById(IdList: number[]): Promise<ResponseWsDto> {
@@ -45,6 +73,15 @@ export class TrxPaymentService implements ICrudService<TrxPaymentEntity,number>{
         let RespuestaWS : ResponseWsDto;
 
         RespuestaWS = await this.apiService.ExecuteGetService(url,{});
+
+        return RespuestaWS;
+    }
+
+    async FindDataFormView(TrxPaymentId: number): Promise<ResponseWsDto> {
+        let url: string = `${AppSetting.API}/api/v1/TrxPayment/findDataFormView`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecuteGetService(url,{ TrxPaymentId: TrxPaymentId });
 
         return RespuestaWS;
     }

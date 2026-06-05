@@ -36,6 +36,9 @@ import { ListclientComponent } from './enterprise/client/pages/listclient/listcl
 import { CreateclientComponent } from './enterprise/client/pages/createclient/createclient.component';
 import { ModalalertComponent } from './enterprise/shared/component/modalalert/modalalert.component';
 import { ModalsearchclientComponent } from './enterprise/client/pages/modalsearchclient/modalsearchclient.component';
+import { ListsupplierComponent } from './enterprise/supplier/pages/listsupplier/listsupplier.component';
+import { CreatesupplierComponent } from './enterprise/supplier/pages/createsupplier/createsupplier.component';
+import { ModalsearchsupplierComponent } from './enterprise/supplier/pages/modalsearchsupplier/modalsearchsupplier.component';
 import { ListpresaleComponent } from './enterprise/sale/pages/listpresale/listpresale.component';
 import { ListbrandComponent } from './enterprise/product/pages/listbrand/listbrand.component';
 import { CreatebrandComponent } from './enterprise/product/pages/createbrand/createbrand.component';
@@ -48,6 +51,8 @@ import { ModalconfirmComponent } from './enterprise/shared/component/modalconfir
 import { ConfirmpucharseComponent } from './enterprise/pucharse/pages/confirmpucharse/confirmpucharse.component';
 import { ListreceptionComponent } from './enterprise/pucharse/pages/listreception/listreception.component';
 import { CreatetrxpaymentComponent } from './enterprise/trxpayment/pages/createtrxpayment/createtrxpayment.component';
+import { ListtrxpaymentComponent } from './enterprise/trxpayment/pages/listtrxpayment/listtrxpayment.component';
+import { ViewtrxpaymentComponent } from './enterprise/trxpayment/pages/viewtrxpayment/viewtrxpayment.component';
 import { ListsaleComponent } from './enterprise/sale/pages/listsale/listsale.component';
 import { ListkardexComponent } from './enterprise/product/pages/listkardex/listkardex.component';
 import { AppfileComponent } from './enterprise/system/pages/appfile/appfile.component';
@@ -75,6 +80,12 @@ import { DirecttransferComponent } from './enterprise/transfer/pages/directtrans
 import { CreateproductmassiveComponent } from './enterprise/product/pages/createproductmassive/createproductmassive.component';
 import { CreatecategorymassiveComponent } from './enterprise/product/pages/createcategorymassive/createcategorymassive.component';
 import { CreatebrandmassiveComponent } from './enterprise/product/pages/createbrandmassive/createbrandmassive.component';
+import { ViewpucharseComponent } from './enterprise/pucharse/pages/viewpucharse/viewpucharse.component';
+import { ListstoreComponent } from './enterprise/store/pages/liststore/liststore.component';
+import { CreatestoreComponent } from './enterprise/store/pages/createstore/createstore.component';
+import { ListbusinessconfiggroupComponent } from './enterprise/businessconfiggroup/pages/listbusinessconfiggroup/listbusinessconfiggroup.component';
+import { CreatebusinessconfiggroupComponent } from './enterprise/businessconfiggroup/pages/createbusinessconfiggroup/createbusinessconfiggroup.component';
+import { CreatebusinessconfigComponent } from './enterprise/businessconfiggroup/pages/createbusinessconfig/createbusinessconfig.component';
 
 @NgModule({
   declarations: [
@@ -105,6 +116,9 @@ import { CreatebrandmassiveComponent } from './enterprise/product/pages/createbr
     CreateclientComponent,
     ModalalertComponent,
     ModalsearchclientComponent,
+    ListsupplierComponent,
+    CreatesupplierComponent,
+    ModalsearchsupplierComponent,
     ListpresaleComponent,
     ListbrandComponent,
     CreatebrandComponent,
@@ -117,6 +131,8 @@ import { CreatebrandmassiveComponent } from './enterprise/product/pages/createbr
     ConfirmpucharseComponent,
     ListreceptionComponent,
     CreatetrxpaymentComponent,
+    ListtrxpaymentComponent,
+    ViewtrxpaymentComponent,
     ListsaleComponent,
     ListkardexComponent,
     AppfileComponent,
@@ -142,7 +158,13 @@ import { CreatebrandmassiveComponent } from './enterprise/product/pages/createbr
     DirecttransferComponent,
     CreateproductmassiveComponent,
     CreatecategorymassiveComponent,
-    CreatebrandmassiveComponent
+    CreatebrandmassiveComponent,
+    ViewpucharseComponent,
+    ListstoreComponent,
+    CreatestoreComponent,
+    ListbusinessconfiggroupComponent,
+    CreatebusinessconfiggroupComponent,
+    CreatebusinessconfigComponent
   ],
   imports: [
     BrowserModule,

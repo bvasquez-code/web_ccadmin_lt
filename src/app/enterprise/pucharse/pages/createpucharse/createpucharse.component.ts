@@ -13,6 +13,8 @@ import { DataSesionService } from 'src/app/enterprise/compartido/service/datases
 import { ProductInfoDto } from 'src/app/enterprise/product/model/dto/ProductInfoDto';
 import { PucharseRequestDetailsDto } from '../../model/dto/PucharseRequestDetailsDto';
 import { ProductRegisterDto } from 'src/app/enterprise/product/model/dto/ProductRegisterDto';
+import { SupplierService } from 'src/app/enterprise/supplier/service/supplier.service';
+import { SupplierEntity } from 'src/app/enterprise/supplier/model/entity/SupplierEntity';
 
 @Component({
   selector: 'app-createpucharse',
@@ -29,8 +31,10 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
   @ViewChild('txtCommenter') txtCommenter!: ElementRef<HTMLInputElement>;
   @ViewChild('btnCloseModal') btnCloseModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnCloseModalCreateProduct') btnCloseModalCreateProduct!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnCloseModalCreateSupplier') btnCloseModalCreateSupplier!: ElementRef<HTMLButtonElement>;
   Page: number = 0;
   showCreateProduct: boolean = false;
+  showCreateSupplier: boolean = false;
   PucharseReqCod: string = "";
   pucharseRequestRegister: PucharseRequestRegisterDto = new PucharseRequestRegisterDto();
   pucharseRequestDetails: PucharseRequestDetailsDto = new PucharseRequestDetailsDto();
@@ -38,12 +42,15 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
   responsePageSearch: ResponsePageSearch<ProductEntity> = new ResponsePageSearch();
   productSelect: ProductEntity = new ProductEntity();
   currentSearchQuery: string = '';
+  supplierInfo: string = '';
+  supplierNotFound: boolean = false;
 
   constructor(
     private pucharseRequestHeadService: PucharseRequestHeadService,
     private router: Router,
     private toastrService: ToastrService,
     private productService: ProductService,
+    private supplierService: SupplierService,
     private session: DataSesionService
   ) {
     this.GetParamUrl(this.router);
@@ -82,6 +89,7 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
     this.txtDealerCod.nativeElement.value = PucharseRequestRegister.Headboard.DealerCod;
     this.txtExternalCod.nativeElement.value = PucharseRequestRegister.Headboard.ExternalCod;
     this.txtCommenter.nativeElement.value = PucharseRequestRegister.Headboard.Commenter;
+    this.FindSupplierByRuc();
 
   }
 
@@ -98,6 +106,35 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
         this.router.navigate(['/enterprise/pucharse/pages/listpucharse']);
       }, 1000);
     }
+  }
+
+  async FindSupplierByRuc(): Promise<void> {
+    const ruc = String(this.txtDealerCod.nativeElement.value || '').trim();
+
+    this.supplierInfo = '';
+    this.supplierNotFound = false;
+
+    if (!ruc) return;
+
+    if (ruc.length !== 11) {
+      this.toastrService.error('El RUC debe tener 11 caracteres');
+      return;
+    }
+
+    const rpt: ResponseWsDto = await this.supplierService.findByDocumentNum('06', ruc);
+
+    if (!rpt.ErrorStatus && rpt.Data && rpt.Data.SupplierCod) {
+      const supplier: SupplierEntity = rpt.Data;
+      this.loadingSupplierInfo(supplier);
+    } else {
+      this.supplierNotFound = true;
+    }
+  }
+
+  loadingSupplierInfo(supplier: SupplierEntity): void {
+    const person = supplier.Person;
+    this.supplierInfo = person.BusinessName || person.CommercialName || `${person.Names} ${person.LastNames}`;
+    this.supplierNotFound = false;
   }
 
   async FindAllProduct(Page: number) {
@@ -243,6 +280,22 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
   openCreateProductModal() {
     this.showCreateProduct = false;
     setTimeout(() => this.showCreateProduct = true, 50);
+  }
+
+  handleSupplierCreated(event: any) {
+    const supplier: SupplierEntity = event;
+    this.btnCloseModalCreateSupplier.nativeElement.click();
+    this.showCreateSupplier = false;
+
+    if (supplier && supplier.Person) {
+      this.txtDealerCod.nativeElement.value = supplier.Person.DocumentNum;
+      this.loadingSupplierInfo(supplier);
+    }
+  }
+
+  openCreateSupplierModal() {
+    this.showCreateSupplier = false;
+    setTimeout(() => this.showCreateSupplier = true, 50);
   }
 
 }

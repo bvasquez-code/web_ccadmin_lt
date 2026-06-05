@@ -20,7 +20,7 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtMenuCod [readonly]="txtMenuCodreadonly">
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtMenuCod maxlength="8" [readonly]="txtMenuCodreadonly" (blur)="checkMenuCodExistence()">
                         </div>
                     </div>
 
@@ -32,7 +32,7 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtName>
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtName maxlength="64" (focus)="checkMenuCodExistence()">
                         </div>
                     </div>
 
@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <input type="text" class="form-control col-sm-8 col-md-6" #txtDescription>
+                            <input type="text" class="form-control col-sm-8 col-md-6" #txtDescription maxlength="128" (focus)="checkMenuCodExistence()">
                         </div>
                     </div>
 

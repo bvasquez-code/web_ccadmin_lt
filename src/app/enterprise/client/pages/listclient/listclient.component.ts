@@ -86,8 +86,10 @@ export class ListclientComponent implements OnInit,ActionTableService<ClientEnti
       {
         for(let Item of this.responsePageSearch.resultSearch)
         {
-          Item.DocumentNum = Item.Person.DocumentNum;
-          Item.Names = Item.Person.Names + " " + Item.Person.LastNames;
+          (Item as any).DocumentNum = Item.Person.DocumentNum;
+          (Item as any).Names = Item.Person.PersonType === "04"
+            ? Item.Person.BusinessName
+            : Item.Person.Names + " " + Item.Person.LastNames;
         }
 
         this.loadingTable(this.responsePageSearch);

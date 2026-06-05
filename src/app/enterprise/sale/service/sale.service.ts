@@ -68,4 +68,16 @@ export class SaleService
         RespuestaWS = await this.apiService.ExecuteGetService(url,{ SaleCod : SaleCod });
         return RespuestaWS;
     }
+
+    async saveClientSale(SaleCod: string, ClientCod: string): Promise<ResponseWsDto> {
+        let url: string = `${AppSetting.API}/api/v1/sale/saveClientSale?${new URLSearchParams({
+            SaleCod: SaleCod,
+            ClientCod: ClientCod
+        }).toString()}`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecutePostService(url,{});
+
+        return RespuestaWS;
+    }
 }

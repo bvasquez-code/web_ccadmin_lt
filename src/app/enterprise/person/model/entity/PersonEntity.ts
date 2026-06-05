@@ -8,6 +8,9 @@ export class PersonEntity extends AuditTableEntity
 	public DocumentNum: string = "";
 	public Names: string = "";
 	public LastNames: string = "";
+	public CommercialName: string = "";
+	public BusinessName: string = "";
+	public Address: string = "";
 	public UbigeoCod: string = "";
 	public Phone: string = "";
 	public CellPhone: string = "";

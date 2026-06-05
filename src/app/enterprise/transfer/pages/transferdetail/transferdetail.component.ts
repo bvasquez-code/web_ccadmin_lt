@@ -5,6 +5,9 @@ import { TransferDetailDto } from '../../model/dto/TransferDetailDto';
 import { TransferRequestService } from '../../service/TransferRequestService';
 import { StoreEntity } from 'src/app/enterprise/shared/model/entity/StoreEntity';
 import { TransferRequestDetailDto } from '../../model/dto/TransferRequestDetailDto';
+import { TransferService } from '../../service/TransferService';
+import { TicketSunatService } from 'src/app/enterprise/sale/service/TicketSunatService';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-transferdetail',
@@ -14,6 +17,7 @@ export class TransferdetailComponent implements OnInit {
 
   TransferCod: string = '';
   transferDetail: TransferRequestDetailDto = new TransferRequestDetailDto();
+  transferDetailPrintData: ResponseWsDto = new ResponseWsDto();
   storeList: StoreEntity[] = [];
 
   statusHtml: any = {
@@ -37,7 +41,9 @@ export class TransferdetailComponent implements OnInit {
   };
 
   constructor(
-    private transferService: TransferRequestService,
+    private transferRequestService: TransferRequestService,
+    private ticketSunatService: TicketSunatService,
+    private toastrService: ToastrService,
     private router: Router
   ) {
     let urlTree: any = this.router.parseUrl(this.router.url);
@@ -50,7 +56,7 @@ export class TransferdetailComponent implements OnInit {
 
   async loadDetail() {
 
-    const rpt: ResponseWsDto = await this.transferService.FindDataForm(this.TransferCod);
+    const rpt: ResponseWsDto = await this.transferRequestService.FindDataForm(this.TransferCod);
     if (!rpt.ErrorStatus) {
       this.transferDetail = rpt.DataAdditional?.find(e => e.Name === 'transferDetail')?.Data ?? new TransferDetailDto();
       this.storeList = rpt.DataAdditional?.find(e => e.Name === 'storeList')?.Data ?? [];
@@ -62,5 +68,21 @@ export class TransferdetailComponent implements OnInit {
     return store?.StoreCod + ' - ' + store?.Name;
   }
 
+
+  async findDataPrint() {
+    const rpt: ResponseWsDto = await this.transferRequestService.FindDataPrint(this.TransferCod);
+    if (!rpt.ErrorStatus) {
+      this.transferDetailPrintData = rpt;
+    } else {
+      this.toastrService.error(rpt.Message || 'No se pudo obtener la información de impresión');
+    }
+  }
+
+  async print() {
+    await this.findDataPrint();
+    if (!this.transferDetailPrintData?.ErrorStatus) {
+      await this.ticketSunatService.printTransferReferralGuide(this.transferDetailPrintData);
+    }
+  }
 
 }
