@@ -120,6 +120,11 @@ export class DispatchtransferComponent implements OnInit, ActionModalConfirmServ
     }
   }
 
+  private findDispatchLineByProduct(productCod: string): TransferDetEntity | undefined {
+    return this.detailList.find(d => d.ProductCod === productCod && (d.NumUnitDispatch ?? 0) < (d.NumUnit ?? 0))
+      ?? this.detailList.find(d => d.ProductCod === productCod);
+  }
+
   async searchBarcode() {
     if (!this.txtSearchBarcode) return;
     const query = this.txtSearchBarcode.nativeElement.value.trim();
@@ -131,7 +136,7 @@ export class DispatchtransferComponent implements OnInit, ActionModalConfirmServ
     if (!rpt.ErrorStatus && rpt.Data?.resultSearch?.length > 0) {
       const foundProduct = rpt.Data.resultSearch.find((p: ProductEntity) => p.ProductCod === query) || rpt.Data.resultSearch[0];
 
-      const inTransfer = this.detailList.find(d => d.ProductCod === foundProduct.ProductCod);
+      const inTransfer = this.findDispatchLineByProduct(foundProduct.ProductCod);
       if (!inTransfer) {
         this.toastrService.error('El producto escaneado no forma parte de los productos solicitados para despachar.');
         return;
@@ -167,7 +172,7 @@ export class DispatchtransferComponent implements OnInit, ActionModalConfirmServ
 
   saveScanQuantity() {
     if (!this.scannedProduct) return;
-    const det = this.detailList.find(d => d.ProductCod === this.scannedProduct!.ProductCod);
+    const det = this.findDispatchLineByProduct(this.scannedProduct.ProductCod);
     if (det) {
       det.NumUnitDispatch += this.scanCounter;
       // You can limit here if necessary: if(det.NumUnitDispatch > det.NumUnit) det.NumUnitDispatch = det.NumUnit;

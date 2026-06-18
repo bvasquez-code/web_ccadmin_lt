@@ -4,6 +4,7 @@ import { AuditTableEntity } from '../../../shared/model/entity/AuditTableEntity'
 export class PresaleDetEntity extends AuditTableEntity
 {
     public PresaleCod : string = "";
+    public ItemNumber : number = 0;
     public ProductCod : string = "";
     public Variant : string = "";
     public NumUnit : number = 0;
@@ -11,6 +12,8 @@ export class PresaleDetEntity extends AuditTableEntity
     public NumDiscount : number = 0;
     public NumUnitPriceSale : number = 0;
     public NumTotalPrice : number = 0;
+    public LotNumber : string = "";
+    public ExpirationDate : Date | any = null;
 
     public ProductInfo : ProductInfoDto = new ProductInfoDto();
 
@@ -50,6 +53,7 @@ export class PresaleDetEntity extends AuditTableEntity
     SetDataSession( DataSession : any )
     {
         this.PresaleCod = DataSession.PresaleCod;
+        this.ItemNumber = DataSession.ItemNumber ?? 0;
         this.ProductCod = DataSession.ProductCod;
         this.Variant = DataSession.Variant;
         this.NumUnit = DataSession.NumUnit;
@@ -57,6 +61,8 @@ export class PresaleDetEntity extends AuditTableEntity
         this.NumDiscount = DataSession.NumDiscount;
         this.NumUnitPriceSale = DataSession.NumUnitPriceSale;
         this.NumTotalPrice = DataSession.NumTotalPrice;
+        this.LotNumber = DataSession.LotNumber ?? "";
+        this.ExpirationDate = DataSession.ExpirationDate ?? null;
         this.ProductInfo.SetDataSession(DataSession.ProductInfo);
         this.addSession(DataSession);
     }

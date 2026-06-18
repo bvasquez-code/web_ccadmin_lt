@@ -86,12 +86,29 @@ export class CreatecreditnoteComponent
       || '';
   }
 
-  trackByProductVariant = (_: number, it: SaleDetEntity) => `${it.ProductCod}#${it.Variant}`;
+  trackBySaleDet = (index: number, it: SaleDetEntity) => this.getDetailKey(it, index);
 
   // -------------------- Helpers de negocio --------------------
+  private getDetailKey(det: { ItemNumber?: number, ProductCod?: string, Variant?: string, LotNumber?: string, ExpirationDate?: any }, index = -1): string {
+    if ((det?.ItemNumber ?? 0) > 0) {
+      return String(det.ItemNumber);
+    }
+    return `${det?.ProductCod ?? ''}#${det?.Variant ?? ''}#${det?.LotNumber ?? ''}#${det?.ExpirationDate ?? ''}#${index}`;
+  }
+
+  private sameDetailLine(a: { ItemNumber?: number, ProductCod?: string, Variant?: string, LotNumber?: string, ExpirationDate?: any }, b: { ItemNumber?: number, ProductCod?: string, Variant?: string, LotNumber?: string, ExpirationDate?: any }): boolean {
+    if ((a?.ItemNumber ?? 0) > 0 && (b?.ItemNumber ?? 0) > 0) {
+      return a.ItemNumber === b.ItemNumber;
+    }
+    return a.ProductCod === b.ProductCod
+      && a.Variant === b.Variant
+      && (a.LotNumber ?? '') === (b.LotNumber ?? '')
+      && (a.ExpirationDate ?? '') === (b.ExpirationDate ?? '');
+  }
+
   private findCreditDet(saleDet: SaleDetEntity): CreditNoteDetEntity | undefined {
     return (this.CreditNoteRegister.DetailList ?? [])
-      .find(e => e.ProductCod === saleDet.ProductCod && e.Variant === saleDet.Variant);
+      .find(e => this.sameDetailLine(e, saleDet));
   }
 
   private clampReturn(saleDet: SaleDetEntity, wanted: number): number {
@@ -246,11 +263,14 @@ export class CreatecreditnoteComponent
 
       const creditNoteDetNew: CreditNoteDetEntity = new CreditNoteDetEntity();
       creditNoteDetNew.CreditNoteCod = this.CreditNoteRegister.Headboard?.CreditNoteCod ?? '';
+      creditNoteDetNew.ItemNumber = saleDet.ItemNumber ?? 0;
       creditNoteDetNew.ProductCod = saleDet.ProductCod;
       creditNoteDetNew.Variant = saleDet.Variant;
       creditNoteDetNew.NumUnit = 1;
       creditNoteDetNew.NumUnitPriceSale = unitPriceSale;
       creditNoteDetNew.NumTotalPrice = unitPriceSale;
+      creditNoteDetNew.LotNumber = saleDet.LotNumber ?? '';
+      creditNoteDetNew.ExpirationDate = saleDet.ExpirationDate ?? null;
 
       creditNoteDetNew.NumUnitStockReturned = 0;
       // creditNoteDetNew.IsStockReturned = 'N';
@@ -270,7 +290,7 @@ export class CreatecreditnoteComponent
 
     if ((det.NumUnit ?? 0) === 0) {
       this.CreditNoteRegister.DetailList = (this.CreditNoteRegister.DetailList ?? [])
-        .filter(e => !(e.ProductCod === saleDet.ProductCod && e.Variant === saleDet.Variant));
+        .filter(e => !this.sameDetailLine(e, saleDet));
     }
     this.recalcTotals();
   }
@@ -401,16 +421,19 @@ export class CreatecreditnoteComponent
         : (saleItem.NumUnitPrice ?? 0);
 
       let creditNoteDetail: CreditNoteDetEntity | undefined =
-        this.CreditNoteRegister.DetailList.find(e => e.ProductCod === saleItem.ProductCod && e.Variant === saleItem.Variant);
+        this.CreditNoteRegister.DetailList.find(e => this.sameDetailLine(e, saleItem));
 
       if (!creditNoteDetail) {
         const creditNoteDetNew: CreditNoteDetEntity = new CreditNoteDetEntity();
         creditNoteDetNew.CreditNoteCod = this.CreditNoteRegister.Headboard?.CreditNoteCod ?? '';
+        creditNoteDetNew.ItemNumber = saleItem.ItemNumber ?? 0;
         creditNoteDetNew.ProductCod = saleItem.ProductCod;
         creditNoteDetNew.Variant = saleItem.Variant;
         creditNoteDetNew.NumUnit = saleItem.NumUnit ?? 0;
         creditNoteDetNew.NumUnitPriceSale = unitPriceSale;
         creditNoteDetNew.NumTotalPrice = 0; // se recalcula abajo
+        creditNoteDetNew.LotNumber = saleItem.LotNumber ?? '';
+        creditNoteDetNew.ExpirationDate = saleItem.ExpirationDate ?? null;
 
         // si tu entidad exige estos campos, se setean aquí (ya existen en tu modelo):
         creditNoteDetNew.NumUnitStockReturned = 0;

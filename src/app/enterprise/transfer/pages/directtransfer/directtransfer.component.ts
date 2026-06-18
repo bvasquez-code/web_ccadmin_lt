@@ -163,8 +163,18 @@ export class DirecttransferComponent implements OnInit {
     this.txtNumUnit.nativeElement.value = '';
   }
 
+  private sameDetailLine(a: TransferDetEntity, b: TransferDetEntity): boolean {
+    if ((a?.ItemNumber ?? 0) > 0 && (b?.ItemNumber ?? 0) > 0) {
+      return a.ItemNumber === b.ItemNumber;
+    }
+    return a.ProductCod === b.ProductCod
+      && a.Variant === b.Variant
+      && (a.LotNumber ?? '') === (b.LotNumber ?? '')
+      && (a.ExpirationDate ?? '') === (b.ExpirationDate ?? '');
+  }
+
   async removeProduct(product: TransferDetEntity) {
-    this.transferRegister.transferDetList = this.transferRegister.transferDetList.filter(e => e.ProductCod !== product.ProductCod);
+    this.transferRegister.transferDetList = this.transferRegister.transferDetList.filter(e => !this.sameDetailLine(e, product));
   }
 
   async Save() {

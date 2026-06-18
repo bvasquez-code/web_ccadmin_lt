@@ -93,6 +93,16 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
 
   }
 
+  private sameDetailLine(a: PucharseRequestDetEntity, b: PucharseRequestDetEntity): boolean {
+    if ((a?.ItemNumber ?? 0) > 0 && (b?.ItemNumber ?? 0) > 0) {
+      return a.ItemNumber === b.ItemNumber;
+    }
+    return a.ProductCod === b.ProductCod
+      && a.Variant === b.Variant
+      && (a.LotNumber ?? '') === (b.LotNumber ?? '')
+      && (a.ExpirationDate ?? '') === (b.ExpirationDate ?? '');
+  }
+
   async Save(): Promise<void> {
     this.pucharseRequestRegister.Headboard.DealerCod = this.txtDealerCod.nativeElement.value;
     this.pucharseRequestRegister.Headboard.ExternalCod = this.txtExternalCod.nativeElement.value;
@@ -183,7 +193,7 @@ export class CreatepucharseComponent implements IRegisterForm<PucharseRequestReg
   }
 
   async removeProduct(detail: PucharseRequestDetEntity) {
-    this.pucharseRequestRegister.DetailList = this.pucharseRequestRegister.DetailList.filter(e => e.ProductCod !== detail.ProductCod);
+    this.pucharseRequestRegister.DetailList = this.pucharseRequestRegister.DetailList.filter(e => !this.sameDetailLine(e, detail));
     this.calculateTotal();
   }
 

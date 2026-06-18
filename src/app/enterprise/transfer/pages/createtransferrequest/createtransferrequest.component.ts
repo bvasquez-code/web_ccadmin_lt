@@ -230,8 +230,18 @@ export class CreatetransferrequestComponent implements OnInit, IRegisterForm<Tra
     this.closeModal();
   }
 
+  private sameDetailLine(a: TransferRequestDetEntity, b: TransferRequestDetEntity): boolean {
+    if ((a?.ItemNumber ?? 0) > 0 && (b?.ItemNumber ?? 0) > 0) {
+      return a.ItemNumber === b.ItemNumber;
+    }
+    return a.ProductCod === b.ProductCod
+      && a.Variant === b.Variant
+      && (a.LotNumber ?? '') === (b.LotNumber ?? '')
+      && (a.ExpirationDate ?? '') === (b.ExpirationDate ?? '');
+  }
+
   async removeProduct(product: TransferRequestDetEntity) {
-    this.transferRequestRegister.transferDetList = this.transferRequestRegister.transferDetList.filter(e => e.ProductCod !== product.ProductCod);
+    this.transferRequestRegister.transferDetList = this.transferRequestRegister.transferDetList.filter(e => !this.sameDetailLine(e, product));
   }
 
   async findDetailById(ProductCod: string): Promise<ProductInfoDto> {

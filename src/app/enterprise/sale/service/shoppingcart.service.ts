@@ -21,6 +21,10 @@ export class ShoppingCartService
 
     }
 
+    private sameProductVariant(det: PresaleDetEntity, ProductCod: string, Variant: string): boolean {
+        return det.ProductCod === ProductCod && det.Variant === Variant;
+    }
+
     public Init()
     {
         this.ShoppingCart = new PresaleRegisterDto();
@@ -101,7 +105,7 @@ export class ShoppingCartService
         {
             if( NumUnit === 0)
             {
-                this.ShoppingCart.DetailList = this.ShoppingCart.DetailList.filter( e => e.ProductCod !== ProductInfo.Product.ProductCod && e.Variant !== ProductVariant.Variant );
+                this.ShoppingCart.DetailList = this.ShoppingCart.DetailList.filter( e => !this.sameProductVariant(e, ProductInfo.Product.ProductCod, ProductVariant.Variant) );
             }
             else
             {
@@ -140,7 +144,7 @@ export class ShoppingCartService
         {
             if( presaleDetEntity.NumUnit - 1  === 0)
             {
-                this.ShoppingCart.DetailList = this.ShoppingCart.DetailList.filter( e => e.ProductCod !== ProductInfo.Product.ProductCod && e.Variant !== ProductVariant.Variant );
+                this.ShoppingCart.DetailList = this.ShoppingCart.DetailList.filter( e => !this.sameProductVariant(e, ProductInfo.Product.ProductCod, ProductVariant.Variant) );
             }
             else
             {
@@ -169,12 +173,12 @@ export class ShoppingCartService
 
     existproductInCart(ProductCod : string , Variant : string) :boolean
     {
-        return (this.ShoppingCart.DetailList.filter( e => e.ProductCod === ProductCod && e.Variant === Variant ).length > 0)
+        return (this.ShoppingCart.DetailList.filter( e => this.sameProductVariant(e, ProductCod, Variant) ).length > 0)
     }
 
     GetProductInCart(ProductCod : string , Variant : string) :PresaleDetEntity | undefined
     {
-        return this.ShoppingCart.DetailList.find( e => e.ProductCod === ProductCod && e.Variant === Variant );
+        return this.ShoppingCart.DetailList.find( e => this.sameProductVariant(e, ProductCod, Variant) );
     }
 
 
@@ -206,7 +210,7 @@ export class ShoppingCartService
     getTotalProductVariant(ProductCod : string,Variant : string):number
     {
       let NumUnit : number = 0;
-      let result = this.ShoppingCart.DetailList.filter( e => e.ProductCod === ProductCod && e.Variant === Variant);
+      let result = this.ShoppingCart.DetailList.filter( e => this.sameProductVariant(e, ProductCod, Variant));
       NumUnit = result.map( item => item.NumUnit).reduce((a, b) => a + b, 0);
       return NumUnit;
     }

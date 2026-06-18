@@ -88,6 +88,26 @@ export class ConfirmpucharseComponent implements IRegisterForm<PucharseRegisterD
 
   }
 
+  private sameDetailLine(a: PucharseDetEntity, b: { ItemNumber?: number, ProductCod?: string, Variant?: string, LotNumber?: string, ExpirationDate?: any }): boolean {
+    if ((a?.ItemNumber ?? 0) > 0 && (b?.ItemNumber ?? 0) > 0) {
+      return a.ItemNumber === b.ItemNumber;
+    }
+    return a.ProductCod === b.ProductCod
+      && a.Variant === b.Variant
+      && (a.LotNumber ?? '') === (b.LotNumber ?? '')
+      && (a.ExpirationDate ?? '') === (b.ExpirationDate ?? '');
+  }
+
+  private findReceptionLineByProduct(productCod: string): PucharseDetEntity | undefined {
+    return this.PucharseRegister.DetailList.find(e => e.ProductCod === productCod && e.IsKardexAffected !== "S")
+      ?? this.PucharseRegister.DetailList.find(e => e.ProductCod === productCod);
+  }
+
+  private findOriginLineByProduct(productCod: string): PucharseDetEntity | undefined {
+    return this.PucharseDetails.DetailList.find(e => e.ProductCod === productCod && e.IsKardexAffected !== "S")
+      ?? this.PucharseDetails.DetailList.find(e => e.ProductCod === productCod);
+  }
+
   Save(): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -102,8 +122,8 @@ export class ConfirmpucharseComponent implements IRegisterForm<PucharseRegisterD
       if(!rpt.ErrorStatus){
         const Product : ProductEntity = rpt.Data;
   
-        let ProductDetailCount : PucharseDetEntity | undefined = this.PucharseRegister.DetailList.find( e => e.ProductCod === Product.ProductCod );
-        let ProductDetailOrigin :PucharseDetEntity | undefined = this.PucharseDetails.DetailList.find( e => e.ProductCod === Product.ProductCod );
+        let ProductDetailCount : PucharseDetEntity | undefined = this.findReceptionLineByProduct(Product.ProductCod);
+        let ProductDetailOrigin :PucharseDetEntity | undefined = this.findOriginLineByProduct(Product.ProductCod);
   
         if(ProductDetailCount?.IsKardexAffected === "S"){
           throw new Error("Producto ya fue confirmado como ingresado");
@@ -157,18 +177,19 @@ export class ConfirmpucharseComponent implements IRegisterForm<PucharseRegisterD
 
     pucharseDetConfirmDto.pucharseDet = pucharseDet;
     pucharseDetConfirmDto.pucharseDetDelivery.PucharseCod = pucharseDet.PucharseCod;
+    pucharseDetConfirmDto.pucharseDetDelivery.ItemNumber = pucharseDet.ItemNumber;
     pucharseDetConfirmDto.pucharseDetDelivery.ProductCod = pucharseDet.ProductCod;
     pucharseDetConfirmDto.pucharseDetDelivery.Variant = pucharseDet.Variant;
     pucharseDetConfirmDto.pucharseDetDelivery.WarehouseCod = this.WarehouseList[0].WarehouseCod;
     pucharseDetConfirmDto.pucharseDetDelivery.NumUnit = pucharseDet.NumUnitDelivered;
+    pucharseDetConfirmDto.pucharseDetDelivery.LotNumber = pucharseDet.LotNumber;
+    pucharseDetConfirmDto.pucharseDetDelivery.ExpirationDate = pucharseDet.ExpirationDate;
 
     const rpt = await this.pucharseDetService.Confirm(pucharseDetConfirmDto);
 
     if(!rpt.ErrorStatus){
 
-      const pucharseDet = this.PucharseRegister.DetailList.find( e => e.ProductCod === pucharseDetConfirmDto.pucharseDetDelivery.ProductCod 
-        && e.Variant === pucharseDetConfirmDto.pucharseDetDelivery.Variant
-      );
+      const pucharseDet = this.PucharseRegister.DetailList.find( e => this.sameDetailLine(e, pucharseDetConfirmDto.pucharseDetDelivery));
 
       if(pucharseDet){
         pucharseDet.IsKardexAffected = "S";

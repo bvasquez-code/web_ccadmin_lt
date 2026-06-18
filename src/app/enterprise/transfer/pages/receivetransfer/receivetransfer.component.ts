@@ -126,6 +126,11 @@ export class ReceivetransferComponent implements OnInit, ActionModalConfirmServi
     return null;
   }
 
+  private findReceptionLineByProduct(productCod: string): TransferDetEntity | undefined {
+    return this.detailList.find(d => d.ProductCod === productCod && (d.NumUnitReception ?? 0) < (d.NumUnit ?? 0))
+      ?? this.detailList.find(d => d.ProductCod === productCod);
+  }
+
   async searchBarcode() {
     if (!this.txtSearchBarcode) return;
     const query = this.txtSearchBarcode.nativeElement.value.trim();
@@ -137,7 +142,7 @@ export class ReceivetransferComponent implements OnInit, ActionModalConfirmServi
     if (!rpt.ErrorStatus && rpt.Data?.resultSearch?.length > 0) {
       const foundProduct: ProductEntity = rpt.Data.resultSearch.find((p: ProductEntity) => p.ProductCod === query) || rpt.Data.resultSearch[0];
 
-      let inTransfer = this.detailList.find(d => d.ProductCod === foundProduct.ProductCod);
+      let inTransfer = this.findReceptionLineByProduct(foundProduct.ProductCod);
       if (!inTransfer) {
         const confirmResult = await this.alertService.waring('El producto escaneado no fue solicitado en esta transferencia. ¿Desea agregarlo y recibirlo de todas formas?');
         if (confirmResult.isConfirmed) {
@@ -197,7 +202,7 @@ export class ReceivetransferComponent implements OnInit, ActionModalConfirmServi
 
   saveScanQuantity() {
     if (!this.scannedProduct) return;
-    const det = this.detailList.find(d => d.ProductCod === this.scannedProduct!.ProductCod);
+    const det = this.findReceptionLineByProduct(this.scannedProduct.ProductCod);
     if (det) {
       det.NumUnitReception = (det.NumUnitReception || 0) + this.scanCounter;
     }
