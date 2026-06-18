@@ -6,7 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { TrxPaymentService } from '../../service/TrxPaymentService';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
 import { CurrencyEntity } from 'src/app/enterprise/shared/model/entity/CurrencyEntity';
-import { PaymentMethodEntity } from '../../model/entity/PaymentMethodEntity';
+import { PaymentMethodEntity } from 'src/app/enterprise/shared/model/entity/PaymentMethodEntity';
 import { CreditNoteService } from 'src/app/enterprise/sale/service/CreditNote.service';
 import { CreditNoteDetailDto } from 'src/app/enterprise/sale/model/dto/CreditNoteDetailDto';
 import { TrxPaymentComponenRequestDto } from '../../model/dto/TrxPaymentComponenRequestDto';

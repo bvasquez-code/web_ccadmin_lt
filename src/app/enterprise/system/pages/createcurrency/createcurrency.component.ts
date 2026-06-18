@@ -70,7 +70,7 @@ export class CreatecurrencyComponent implements OnInit {
       ValidationHelper.validateIsNotEmpty(currency.CurrencyName, "Debe ingresar un nombre");
       ValidationHelper.validLengthString(currency.CurrencyName, 32, "El nombre solo puede tener 32 caracteres");
       ValidationHelper.validLengthString(currency.CurrencyDesc, 128, "La descripcion solo puede tener 128 caracteres");
-      ValidationHelper.validateInList(currency.IsCurrencySystem, ["Y", "N"], "Debe seleccionar si es moneda principal del sistema");
+      ValidationHelper.validateInList(currency.IsCurrencySystem, ["S", "N"], "Debe seleccionar si es moneda principal del sistema");
       ValidationHelper.validNumber(currency.NumExchangevalue, null, 0, "Debe ingresar un tipo de cambio valido");
 
       return true;

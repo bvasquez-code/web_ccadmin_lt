@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CurrencyEntity } from 'src/app/enterprise/shared/model/entity/CurrencyEntity';
-import { PaymentMethodEntity } from '../../model/entity/PaymentMethodEntity';
+import { PaymentMethodEntity } from 'src/app/enterprise/shared/model/entity/PaymentMethodEntity';
 import { TrxPaymentEntity } from '../../model/entity/TrxPaymentEntity';
 import { TrxPaymentService } from '../../service/TrxPaymentService';
 

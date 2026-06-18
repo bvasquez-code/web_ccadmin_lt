@@ -188,6 +188,24 @@ export class MenusidebarComponent implements OnInit {
     if (this.dataSesionService.PermissionExists("SI000001")) MainMenu.list_sub_menu.push(ListCurrency);
     if (this.dataSesionService.PermissionExists("SI000002")) MainMenu.list_sub_menu.push(CreateCurrency);
 
+    let ListPaymentMethod: SubMenuPagina = new SubMenuPagina();
+    ListPaymentMethod.url = "enterprise/system/pages/listpaymentmethod";
+    ListPaymentMethod.url_position = "enterprise/system/pages/listpaymentmethod";
+    ListPaymentMethod.url_shade = "enterprise/system/pages/listpaymentmethod";
+    ListPaymentMethod.des_menu = "Metodos de pago";
+    ListPaymentMethod.icono = "nav-icon fa fa-credit-card";
+
+    let CreatePaymentMethod: SubMenuPagina = new SubMenuPagina();
+    CreatePaymentMethod.url = "enterprise/system/pages/createpaymentmethod";
+    CreatePaymentMethod.url_position = "enterprise/system/pages/createpaymentmethod";
+    CreatePaymentMethod.url_shade = "enterprise/system/pages/listpaymentmethod";
+    CreatePaymentMethod.des_menu = "Crear metodo de pago";
+    CreatePaymentMethod.icono = "nav-icon fa fa-credit-card";
+    CreatePaymentMethod.IsVisible = false;
+
+    if (this.dataSesionService.PermissionExists("SI000001")) MainMenu.list_sub_menu.push(ListPaymentMethod);
+    if (this.dataSesionService.PermissionExists("SI000002")) MainMenu.list_sub_menu.push(CreatePaymentMethod);
+
     let ListBusinessConfigGroup: SubMenuPagina = new SubMenuPagina();
     ListBusinessConfigGroup.url = "enterprise/businessconfiggroup/pages/listbusinessconfiggroup";
     ListBusinessConfigGroup.url_position = "enterprise/businessconfiggroup/pages/listbusinessconfiggroup";

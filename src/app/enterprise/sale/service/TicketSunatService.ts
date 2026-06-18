@@ -8,7 +8,7 @@ import { SaleDetEntity } from '../model/entity/SaleDetEntity';
 import { SalePaymentEntity } from '../../trxpayment/model/entity/SalePaymentEntity';
 import { PersonEntity } from '../../person/model/entity/PersonEntity';
 import { StoreInfoDto } from '../../shared/model/entity/StoreInfoDto';
-import { PaymentMethodEntity } from '../../trxpayment/model/entity/PaymentMethodEntity';
+import { PaymentMethodEntity } from '../../shared/model/entity/PaymentMethodEntity';
 import { ResponseWsDto } from '../../shared/model/dto/ResponseWsDto';
 import { CreditNoteHeadEntity } from '../model/entity/CreditNoteHeadEntity';
 import { CreditNoteDocumentEntity } from '../model/entity/CreditNoteDocumentEntity';

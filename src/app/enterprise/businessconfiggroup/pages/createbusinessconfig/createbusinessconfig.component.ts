@@ -216,6 +216,7 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
   }
 
   private prepareBusinessConfig(): void {
+    debugger;
     this.businessConfig.GroupId = this.businessConfigGroup.GroupId;
     this.businessConfig.GroupCod = this.businessConfigGroup.GroupCod;
 
@@ -224,6 +225,10 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
         this.businessConfig[field.column] = null;
       }
     });
+    debugger;
+    if(this.businessConfig.ConfigCorr === 0){
+      this.businessConfig.ConfigCorr = this.getMaxConfigCorr() + 1;
+    }
   }
 
   private isFieldEnabled(column: string): boolean {
@@ -237,5 +242,12 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
   private getText(value: any): string {
     if (value === null || value === undefined) return "";
     return String(value).trim();
+  }
+
+  private getMaxConfigCorr(): number {
+    if (!this.responsePageSearch.resultSearch || this.responsePageSearch.resultSearch.length === 0) {
+      return 0;
+    }
+    return Math.max(...this.responsePageSearch.resultSearch.map(e => e.ConfigCorr));
   }
 }

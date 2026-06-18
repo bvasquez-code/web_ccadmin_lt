@@ -34,7 +34,9 @@ import { ListsaleComponent } from './enterprise/sale/pages/listsale/listsale.com
 import { ListkardexComponent } from './enterprise/product/pages/listkardex/listkardex.component';
 import { AppfileComponent } from './enterprise/system/pages/appfile/appfile.component';
 import { CreatecurrencyComponent } from './enterprise/system/pages/createcurrency/createcurrency.component';
+import { CreatepaymentmethodComponent } from './enterprise/system/pages/createpaymentmethod/createpaymentmethod.component';
 import { ListcurrencyComponent } from './enterprise/system/pages/listcurrency/listcurrency.component';
+import { ListpaymentmethodComponent } from './enterprise/system/pages/listpaymentmethod/listpaymentmethod.component';
 import { ListcreditnoteComponent } from './enterprise/sale/pages/listcreditnote/listcreditnote.component';
 import { CreatecreditnoteComponent } from './enterprise/sale/pages/createcreditnote/createcreditnote.component';
 import { ReturnstockcreditnoteComponent } from './enterprise/sale/pages/returnstockcreditnote/returnstockcreditnote.component';
@@ -317,6 +319,14 @@ const routes: Routes = [
       {
         path: 'enterprise/system/pages/createcurrency',
         component: CreatecurrencyComponent
+      },
+      {
+        path: 'enterprise/system/pages/listpaymentmethod',
+        component: ListpaymentmethodComponent
+      },
+      {
+        path: 'enterprise/system/pages/createpaymentmethod',
+        component: CreatepaymentmethodComponent
       }
     ]
   },
