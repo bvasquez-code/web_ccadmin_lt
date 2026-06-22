@@ -15,6 +15,9 @@ import { CreditNoteDetEntity } from '../../model/entity/CreditNoteDetEntity';
 import { IRegisterFormV2 } from 'src/app/enterprise/shared/interface/IRegisterFormV2';
 import { CreditNoteHeadEntity } from '../../model/entity/CreditNoteHeadEntity';
 import { AlertService } from 'src/app/enterprise/shared/service/AlertService';
+import { TrxPaymentComponenRequestDto } from 'src/app/enterprise/trxpayment/model/dto/TrxPaymentComponenRequestDto';
+import { TrxPaymentEntity } from 'src/app/enterprise/trxpayment/model/entity/TrxPaymentEntity';
+import { CreditNoteReturnPaymentRegisterDto } from '../../model/dto/CreditNoteReturnPaymentRegisterDto';
 
 @Component({
   selector: 'app-createcreditnote',
@@ -24,15 +27,20 @@ export class CreatecreditnoteComponent
   implements OnInit, IRegisterFormV2<CreditNoteRegisterDto, string, CreditNoteDetailDto> {
   @ViewChild('txtDocumentCod') txtDocumentCod!: ElementRef<HTMLInputElement>;
   @ViewChild('txtCommenter') txtCommenter!: ElementRef<HTMLInputElement>;
+  @ViewChild('btnOpenTrxPaymentReversalModal') btnOpenTrxPaymentReversalModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnCloseTrxPaymentReversalModal') btnCloseTrxPaymentReversalModal!: ElementRef<HTMLButtonElement>;
 
   CreditNoteDetail: CreditNoteDetailDto = new CreditNoteDetailDto();
   CreditNoteRegister: CreditNoteRegisterDto = new CreditNoteRegisterDto();
   SaleDetail: SaleDetailDto = new SaleDetailDto();
+  TrxPaymentComponenRequest: TrxPaymentComponenRequestDto = new TrxPaymentComponenRequestDto();
 
   CreditNoteCod = '';
   txtDocumentCodReadOnly = false;
   isLoading = false;
   isTotalMode = false;
+  pendingConfirmCreditNoteHead: CreditNoteHeadEntity | null = null;
+  isConfirmingAfterReturnPayments = false;
 
   constructor(
     private readonly saleService: SaleService,
@@ -369,12 +377,93 @@ export class CreatecreditnoteComponent
         this.toastrService.error(rpt.Message);
       } else {
 
-        this.Confirm(Headboard);
+        this.openTrxPaymentReversalModal(Headboard);
 
       }
     } finally {
       this.isLoading = false;
     }
+  }
+
+  openTrxPaymentReversalModal(creditNoteHead: CreditNoteHeadEntity): void {
+    this.pendingConfirmCreditNoteHead = creditNoteHead;
+    this.isConfirmingAfterReturnPayments = false;
+    this.prepareTrxPaymentReversalRequest();
+
+    if (this.TrxPaymentComponenRequest.InputReversalAmount <= 0
+      || this.TrxPaymentComponenRequest.TrxPaymentReversalList.length === 0
+      || this.isReturnPaymentCompleted()) {
+      this.Confirm(creditNoteHead);
+      return;
+    }
+
+    setTimeout(() => { this.btnOpenTrxPaymentReversalModal?.nativeElement.click(); }, 0);
+  }
+
+  prepareTrxPaymentReversalRequest(): void {
+    const trxPaymentList: TrxPaymentEntity[] = this.getTrxPaymentListToReverse();
+    const creditNoteAmount: number = Number(this.CreditNoteRegister.Headboard?.NumTotalPrice || 0);
+
+    this.TrxPaymentComponenRequest = new TrxPaymentComponenRequestDto();
+    this.TrxPaymentComponenRequest.InputTypeMovement = 'E';
+    this.TrxPaymentComponenRequest.InputOutstandingBalance = 0;
+    this.TrxPaymentComponenRequest.InputReversalAmount = this.toMoney(creditNoteAmount);
+    this.TrxPaymentComponenRequest.TrxPaymentReversalList = trxPaymentList;
+    this.TrxPaymentComponenRequest.TrxPaymentList = this.getRegisteredReturnPaymentList();
+  }
+
+  getTrxPaymentListToReverse(): TrxPaymentEntity[] {
+    return (this.SaleDetail.DetailPayment ?? [])
+      .map(e => e.TrxPayment)
+      .filter(e => e && e.TypeMovement !== 'E' && Number(e.AmountPaid || 0) > 0);
+  }
+
+  async ResponseResultFormTrxPaymentReversal(event: TrxPaymentEntity): Promise<void> {
+    if (!event) return;
+
+    const rpt: ResponseWsDto = await this.AddReturnPayment(event);
+
+    if (rpt.ErrorStatus) {
+      this.toastrService.error(rpt.Message);
+      return;
+    }
+
+    if (!this.isReturnPaymentCompleted() || this.isConfirmingAfterReturnPayments) return;
+
+    this.isConfirmingAfterReturnPayments = true;
+    this.btnCloseTrxPaymentReversalModal?.nativeElement.click();
+
+    const creditNoteHead: CreditNoteHeadEntity | null = this.pendingConfirmCreditNoteHead;
+    this.pendingConfirmCreditNoteHead = null;
+
+    if (creditNoteHead) await this.Confirm(creditNoteHead);
+  }
+
+  async AddReturnPayment(trxPayment: TrxPaymentEntity): Promise<ResponseWsDto> {
+    const payment: CreditNoteReturnPaymentRegisterDto = new CreditNoteReturnPaymentRegisterDto();
+    payment.CreditNoteCod = this.CreditNoteRegister.Headboard?.CreditNoteCod ?? "";
+    payment.TrxPaymentId = trxPayment.TrxPaymentId;
+
+    return await this.creditNoteService.AddReturnPayment(payment);
+  }
+
+  getRegisteredReturnPaymentList(): TrxPaymentEntity[] {
+    return (this.CreditNoteDetail.DetailPayment ?? [])
+      .map(e => e.TrxPayment)
+      .filter(e => e && e.TypeMovement === 'E');
+  }
+
+  isReturnPaymentCompleted(): boolean {
+    const expectedAmount: number = Number(this.TrxPaymentComponenRequest.InputReversalAmount || 0);
+    const reversedAmount: number = (this.TrxPaymentComponenRequest.TrxPaymentList ?? [])
+      .filter(e => e.TypeMovement === 'E')
+      .reduce((sum, e) => sum + Math.abs(Number(e.AmountPaid || 0)), 0);
+
+    return this.toMoney(reversedAmount) >= this.toMoney(expectedAmount);
+  }
+
+  toMoney(value: number): number {
+    return Math.round(Number(value || 0) * 100) / 100;
   }
 
   async Confirm(creditNoteHead: CreditNoteHeadEntity): Promise<void> {
@@ -385,8 +474,18 @@ export class CreatecreditnoteComponent
     const rpt: ResponseWsDto = await this.creditNoteService.Confirm(CreditNoteRegister);
 
     if (!rpt.ErrorStatus) {
-      this.toastrService.success("Nota de credito confirmada");
-      window.location.assign(`/enterprise/sale/pages/viewcreditnote?CreditNoteCod=${creditNoteHead.CreditNoteCod}&AutoPrint=Y`);
+      const creditNoteDetail: CreditNoteDetailDto = rpt.Data;
+
+      if (creditNoteDetail?.Headboard?.CreditNoteStatus === "C") {
+        this.CreditNoteDetail = creditNoteDetail;
+        this.toastrService.success("Nota de credito confirmada");
+        window.location.assign(`/enterprise/sale/pages/viewcreditnote?CreditNoteCod=${creditNoteDetail.Headboard.CreditNoteCod}&AutoPrint=Y`);
+        return;
+      }
+
+      this.toastrService.error("No se pudo confirmar la nota de credito.");
+    } else {
+      this.toastrService.error(rpt.Message);
     }
   }
 

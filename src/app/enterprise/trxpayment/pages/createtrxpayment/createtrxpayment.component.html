@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h3 class="card-title text-125 text-primary-d2">
                     <i class="far fa-edit text-dark-l3 mr-1"></i>
-                    Registrar Pago
+                    {{ getTitle() }}
                 </h3>
             </div>
 
@@ -15,20 +15,20 @@
                     <div class="form-group row">
                         <div class="col-sm-3 col-form-label text-sm-right pr-0">
                             <label for="id-form-field-1" class="mb-0">
-                                Saldo por pagar
+                                {{ getInputAmountLabel() }}
                             </label>
                         </div>
 
                         <div class="col-sm-9">
                             <input type="text" 
                                     class="form-control col-sm-8" 
-                                    value="{{TrxPaymentComponenRequest.InputOutstandingBalance| FormatoMonedaPeruana : false }}"
+                                    value="{{ getInputAmount() | FormatoMonedaPeruana : false }}"
                                     [disabled]="true"
                             >
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="form-group row" [hidden]="isReversalMode()">
                         <div class="col-sm-3 col-form-label text-sm-right pr-0">
                             <label for="id-form-field-1" class="mb-0">
                                 Tipo de medio de pago
@@ -62,7 +62,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="form-group row" [hidden]="isReversalMode()">
                         <div class="col-sm-3 col-form-label text-sm-right pr-0">
                             <label for="id-form-field-1" class="mb-0">
                                 Moneda
@@ -82,16 +82,32 @@
                     <div class="form-group row">
                         <div class="col-sm-3 col-form-label text-sm-right pr-0">
                             <label for="id-form-field-1" class="mb-0">
-                                Monto
+                                {{ getAmountLabel() }}
                             </label>
                         </div>
 
                         <div class="col-sm-9">
                             <input type="number" 
                                     class="form-control col-sm-8"
-                                    value="{{ TrxPaymentComponenRequest.InputOutstandingBalance }}"
-                                    [readOnly]="txtAmountPaidConfigHtml.ReadOnly"
+                                    value="{{ isReversalMode() ? getCurrentReversalAmount() : getInputAmount() }}"
+                                    [readOnly]="txtAmountPaidConfigHtml.ReadOnly || isReversalMode()"
                                     #txtAmountPaid
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group row" [hidden]="!isReversalMode()">
+                        <div class="col-sm-3 col-form-label text-sm-right pr-0">
+                            <label class="mb-0">
+                                Devuelto hasta ahora
+                            </label>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <input type="text" 
+                                    class="form-control col-sm-8" 
+                                    value="{{ getReturnedAmount() | FormatoMonedaPeruana : false }}"
+                                    [disabled]="true"
                             >
                         </div>
                     </div>
@@ -106,19 +122,35 @@
                                     <thead class="text-dark-tp3 bgc-grey-l4 text-90 border-b-1 brc-transparent">
                                       <tr>           
                                         <th>Id</th>
+                                        <th *ngIf="isReversalMode()">Estado</th>
                                         <th>Forma Pago</th>        
-                                        <th>Monto Pagado</th>
+                                        <th>{{ isReversalMode() ? 'Monto' : 'Monto Pagado' }}</th>
                                         <th>Vuelto</th>
                                         <th>Fecha transaccion</th>                                         
                                       </tr>
                                     </thead>
             
                                     <tbody class="mt-1">
-                                      <tr class="bgc-h-yellow-l4 d-style" *ngFor="let item of TrxPaymentComponenRequest.TrxPaymentList">            
+                                      <tr class="bgc-h-yellow-l4 d-style" 
+                                        [ngClass]="{
+                                          'text-danger': item.TypeMovement === 'E',
+                                          'bgc-red-l4': item.TypeMovement === 'E',
+                                          'text-grey-m2': isPaymentFullyReversed(item)
+                                        }"
+                                        *ngFor="let item of getVisiblePaymentList()">            
                                         <td class="text-600">
+                                          <i class="fa fa-times-circle text-danger mr-1" *ngIf="isPaymentFullyReversed(item)"></i>
+                                          <i class="fa fa-undo text-danger mr-1" *ngIf="item.TypeMovement === 'E'"></i>
                                           {{ item.TrxPaymentId }}
                                         </td>
+                                        <td class="text-600" *ngIf="isReversalMode()">
+                                            <span class="badge badge-danger" *ngIf="isPaymentFullyReversed(item)">Anulado</span>
+                                            <span class="badge badge-warning" *ngIf="isPaymentPartiallyReversed(item)">Parcial</span>
+                                            <span class="badge badge-info" *ngIf="item.TypeMovement === 'E'">Reversion</span>
+                                            <span class="badge badge-light" *ngIf="item.TypeMovement !== 'E' && !isPaymentFullyReversed(item) && !isPaymentPartiallyReversed(item)">Pendiente</span>
+                                        </td>
                                         <td class="text-600">
+                                            <i [class]="getPaymentMethodIconClass(item)" class="mr-1"></i>
                                             {{ getPaymentDescription(item.PaymentMethodCod) }}
                                         </td>
                                         <td class="text-800">
@@ -150,7 +182,7 @@
                                 (click)="Save()"
                             >
                                 <i class="fa fa-check mr-1"></i>
-                                Guardar
+                                {{ getSaveButtonLabel() }}
                             </a>
                         </div>
                     </div>

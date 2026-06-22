@@ -20,7 +20,7 @@ import { AlertService } from 'src/app/enterprise/shared/service/AlertService';
 export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymentEntity,number>{
 
   @Input() TrxPaymentComponenRequest : TrxPaymentComponenRequestDto = new TrxPaymentComponenRequestDto(); 
-  @Output() ResultForm = new EventEmitter<object>();
+  @Output() ResultForm = new EventEmitter<TrxPaymentEntity>();
 
   @ViewChild('cboPaymentMethodCod') cboPaymentMethodCod!: ElementRef<HTMLSelectElement>;
   @ViewChild('cboCurrencyCod') cboCurrencyCod!: ElementRef<HTMLSelectElement>;
@@ -70,6 +70,11 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
 
   async Save(): Promise<void> {
 
+    if (this.isReversalMode()) {
+      await this.SaveReversal();
+      return;
+    }
+
     let PaymentMethodCodSelect : string = this.cboPaymentMethodCod.nativeElement.value;
     let CurrencyCodSelect : string = this.cboCurrencyCod.nativeElement.value;
 
@@ -105,7 +110,7 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
       return;
     }
 
-    if (outstandingBalance == 0) {
+    if (outstandingBalance <= 0) {
       this.toastrService.error("Ya no existe saldo por pagar.");
       return;
     }
@@ -121,6 +126,10 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
 
     }
 
+
+    const confirmResult = await this.confirmPayment(this.trxPayment, paymentMethod);
+
+    if (!confirmResult?.isConfirmed) return;
 
     const rpt : ResponseWsDto = await this.trxPaymentService.Save(this.trxPayment);
 
@@ -141,6 +150,145 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
       this.toastrService.error(rpt.Message);
     }
 
+  }
+
+  async SaveReversal(): Promise<void> {
+    const amountToReverse: number = this.getCurrentReversalAmount();
+
+    if (amountToReverse <= 0) {
+      this.toastrService.error("El monto a revertir debe ser mayor a cero.");
+      return;
+    }
+
+    const reversalLimit: number = this.getReversalLimit();
+
+    if (reversalLimit <= 0) {
+      this.toastrService.error("Ya no existe saldo por revertir.");
+      return;
+    }
+
+    if (amountToReverse > reversalLimit) {
+      this.toastrService.error("El monto a revertir no puede ser mayor al saldo disponible para reversion.");
+      return;
+    }
+
+    const trxPayment: TrxPaymentEntity | null = this.buildNextReversalPayment();
+
+    if (!trxPayment) {
+      this.toastrService.error("No existen pagos disponibles para revertir.");
+      return;
+    }
+
+    const confirmResult = await this.confirmReversalPayment(trxPayment);
+
+    if (!confirmResult?.isConfirmed) return;
+
+    const rpt: ResponseWsDto = await this.trxPaymentService.Save(trxPayment);
+
+    if (rpt.ErrorStatus) {
+      this.toastrService.error(rpt.Message);
+      return;
+    }
+
+    const trxPaymentResult: TrxPaymentEntity = rpt.Data;
+
+    this.TrxPaymentComponenRequest.TrxPaymentList.push(trxPaymentResult);
+
+    this.EmitResultForm(trxPaymentResult);
+
+    this.txtAmountPaid.nativeElement.value = String(this.getCurrentReversalAmount());
+
+    this.toastrService.success("Se realiza la reversion exitosamente");
+  }
+
+  buildNextReversalPayment(): TrxPaymentEntity | null {
+    const payment: TrxPaymentEntity | undefined = this.getPaymentsToReverse()[0];
+
+    if (!payment) return null;
+
+    const amountToReverse: number = this.getCurrentReversalAmount();
+
+    if (amountToReverse <= 0) return null;
+
+    return this.clonePaymentForReversal(payment, amountToReverse);
+  }
+
+  async confirmReversalPayment(trxPayment: TrxPaymentEntity): Promise<any> {
+    const originalPayment: TrxPaymentEntity | undefined = this.getOriginalPayment(trxPayment.ReversalOfTrxPaymentId);
+    const paymentMethodDescription: string = this.getPaymentDescription(trxPayment.PaymentMethodCod) || trxPayment.PaymentMethodCod;
+    const amount: string = `${trxPayment.CurrencyCod} ${this.toMoney(Math.abs(Number(trxPayment.AmountPaid || 0))).toFixed(2)}`;
+    const originalId: string = originalPayment ? String(originalPayment.TrxPaymentId) : "";
+    const transactionId: string = originalPayment?.TransactionId ? originalPayment.TransactionId : "-";
+    const cardMessage: string = this.isCardPayment(trxPayment)
+      ? `<div class="mt-2 text-danger"><i class="fa fa-credit-card mr-1"></i> Pase la tarjeta por el pinpad y confirme solo si la operacion fue aceptada.</div>`
+      : "";
+    const iconClass: string = this.getPaymentMethodIconClass(trxPayment);
+    const message: string = `
+      <div class="text-left">
+        <div class="text-center mb-3">
+          <i class="${iconClass} text-primary" style="font-size: 2rem;"></i>
+        </div>
+        <div>Se va a revertir el pago <b>${originalId}</b>.</div>
+        <div class="mt-2">Monto a revertir: <b class="text-danger" style="font-size: 1.2rem;">${amount}</b></div>
+        <div>Medio de pago: <b>${paymentMethodDescription}</b></div>
+        <div>Plataforma: <b>${trxPayment.PaymentPlatform}</b></div>
+        <div>Referencia: <b>${transactionId}</b></div>
+        ${cardMessage}
+      </div>
+    `;
+
+    return await this.alertService.waringHtml(message, "Confirmar reversion de pago");
+  }
+
+  async confirmPayment(trxPayment: TrxPaymentEntity, paymentMethod?: PaymentMethodEntity): Promise<any> {
+    const paymentMethodDescription: string = paymentMethod?.Description || paymentMethod?.Name || trxPayment.PaymentMethodCod;
+    const amount: string = `${trxPayment.CurrencyCod} ${this.toMoney(Number(trxPayment.AmountPaid || 0)).toFixed(2)}`;
+    const returnedAmount: string = trxPayment.AmountReturned > 0
+      ? `<div>Vuelto: <b>${trxPayment.CurrencyCod} ${this.toMoney(Number(trxPayment.AmountReturned || 0)).toFixed(2)}</b></div>`
+      : "";
+    const transactionId: string = trxPayment.TransactionId ? trxPayment.TransactionId : "-";
+    const cardMessage: string = this.isCardPayment(trxPayment)
+      ? `<div class="mt-2 text-danger"><i class="fa fa-credit-card mr-1"></i> Pase la tarjeta por el pinpad y confirme solo si la operacion fue aceptada.</div>`
+      : "";
+    const iconClass: string = this.getPaymentMethodIconClass(trxPayment);
+    const message: string = `
+      <div class="text-left">
+        <div class="text-center mb-3">
+          <i class="${iconClass} text-primary" style="font-size: 2rem;"></i>
+        </div>
+        <div>Se va a registrar un pago.</div>
+        <div class="mt-2">Monto a pagar: <b class="text-success" style="font-size: 1.2rem;">${amount}</b></div>
+        <div>Medio de pago: <b>${paymentMethodDescription}</b></div>
+        <div>Plataforma: <b>${trxPayment.PaymentPlatform}</b></div>
+        <div>Referencia: <b>${transactionId}</b></div>
+        ${returnedAmount}
+        ${cardMessage}
+      </div>
+    `;
+
+    return await this.alertService.waringHtml(message, "Confirmar pago");
+  }
+
+  clonePaymentForReversal(payment: TrxPaymentEntity, amountToReverse: number): TrxPaymentEntity {
+    const trxPayment: TrxPaymentEntity = new TrxPaymentEntity();
+
+    trxPayment.PaymentMethodCod = payment.PaymentMethodCod;
+    trxPayment.PaymentPlatform = payment.PaymentPlatform;
+    trxPayment.CardNumber = payment.CardNumber;
+    trxPayment.CardHolderName = payment.CardHolderName;
+    trxPayment.CardExpirationDate = payment.CardExpirationDate;
+    trxPayment.CardCVV = payment.CardCVV;
+    trxPayment.TransactionId = null;
+    trxPayment.PaymentStatus = payment.PaymentStatus || "OK";
+    trxPayment.CurrencyCod = payment.CurrencyCod;
+    trxPayment.CurrencyCodSys = payment.CurrencyCodSys;
+    trxPayment.NumExchangevalue = payment.NumExchangevalue;
+    trxPayment.AmountPaid = -1 * this.toMoney(amountToReverse);
+    trxPayment.AmountReturned = 0;
+    trxPayment.TypeMovement = 'E';
+    trxPayment.ReversalOfTrxPaymentId = payment.TrxPaymentId;
+
+    return trxPayment;
   }
 
   transactionPos():TrxPaymentEntity{
@@ -222,6 +370,144 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
     this.txtAmountPaidConfigHtml.ReadOnly = (PaymentMethodCodSelect === 'NC001');
     this.cboCurrencyCodConfigHtml.ReadOnly = (PaymentMethodCodSelect === 'NC001');
     this.txtAmountPaid.nativeElement.value = (PaymentMethodCodSelect === 'NC001') ? "0" : String(this.TrxPaymentComponenRequest.InputOutstandingBalance);
+  }
+
+  isReversalMode(): boolean {
+    return this.TrxPaymentComponenRequest.InputTypeMovement === 'E';
+  }
+
+  getInputAmountLabel(): string {
+    return this.isReversalMode() ? "Monto total a devolver" : "Saldo por pagar";
+  }
+
+  getAmountLabel(): string {
+    return this.isReversalMode() ? "Monto a devolver ahora" : "Monto";
+  }
+
+  getTitle(): string {
+    return this.isReversalMode() ? "Registrar Reversion de Pago" : "Registrar Pago";
+  }
+
+  getSaveButtonLabel(): string {
+    return this.isReversalMode() ? "Revertir siguiente pago" : "Guardar";
+  }
+
+  getInputAmount(): number {
+    return this.isReversalMode()
+      ? this.getTotalReversalAmount()
+      : Number(this.TrxPaymentComponenRequest.InputOutstandingBalance);
+  }
+
+  getPaymentsToReverse(): TrxPaymentEntity[] {
+    const paymentList: TrxPaymentEntity[] = this.TrxPaymentComponenRequest.TrxPaymentReversalList.length > 0
+      ? this.TrxPaymentComponenRequest.TrxPaymentReversalList
+      : this.TrxPaymentComponenRequest.TrxPaymentList;
+
+    return paymentList.filter(e => e.TypeMovement !== 'E' && this.getPaymentReversibleAmount(e) > 0);
+  }
+
+  getVisiblePaymentList(): TrxPaymentEntity[] {
+    if (!this.isReversalMode()) return this.TrxPaymentComponenRequest.TrxPaymentList;
+
+    const paymentList: TrxPaymentEntity[] = this.TrxPaymentComponenRequest.TrxPaymentReversalList.length > 0
+      ? this.TrxPaymentComponenRequest.TrxPaymentReversalList
+      : this.TrxPaymentComponenRequest.TrxPaymentList.filter(e => e.TypeMovement !== 'E');
+
+    return paymentList.reduce((result: TrxPaymentEntity[], payment: TrxPaymentEntity) => {
+      const reversalList: TrxPaymentEntity[] = this.getReversalPaymentList(payment.TrxPaymentId);
+      result.push(payment, ...reversalList);
+      return result;
+    }, []);
+  }
+
+  getReversalLimit(): number {
+    const pendingRequestedAmount: number = this.toMoney(this.getTotalReversalAmount() - this.getReturnedAmount());
+    const availableAmount: number = this.getPaymentsToReverse()
+      .reduce((sum, e) => sum + this.getPaymentReversibleAmount(e), 0);
+
+    return Math.min(pendingRequestedAmount, this.toMoney(availableAmount));
+  }
+
+  getTotalReversalAmount(): number {
+    const inputAmount: number = Number(this.TrxPaymentComponenRequest.InputReversalAmount);
+    const originalAmount: number = (this.TrxPaymentComponenRequest.TrxPaymentReversalList ?? [])
+      .reduce((sum, e) => sum + Math.abs(Number(e.AmountPaid || 0)), 0);
+
+    if (inputAmount > 0) return this.toMoney(inputAmount);
+
+    return this.toMoney(originalAmount);
+  }
+
+  getReturnedAmount(): number {
+    return this.toMoney((this.TrxPaymentComponenRequest.TrxPaymentList ?? [])
+      .filter(e => e.TypeMovement === 'E')
+      .reduce((sum, e) => sum + Math.abs(Number(e.AmountPaid || 0)), 0));
+  }
+
+  getCurrentReversalAmount(): number {
+    const payment: TrxPaymentEntity | undefined = this.getPaymentsToReverse()[0];
+
+    if (!payment) return 0;
+
+    return this.toMoney(Math.min(this.getPaymentReversibleAmount(payment), this.getReversalLimit()));
+  }
+
+  getPaymentReversibleAmount(trxPayment: TrxPaymentEntity): number {
+    const paymentAmount: number = Math.abs(Number(trxPayment.AmountPaid || 0));
+    const reversedAmount: number = (this.TrxPaymentComponenRequest.TrxPaymentList ?? [])
+      .filter(e => e.TypeMovement === 'E' && Number(e.ReversalOfTrxPaymentId || 0) === Number(trxPayment.TrxPaymentId || 0))
+      .reduce((sum, e) => sum + Math.abs(Number(e.AmountPaid || 0)), 0);
+
+    return this.toMoney(paymentAmount - reversedAmount);
+  }
+
+  getOriginalPayment(TrxPaymentId: number | null): TrxPaymentEntity | undefined {
+    return (this.TrxPaymentComponenRequest.TrxPaymentReversalList ?? [])
+      .find(e => Number(e.TrxPaymentId || 0) === Number(TrxPaymentId || 0));
+  }
+
+  getReversalPaymentList(TrxPaymentId: number): TrxPaymentEntity[] {
+    return (this.TrxPaymentComponenRequest.TrxPaymentList ?? [])
+      .filter(e => e.TypeMovement === 'E' && Number(e.ReversalOfTrxPaymentId || 0) === Number(TrxPaymentId || 0));
+  }
+
+  isPaymentFullyReversed(trxPayment: TrxPaymentEntity): boolean {
+    return trxPayment.TypeMovement !== 'E' && this.getPaymentReversibleAmount(trxPayment) <= 0;
+  }
+
+  isPaymentPartiallyReversed(trxPayment: TrxPaymentEntity): boolean {
+    if (trxPayment.TypeMovement === 'E') return false;
+
+    const reversedAmount: number = this.getReversalPaymentList(trxPayment.TrxPaymentId)
+      .reduce((sum, e) => sum + Math.abs(Number(e.AmountPaid || 0)), 0);
+
+    return reversedAmount > 0 && this.getPaymentReversibleAmount(trxPayment) > 0;
+  }
+
+  getPaymentStatusLabel(trxPayment: TrxPaymentEntity): string {
+    if (!this.isReversalMode()) return "";
+    if (trxPayment.TypeMovement === 'E') return "Reversion";
+    if (this.isPaymentFullyReversed(trxPayment)) return "Anulado";
+    if (this.isPaymentPartiallyReversed(trxPayment)) return "Parcial";
+    return "Pendiente";
+  }
+
+  getPaymentMethodIconClass(trxPayment: TrxPaymentEntity): string {
+    if (this.isCardPayment(trxPayment)) return "fa fa-credit-card";
+    if (trxPayment.PaymentPlatform === "FISICO") return "fa fa-coins";
+    return "fa fa-money-check-alt";
+  }
+
+  isCardPayment(trxPayment: TrxPaymentEntity): boolean {
+    const paymentMethod: PaymentMethodEntity | undefined = this.paymentMethodList.find(e => e.PaymentMethodCod === trxPayment.PaymentMethodCod);
+
+    if (paymentMethod) return this.IsCard(paymentMethod);
+
+    return trxPayment.PaymentPlatform === "POS";
+  }
+
+  toMoney(value: number): number {
+    return Math.round(Number(value || 0) * 100) / 100;
   }
 
   async FindByDocumentCod(){

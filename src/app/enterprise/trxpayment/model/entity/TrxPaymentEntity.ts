@@ -9,7 +9,7 @@ export class TrxPaymentEntity extends AuditTableEntity {
     public CardHolderName: string;
     public CardExpirationDate: Date;
     public CardCVV: string;
-    public TransactionId: string;
+    public TransactionId: string | null;
     public PaymentStatus: string;
     public CurrencyCod: string;
     public CurrencyCodSys: string;
@@ -17,6 +17,7 @@ export class TrxPaymentEntity extends AuditTableEntity {
     public AmountPaid: number;
     public AmountReturned: number;
     public TypeMovement : string;
+    public ReversalOfTrxPaymentId : number | null;
 
     constructor() {
         super();
@@ -35,5 +36,6 @@ export class TrxPaymentEntity extends AuditTableEntity {
         this.AmountPaid = 0;
         this.AmountReturned = 0;
         this.TypeMovement = 'I'; // I: Ingreso, E: Egreso
+        this.ReversalOfTrxPaymentId = null;
     }
 }

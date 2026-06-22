@@ -6,6 +6,7 @@ import { ResponseWsDto } from '../../shared/model/dto/ResponseWsDto';
 import { SearchDto } from '../../shared/model/dto/SearchDto';
 import { AppSetting } from 'src/app/config/app.setting';
 import { CreditNoteRegisterDto } from '../model/dto/CreditNoteRegisterDto';
+import { CreditNoteReturnPaymentRegisterDto } from '../model/dto/CreditNoteReturnPaymentRegisterDto';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +50,15 @@ constructor(private apiService: ApiService) { }
     let RespuestaWS : ResponseWsDto;
 
     RespuestaWS = await this.apiService.ExecutePostService(url,Entity);
+
+    return RespuestaWS;
+  }
+
+  async AddReturnPayment(payment : CreditNoteReturnPaymentRegisterDto): Promise<ResponseWsDto> {
+    let url: string = `${AppSetting.API}/api/v1/CreditNote/addReturnPayment`;
+    let RespuestaWS : ResponseWsDto;
+
+    RespuestaWS = await this.apiService.ExecutePostService(url,payment);
 
     return RespuestaWS;
   }

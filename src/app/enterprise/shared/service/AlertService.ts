@@ -23,4 +23,18 @@ export class AlertService
         });
     }
 
+    waringHtml(html : string,title : string = "Confirmar") : Promise<SweetAlertResult<any>>
+    {
+        return Swal.fire({
+            title: title,
+            html: html,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, confirmar',
+            cancelButtonText: 'No, cancelar'
+        });
+    }
+
 }
