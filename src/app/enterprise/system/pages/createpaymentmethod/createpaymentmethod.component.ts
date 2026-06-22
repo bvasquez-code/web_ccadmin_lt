@@ -5,7 +5,9 @@ import { ValidationHelper } from 'src/app/enterprise/shared/helper/ValidationHel
 import { GenericCatalogDto } from 'src/app/enterprise/shared/model/dto/GenericCatalogDto';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
 import { PaymentMethodEntity } from 'src/app/enterprise/shared/model/entity/PaymentMethodEntity';
+import { AppFileEntity } from '../../model/entity/AppFileEntity';
 import { PaymentMethodService } from '../../service/PaymentMethodService';
+import { AppfileComponentRequestDto } from '../../model/dto/AppfileComponentRequestDto';
 
 @Component({
   selector: 'app-createpaymentmethod',
@@ -17,6 +19,7 @@ export class CreatepaymentmethodComponent implements OnInit {
   paymentMethod: PaymentMethodEntity = new PaymentMethodEntity();
   paymentMethodTypeList: GenericCatalogDto[] = [];
   txtPaymentMethodCodReadonly: boolean = false;
+  AppfileComponentRequest : AppfileComponentRequestDto = new AppfileComponentRequestDto();
 
   constructor(
     private paymentMethodService: PaymentMethodService,
@@ -24,6 +27,7 @@ export class CreatepaymentmethodComponent implements OnInit {
     private toastrService: ToastrService
   ) {
     this.GetParamUrl(this.router);
+    this.AppfileComponentRequest.groupTypeFile = 2;
   }
 
   ngOnInit(): void {
@@ -89,9 +93,27 @@ export class CreatepaymentmethodComponent implements OnInit {
     }
   }
 
+  ResponseResultFormAppFile(event: any): void {
+    const appFile: AppFileEntity = event;
+
+    if (!appFile) return;
+
+    this.ensureDefaults();
+    this.paymentMethod.FileCod = appFile.FileCod;
+    this.paymentMethod.Route = appFile.Route;
+  }
+
+  clearImage(): void {
+    this.ensureDefaults();
+    this.paymentMethod.FileCod = "";
+    this.paymentMethod.Route = "";
+  }
+
   private ensureDefaults(): void {
     if (!this.paymentMethod) this.paymentMethod = new PaymentMethodEntity();
     this.paymentMethod.PaymentMethodType = this.paymentMethod.PaymentMethodType || "";
+    this.paymentMethod.FileCod = this.paymentMethod.FileCod || "";
+    this.paymentMethod.Route = this.paymentMethod.Route || "";
   }
 
   private normalizePaymentMethod(): void {

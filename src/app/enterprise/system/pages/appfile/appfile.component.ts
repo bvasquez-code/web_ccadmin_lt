@@ -1,8 +1,9 @@
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { AppFileEntity } from '../../model/entity/AppFileEntity';
 import { AppFileDto } from '../../model/dto/AppFileDto';
 import { AppFileService } from '../../service/AppFileService';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
+import { AppfileComponentRequestDto } from '../../model/dto/AppfileComponentRequestDto';
 
 @Component({
   selector: 'app-appfile',
@@ -12,6 +13,7 @@ export class AppfileComponent {
 
   @ViewChild('FileInput', { static: false }) FileInput!: ElementRef;
   
+  @Input() AppfileComponentRequest : AppfileComponentRequestDto | null = new AppfileComponentRequestDto();
   @Output() ResultForm = new EventEmitter<object>();
 
   appFileSelect : AppFileDto = new AppFileDto();
@@ -53,6 +55,10 @@ export class AppfileComponent {
     const appFile : AppFileDto = this.appFileSelect;
 
     appFile.base64 = appFile.type + this.base64textString;
+
+    if(this.AppfileComponentRequest!=null){
+      appFile.groupTypeFile = this.AppfileComponentRequest.groupTypeFile;
+    }
 
     const rpt : ResponseWsDto = await this.appFileService.Save(appFile);
 

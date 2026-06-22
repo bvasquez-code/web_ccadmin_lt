@@ -6,9 +6,12 @@ export class AppFileDto {
 
     public type : string;
 
+    public groupTypeFile : number;
+
     constructor(){
         this.base64 = "";
         this.extension = "";
         this.type = "";
+        this.groupTypeFile = 0;
     }
 }
