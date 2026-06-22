@@ -11,6 +11,7 @@ import { TicketSunatService } from '../../service/TicketSunatService';
 import { ToastrService } from 'ngx-toastr';
 import { ClientService } from '../../../client/service/client.service';
 import { ClientEntity } from '../../../client/model/entity/ClientEntity';
+import { SaleConfirmDto } from '../../model/dto/SaleConfirmDto';
 
 @Component({
   selector: 'app-createsale',
@@ -100,8 +101,25 @@ export class CreatesaleComponent implements OnInit {
     if (!rpt.ErrorStatus) {
       await this.findDataForm(this.SaleCod);
 
-      if (this.SaleDetail.Headboard.SaleStatus == "C") {
-        this.print();
+      if (this.SaleDetail.Headboard.IsPaid == "S") {
+
+        const SaleConfirm : SaleConfirmDto = new SaleConfirmDto();
+        SaleConfirm.SaleCod = this.SaleDetail.Headboard.SaleCod;
+        SaleConfirm.CounterfoilCod = "";
+        SaleConfirm.DocumentType = this.DocumentType;
+
+        const rptConfirm = await this.saleservice.confirm(SaleConfirm);
+
+        if (!rptConfirm.ErrorStatus) {
+
+          this.SaleDetail = rptConfirm.Data;
+
+          if(this.SaleDetail.Headboard.SaleStatus === "C"){
+            this.print();
+          }
+
+        }
+        
       }
 
     }

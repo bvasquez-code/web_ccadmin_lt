@@ -5,6 +5,7 @@ import { ResponseWsDto } from "../../shared/model/dto/ResponseWsDto";
 import { PresaleRegisterDto } from "../model/dto/PresaleRegisterDto";
 import { SalePaymentRegisterDto } from "../model/dto/SalePaymentRegisterDto";
 import { SearchDto } from "../../shared/model/dto/SearchDto";
+import { SaleConfirmDto } from "../model/dto/SaleConfirmDto";
 
 @Injectable({
     providedIn: 'root'
@@ -77,6 +78,15 @@ export class SaleService
         let RespuestaWS : ResponseWsDto;
 
         RespuestaWS = await this.apiService.ExecutePostService(url,{});
+
+        return RespuestaWS;
+    }
+
+    async confirm(request : SaleConfirmDto){
+        let url: string = `${AppSetting.API}/api/v1/sale/confirm`;
+        let RespuestaWS : ResponseWsDto;
+
+        RespuestaWS = await this.apiService.ExecutePostService(url,request);
 
         return RespuestaWS;
     }
