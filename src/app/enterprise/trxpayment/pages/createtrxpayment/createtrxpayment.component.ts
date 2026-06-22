@@ -22,7 +22,7 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
   @Input() TrxPaymentComponenRequest : TrxPaymentComponenRequestDto = new TrxPaymentComponenRequestDto(); 
   @Output() ResultForm = new EventEmitter<TrxPaymentEntity>();
 
-  @ViewChild('cboPaymentMethodCod') cboPaymentMethodCod!: ElementRef<HTMLSelectElement>;
+  @ViewChild('cboPaymentMethodCod') cboPaymentMethodCod!: ElementRef<HTMLInputElement>;
   @ViewChild('cboCurrencyCod') cboCurrencyCod!: ElementRef<HTMLSelectElement>;
   @ViewChild('txtAmountPaid') txtAmountPaid!: ElementRef<HTMLInputElement>;
   @ViewChild('txtDocumentCod') txtDocumentCod!: ElementRef<HTMLInputElement>;
@@ -33,6 +33,8 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
   trxPayment : TrxPaymentEntity = new TrxPaymentEntity();
   txtDocumentVisible : boolean = false;
   creditNoteDetail : CreditNoteDetailDto = new CreditNoteDetailDto();
+  selectedPaymentMethodCod: string = "";
+  showPaymentMethodDropdown: boolean = false;
 
   txtAmountPaidConfigHtml : ElementHtmlDto = new ElementHtmlDto();
   cboCurrencyCodConfigHtml : ElementHtmlDto = new ElementHtmlDto();
@@ -59,8 +61,9 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
     const rpt : ResponseWsDto = await this.trxPaymentService.FindDataForm();
 
     if(!rpt.ErrorStatus){
-      this.paymentMethodList = rpt.DataAdditional.find( e => e.Name === "paymentMethodList" )?.Data;
-      this.currencyList = rpt.DataAdditional.find( e => e.Name === "currencyList" )?.Data;
+      this.paymentMethodList = rpt.DataAdditional.find( e => e.Name === "paymentMethodList" )?.Data ?? [];
+      this.currencyList = rpt.DataAdditional.find( e => e.Name === "currencyList" )?.Data ?? [];
+      this.selectedPaymentMethodCod = this.paymentMethodList[0]?.PaymentMethodCod ?? "";
     }
   }
 
@@ -75,7 +78,7 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
       return;
     }
 
-    let PaymentMethodCodSelect : string = this.cboPaymentMethodCod.nativeElement.value;
+    let PaymentMethodCodSelect : string = this.selectedPaymentMethodCod || this.cboPaymentMethodCod.nativeElement.value;
     let CurrencyCodSelect : string = this.cboCurrencyCod.nativeElement.value;
 
     let paymentMethod : undefined | PaymentMethodEntity = this.paymentMethodList.find( e => e.PaymentMethodCod ===  PaymentMethodCodSelect );
@@ -222,11 +225,11 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
     const cardMessage: string = this.isCardPayment(trxPayment)
       ? `<div class="mt-2 text-danger"><i class="fa fa-credit-card mr-1"></i> Pase la tarjeta por el pinpad y confirme solo si la operacion fue aceptada.</div>`
       : "";
-    const iconClass: string = this.getPaymentMethodIconClass(trxPayment);
+    const paymentMethodMedia: string = this.getPaymentMethodAlertMedia(trxPayment);
     const message: string = `
       <div class="text-left">
         <div class="text-center mb-3">
-          <i class="${iconClass} text-primary" style="font-size: 2rem;"></i>
+          ${paymentMethodMedia}
         </div>
         <div>Se va a revertir el pago <b>${originalId}</b>.</div>
         <div class="mt-2">Monto a revertir: <b class="text-danger" style="font-size: 1.2rem;">${amount}</b></div>
@@ -250,11 +253,11 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
     const cardMessage: string = this.isCardPayment(trxPayment)
       ? `<div class="mt-2 text-danger"><i class="fa fa-credit-card mr-1"></i> Pase la tarjeta por el pinpad y confirme solo si la operacion fue aceptada.</div>`
       : "";
-    const iconClass: string = this.getPaymentMethodIconClass(trxPayment);
+    const paymentMethodMedia: string = this.getPaymentMethodAlertMedia(trxPayment);
     const message: string = `
       <div class="text-left">
         <div class="text-center mb-3">
-          <i class="${iconClass} text-primary" style="font-size: 2rem;"></i>
+          ${paymentMethodMedia}
         </div>
         <div>Se va a registrar un pago.</div>
         <div class="mt-2">Monto a pagar: <b class="text-success" style="font-size: 1.2rem;">${amount}</b></div>
@@ -364,12 +367,36 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
   }
 
   selectPaymentMethodCod(){
-    let PaymentMethodCodSelect : string = this.cboPaymentMethodCod.nativeElement.value;
+    let PaymentMethodCodSelect : string = this.selectedPaymentMethodCod || this.cboPaymentMethodCod.nativeElement.value;
 
     this.txtDocumentVisible = (PaymentMethodCodSelect === 'NC001');
     this.txtAmountPaidConfigHtml.ReadOnly = (PaymentMethodCodSelect === 'NC001');
     this.cboCurrencyCodConfigHtml.ReadOnly = (PaymentMethodCodSelect === 'NC001');
     this.txtAmountPaid.nativeElement.value = (PaymentMethodCodSelect === 'NC001') ? "0" : String(this.TrxPaymentComponenRequest.InputOutstandingBalance);
+  }
+
+  selectPaymentMethod(paymentMethod: PaymentMethodEntity): void {
+    this.selectedPaymentMethodCod = paymentMethod.PaymentMethodCod;
+    this.showPaymentMethodDropdown = false;
+    this.selectPaymentMethodCod();
+  }
+
+  isPaymentMethodSelected(paymentMethod: PaymentMethodEntity): boolean {
+    return this.selectedPaymentMethodCod === paymentMethod.PaymentMethodCod;
+  }
+
+  togglePaymentMethodDropdown(): void {
+    this.showPaymentMethodDropdown = !this.showPaymentMethodDropdown;
+  }
+
+  closePaymentMethodDropdown(): void {
+    setTimeout(() => {
+      this.showPaymentMethodDropdown = false;
+    }, 200);
+  }
+
+  getSelectedPaymentMethod(): PaymentMethodEntity | undefined {
+    return this.getPaymentMethod(this.selectedPaymentMethodCod);
   }
 
   isReversalMode(): boolean {
@@ -498,6 +525,32 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
     return "fa fa-money-check-alt";
   }
 
+  getPaymentMethodIconClassByCod(PaymentMethodCod: string): string {
+    const paymentMethod: PaymentMethodEntity | undefined = this.getPaymentMethod(PaymentMethodCod);
+
+    if (paymentMethod?.PaymentMethodType === "1002" || paymentMethod?.PaymentMethodType === "1003") return "fa fa-credit-card";
+    if (paymentMethod?.PaymentMethodType === "1001") return "fa fa-coins";
+    return "fa fa-money-check-alt";
+  }
+
+  getPaymentMethodRoute(PaymentMethodCod: string): string {
+    return this.getPaymentMethod(PaymentMethodCod)?.Route || "";
+  }
+
+  hasPaymentMethodRoute(PaymentMethodCod: string): boolean {
+    return this.getPaymentMethodRoute(PaymentMethodCod) !== "";
+  }
+
+  getPaymentMethodAlertMedia(trxPayment: TrxPaymentEntity): string {
+    const route: string = this.getPaymentMethodRoute(trxPayment.PaymentMethodCod);
+
+    if (route) {
+      return `<img src="${route}" alt="Medio de pago" style="width: 65px; height: 65px; object-fit: contain;">`;
+    }
+
+    return `<i class="${this.getPaymentMethodIconClass(trxPayment)} text-primary" style="font-size: 2rem;"></i>`;
+  }
+
   isCardPayment(trxPayment: TrxPaymentEntity): boolean {
     const paymentMethod: PaymentMethodEntity | undefined = this.paymentMethodList.find(e => e.PaymentMethodCod === trxPayment.PaymentMethodCod);
 
@@ -528,7 +581,12 @@ export class CreatetrxpaymentComponent implements OnInit,IRegisterForm<TrxPaymen
   }
 
   getPaymentDescription(PaymentMethodCod : string){
-    return this.paymentMethodList.find( e => e.PaymentMethodCod === PaymentMethodCod)?.Description;
+    const paymentMethod: PaymentMethodEntity | undefined = this.getPaymentMethod(PaymentMethodCod);
+    return paymentMethod?.Description || paymentMethod?.Name || PaymentMethodCod;
+  }
+
+  getPaymentMethod(PaymentMethodCod : string): PaymentMethodEntity | undefined {
+    return this.paymentMethodList.find( e => e.PaymentMethodCod === PaymentMethodCod);
   }
   
 

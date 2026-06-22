@@ -36,9 +36,64 @@
                         </div>
 
                         <div class="col-sm-9">
-                            <select class="form-control col-sm-8" (change)="selectPaymentMethodCod()" #cboPaymentMethodCod>
-                                <option *ngFor="let item of paymentMethodList" [value]="item.PaymentMethodCod">{{ item.Name }}</option>
-                            </select>
+                            <input type="hidden" [value]="selectedPaymentMethodCod" #cboPaymentMethodCod>
+
+                            <div class="dropdown col-sm-8 px-0">
+                                <button
+                                    type="button"
+                                    class="btn btn-white btn-bold border-1 brc-secondary-l2 d-flex align-items-center justify-content-between w-100"
+                                    (click)="togglePaymentMethodDropdown()"
+                                    (blur)="closePaymentMethodDropdown()">
+
+                                    <span class="d-flex align-items-center text-left">
+                                        <img
+                                            *ngIf="getSelectedPaymentMethod()?.Route"
+                                            [src]="getSelectedPaymentMethod()?.Route"
+                                            alt="Medio de pago"
+                                            style="width: 36px; height: 36px; object-fit: contain;"
+                                            class="mr-2">
+
+                                        <i
+                                            *ngIf="!getSelectedPaymentMethod()?.Route"
+                                            [class]="getPaymentMethodIconClassByCod(selectedPaymentMethodCod)"
+                                            class="mr-2">
+                                        </i>
+
+                                        <span>{{ getSelectedPaymentMethod()?.Name || getSelectedPaymentMethod()?.Description || 'Seleccione' }}</span>
+                                    </span>
+
+                                    <i class="fa fa-chevron-down text-80 ml-2"></i>
+                                </button>
+
+                                <div
+                                    class="dropdown-menu w-100 shadow-sm"
+                                    [class.show]="showPaymentMethodDropdown"
+                                    style="max-height: 240px; overflow-y: auto;">
+
+                                    <button
+                                        type="button"
+                                        class="dropdown-item d-flex align-items-center"
+                                        [ngClass]="isPaymentMethodSelected(item) ? 'active' : ''"
+                                        *ngFor="let item of paymentMethodList"
+                                        (mousedown)="selectPaymentMethod(item)">
+
+                                        <img
+                                            *ngIf="hasPaymentMethodRoute(item.PaymentMethodCod)"
+                                            [src]="item.Route"
+                                            alt="Medio de pago"
+                                            style="width: 36px; height: 36px; object-fit: contain;"
+                                            class="mr-2">
+
+                                        <i
+                                            *ngIf="!hasPaymentMethodRoute(item.PaymentMethodCod)"
+                                            [class]="getPaymentMethodIconClassByCod(item.PaymentMethodCod)"
+                                            class="mr-2">
+                                        </i>
+
+                                        <span>{{ item.Name || item.Description }}</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -150,7 +205,17 @@
                                             <span class="badge badge-light" *ngIf="item.TypeMovement !== 'E' && !isPaymentFullyReversed(item) && !isPaymentPartiallyReversed(item)">Pendiente</span>
                                         </td>
                                         <td class="text-600">
-                                            <i [class]="getPaymentMethodIconClass(item)" class="mr-1"></i>
+                                            <img
+                                                *ngIf="hasPaymentMethodRoute(item.PaymentMethodCod)"
+                                                [src]="getPaymentMethodRoute(item.PaymentMethodCod)"
+                                                alt="Medio de pago"
+                                                style="width: 22px; height: 22px; object-fit: contain;"
+                                                class="mr-1">
+                                            <i
+                                                *ngIf="!hasPaymentMethodRoute(item.PaymentMethodCod)"
+                                                [class]="getPaymentMethodIconClass(item)"
+                                                class="mr-1">
+                                            </i>
                                             {{ getPaymentDescription(item.PaymentMethodCod) }}
                                         </td>
                                         <td class="text-800">
