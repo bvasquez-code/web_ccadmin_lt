@@ -19,15 +19,15 @@ export class CreatepaymentmethodComponent implements OnInit {
   paymentMethod: PaymentMethodEntity = new PaymentMethodEntity();
   paymentMethodTypeList: GenericCatalogDto[] = [];
   txtPaymentMethodCodReadonly: boolean = false;
-  AppfileComponentRequest : AppfileComponentRequestDto = new AppfileComponentRequestDto();
+  appfileComponentRequest: AppfileComponentRequestDto = new AppfileComponentRequestDto();
 
   constructor(
     private paymentMethodService: PaymentMethodService,
     private router: Router,
     private toastrService: ToastrService
   ) {
+    this.appfileComponentRequest.groupTypeFile = 3;
     this.GetParamUrl(this.router);
-    this.AppfileComponentRequest.groupTypeFile = 2;
   }
 
   ngOnInit(): void {

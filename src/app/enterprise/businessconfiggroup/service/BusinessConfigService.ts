@@ -29,13 +29,9 @@ export class BusinessConfigService {
         return RespuestaWS;
     }
 
-    async findDataForm(GroupCod: string = "", ConfigCorr?: number): Promise<ResponseWsDto> {
+    async findDataForm(GroupCod: string = ""): Promise<ResponseWsDto> {
         let url: string = `${AppSetting.API}/api/v1/business/config/findDataForm`;
         let request: any = { GroupCod: GroupCod };
-
-        if (ConfigCorr !== undefined && ConfigCorr !== null && ConfigCorr > 0) {
-            request.ConfigCorr = ConfigCorr;
-        }
 
         let RespuestaWS: ResponseWsDto;
         RespuestaWS = await this.apiService.ExecuteGetService(url, request);

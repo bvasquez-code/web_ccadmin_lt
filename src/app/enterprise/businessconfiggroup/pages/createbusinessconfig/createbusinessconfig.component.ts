@@ -1,15 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { ActionModalConfirmService } from 'src/app/enterprise/shared/interface/ActionModalConfirmService';
-import { ActionTableService } from 'src/app/enterprise/shared/interface/ActionTableService';
 import { ValidationHelper } from 'src/app/enterprise/shared/helper/ValidationHelper';
-import { DataTablaGeneticDto } from 'src/app/enterprise/shared/model/dto/DataTablaGeneticDto';
-import { ResponsePageSearch } from 'src/app/enterprise/shared/model/dto/ResponsePageSearch';
 import { ResponseWsDto } from 'src/app/enterprise/shared/model/dto/ResponseWsDto';
 import { BusinessConfigEntity } from 'src/app/enterprise/shared/model/entity/BusinessConfigEntity';
 import { BusinessConfigGroupEntity } from '../../model/entity/BusinessConfigGroupEntity';
-import { BusinessConfigGroupService } from '../../service/BusinessConfigGroupService';
 import { BusinessConfigService } from '../../service/BusinessConfigService';
 
 interface BusinessConfigDynamicField {
@@ -25,18 +20,15 @@ interface BusinessConfigDynamicField {
   selector: 'app-createbusinessconfig',
   templateUrl: './createbusinessconfig.component.html'
 })
-export class CreatebusinessconfigComponent implements OnInit, ActionTableService<BusinessConfigEntity>, ActionModalConfirmService {
-
-  @ViewChild('txtSearch') txtSearch!: ElementRef<HTMLInputElement>;
+export class CreatebusinessconfigComponent implements OnInit {
 
   GroupCod: string = "";
   ConfigCorr: number = 0;
+  ConfigCorrNext: number = 0;
   businessConfigGroup: BusinessConfigGroupEntity = new BusinessConfigGroupEntity();
   businessConfig: BusinessConfigEntity = new BusinessConfigEntity();
+  businessConfigList: BusinessConfigEntity[] = [];
   dynamicFields: BusinessConfigDynamicField[] = [];
-  responsePageSearch: ResponsePageSearch<BusinessConfigEntity> = new ResponsePageSearch();
-  dataTablaGenetic: DataTablaGeneticDto<BusinessConfigEntity> = new DataTablaGeneticDto();
-  businessConfigSelect: BusinessConfigEntity = new BusinessConfigEntity();
 
   private readonly fieldMap: BusinessConfigDynamicField[] = [
     { column: "ConfigCod", nameKey: "ConfigCodName", technicalKey: "ConfigCodKey", label: "", key: "", type: "text" },
@@ -62,7 +54,6 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
   ];
 
   constructor(
-    private businessConfigGroupService: BusinessConfigGroupService,
     private businessConfigService: BusinessConfigService,
     private router: Router,
     private toastrService: ToastrService
@@ -77,30 +68,20 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
   }
 
   async loadPage(): Promise<void> {
-    await this.loadGroup();
     await this.FindDataForm();
-    await this.findAll(1, "");
-  }
-
-  async loadGroup(): Promise<void> {
-    const rpt: ResponseWsDto = await this.businessConfigGroupService.findDataForm(this.GroupCod);
-    if (!rpt.ErrorStatus) {
-      this.businessConfigGroup = rpt.DataAdditional?.find(e => e.Name === "businessConfigGroup")?.Data
-        ?? rpt.DataAdditional?.find(e => e.Name === "BusinessConfigGroup")?.Data
-        ?? rpt.Data
-        ?? new BusinessConfigGroupEntity();
-      this.dynamicFields = this.resolveDynamicFields();
-    }
   }
 
   async FindDataForm(): Promise<void> {
-    const rpt: ResponseWsDto = await this.businessConfigService.findDataForm(this.GroupCod, this.ConfigCorr);
+    const rpt: ResponseWsDto = await this.businessConfigService.findDataForm(this.GroupCod);
 
     if (!rpt.ErrorStatus) {
-      this.businessConfig = rpt.DataAdditional?.find(e => e.Name === "businessConfig")?.Data
-        ?? rpt.DataAdditional?.find(e => e.Name === "BusinessConfig")?.Data
-        ?? rpt.Data
-        ?? new BusinessConfigEntity();
+      this.businessConfigGroup = rpt.DataAdditional?.find(e => e.Name === "businessConfigGroup")?.Data
+        ?? rpt.DataAdditional?.find(e => e.Name === "BusinessConfigGroup")?.Data
+        ?? new BusinessConfigGroupEntity();
+      this.businessConfigList = rpt.DataAdditional?.find(e => e.Name === "businessConfigList")?.Data ?? [];
+      this.ConfigCorrNext = rpt.DataAdditional?.find(e => e.Name === "ConfigCorrNext")?.Data ?? 0;
+      this.dynamicFields = this.resolveDynamicFields();
+      this.loadBusinessConfigSelected();
       this.prepareBusinessConfig();
     }
   }
@@ -110,13 +91,19 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
 
     if (!this.validate()) return;
 
-    const rpt: ResponseWsDto = await this.businessConfigService.save(this.businessConfig);
-    if (!rpt.ErrorStatus) {
+    try {
+      const rpt: ResponseWsDto = await this.businessConfigService.save(this.businessConfig);
+      if (rpt.ErrorStatus) {
+        this.toastrService.error(this.getResponseMessage(rpt, "No se pudo guardar la configuracion"));
+        return;
+      }
+
       this.toastrService.success("Configuracion guardada");
       this.ConfigCorr = 0;
       this.businessConfig = new BusinessConfigEntity();
-      this.prepareBusinessConfig();
-      this.findAll(1, "");
+      await this.FindDataForm();
+    } catch (e: any) {
+      this.toastrService.error(e?.message ?? "No se pudo guardar la configuracion");
     }
   }
 
@@ -136,68 +123,38 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
     }
   }
 
-  filter(Page: number): void {
-    this.findAll(Page, this.txtSearch.nativeElement.value);
+  goBack(): void {
+    this.router.navigate(['/enterprise/businessconfiggroup/pages/listbusinessconfiggroup'], { queryParams: { GroupCod: this.GroupCod } });
   }
 
-  async findAll(Page: number, Query: string): Promise<void> {
-    const rpt: ResponseWsDto = await this.businessConfigService.findAll(Query, Page, this.GroupCod);
-    if (!rpt.ErrorStatus) {
-      this.responsePageSearch = rpt.Data;
-      this.loadingTable(this.responsePageSearch);
+  async enable(item: BusinessConfigEntity): Promise<void> {
+    try {
+      const rpt: ResponseWsDto = await this.businessConfigService.enable(item);
+      if (rpt.ErrorStatus) {
+        this.toastrService.error(this.getResponseMessage(rpt, "No se pudo activar la configuracion"));
+        return;
+      }
+
+      this.toastrService.success("Configuracion activada");
+      await this.FindDataForm();
+    } catch (e: any) {
+      this.toastrService.error(e?.message ?? "No se pudo activar la configuracion");
     }
   }
 
-  loadingTable(responsePageSearch: ResponsePageSearch<BusinessConfigEntity>): void {
-    const data: DataTablaGeneticDto<BusinessConfigEntity> = new DataTablaGeneticDto();
-    const headers: any[] = [
-      { Name: "Orden", key: "ConfigCorr" }
-    ];
-
-    this.dynamicFields.forEach(field => {
-      headers.push({
-        Name: field.label,
-        key: field.column,
-        FunctionKey: (item: BusinessConfigEntity) => item[field.column] ?? ""
-      });
-    });
-
-    headers.push({
-      Name: "Estado",
-      key: "Status",
-      IsStatus: true,
-      Html: {
-        A: 'badge badge-sm bgc-info-d1 text-white pb-1 px-25',
-        I: 'badge badge-sm bgc-red-d1 text-white pb-1 px-25'
-      },
-      Mask: {
-        A: "Activo",
-        I: "Inactivo"
+  async disable(item: BusinessConfigEntity): Promise<void> {
+    try {
+      const rpt: ResponseWsDto = await this.businessConfigService.disable(item);
+      if (rpt.ErrorStatus) {
+        this.toastrService.error(this.getResponseMessage(rpt, "No se pudo inactivar la configuracion"));
+        return;
       }
-    });
 
-    headers.push({
-      Name: "Opciones",
-      ColumnAction: true,
-      Id: ["GroupCod", "ConfigCorr"],
-      Options: [
-        { Type: "Url", Name: "fa fa-pencil-alt", Url: "/enterprise/businessconfiggroup/pages/createbusinessconfig?GroupCod={GroupCod}&ConfigCorr={ConfigCorr}" }
-      ]
-    });
-
-    data.init(headers, { data: responsePageSearch }, "Valores configurados");
-    this.dataTablaGenetic = data;
-  }
-
-  getDataRow(item: any): void {
-    this.businessConfigSelect = item;
-  }
-
-  actionModal(ModalId: string): void {
-  }
-
-  goBack(): void {
-    this.router.navigate(['/enterprise/businessconfiggroup/pages/listbusinessconfiggroup'], { queryParams: { GroupCod: this.GroupCod } });
+      this.toastrService.success("Configuracion inactivada");
+      await this.FindDataForm();
+    } catch (e: any) {
+      this.toastrService.error(e?.message ?? "No se pudo inactivar la configuracion");
+    }
   }
 
   private resolveDynamicFields(): BusinessConfigDynamicField[] {
@@ -227,7 +184,11 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
     });
 
     if(this.businessConfig.ConfigCorr === 0){
-      this.businessConfig.ConfigCorr = this.getMaxConfigCorr() + 1;
+      this.businessConfig.ConfigCorr = this.ConfigCorrNext;
+    }
+
+    if (!this.businessConfig.Status) {
+      this.businessConfig.Status = "A";
     }
   }
 
@@ -244,10 +205,17 @@ export class CreatebusinessconfigComponent implements OnInit, ActionTableService
     return String(value).trim();
   }
 
-  private getMaxConfigCorr(): number {
-    if (!this.responsePageSearch.resultSearch || this.responsePageSearch.resultSearch.length === 0) {
-      return 0;
+  private loadBusinessConfigSelected(): void {
+    if (this.ConfigCorr > 0) {
+      const item = this.businessConfigList.find(e => e.ConfigCorr === this.ConfigCorr);
+      this.businessConfig = item ? { ...item } as BusinessConfigEntity : new BusinessConfigEntity();
+      return;
     }
-    return Math.max(...this.responsePageSearch.resultSearch.map(e => e.ConfigCorr));
+
+    this.businessConfig = new BusinessConfigEntity();
+  }
+
+  private getResponseMessage(rpt: ResponseWsDto, defaultMessage: string): string {
+    return this.getText(rpt?.Message) || defaultMessage;
   }
 }

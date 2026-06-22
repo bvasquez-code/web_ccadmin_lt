@@ -70,22 +70,57 @@
                 <div class="card dcard">
                     <div class="card-body px-1 px-md-3">
                         <div class="d-flex justify-content-between flex-column flex-sm-row mb-3 px-2 px-sm-0">
-                            <div class="pos-rel ml-sm-auto mr-sm-2 order-last order-sm-0">
-                                <i class="fa fa-search position-lc ml-25 text-primary-m1"></i>
-                                <input type="text"
-                                    class="form-control w-100 pl-45 radius-1 brc-primary-m4"
-                                    placeholder="Buscar ..."
-                                    #txtSearch>
-                            </div>
-
-                            <div class="mb-2 mb-sm-0">
-                                <a class="btn px-4 btn-primary mb-1" (click)="filter(1)">
-                                    Buscar
-                                </a>
-                            </div>
+                            <h3 class="text-125 pl-1 mb-3 mb-sm-0 text-secondary-d4">
+                                Valores configurados
+                            </h3>
                         </div>
 
-                        <app-table [data]="dataTablaGenetic" [action]="this"></app-table>
+                        <table id="simple-table"
+                            class="mb-0 table table-borderless table-bordered-x brc-secondary-l3 text-dark-m2 radius-1 overflow-hidden">
+                            <thead class="text-dark-tp3 bgc-grey-l4 text-90 border-b-1 brc-transparent">
+                                <tr>
+                                    <th>Orden</th>
+                                    <th *ngFor="let field of dynamicFields">{{ field.label }}</th>
+                                    <th>Estado</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="mt-1">
+                                <tr class="bgc-h-yellow-l4 d-style" *ngFor="let item of businessConfigList">
+                                    <td>{{ item.ConfigCorr }}</td>
+                                    <td *ngFor="let field of dynamicFields">
+                                        {{ item[field.column] || '' }}
+                                    </td>
+                                    <td>
+                                        <span [ngClass]="item.Status === 'A' ? 'badge badge-sm bgc-info-d1 text-white pb-1 px-25' : 'badge badge-sm bgc-red-d1 text-white pb-1 px-25'">
+                                            {{ item.Status === 'A' ? 'Activo' : 'Inactivo' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a
+                                            class="mx-2px btn radius-1 border-2 btn-xs btn-brc-tp btn-light-secondary btn-h-lighter-success btn-a-lighter-success"
+                                            href="/enterprise/businessconfiggroup/pages/createbusinessconfig?GroupCod={{ item.GroupCod }}&ConfigCorr={{ item.ConfigCorr }}">
+                                            <i class="fa fa-pencil-alt"></i>
+                                        </a>
+                                        <a
+                                            *ngIf="item.Status !== 'A'"
+                                            class="mx-2px btn radius-1 border-2 btn-xs btn-brc-tp btn-light-secondary btn-h-lighter-success btn-a-lighter-success"
+                                            href="#"
+                                            (click)="$event.preventDefault(); enable(item)">
+                                            <i class="fa fa-check"></i>
+                                        </a>
+                                        <a
+                                            *ngIf="item.Status === 'A'"
+                                            class="mx-2px btn radius-1 border-2 btn-xs btn-brc-tp btn-light-secondary btn-h-lighter-danger btn-a-lighter-danger"
+                                            href="#"
+                                            (click)="$event.preventDefault(); disable(item)">
+                                            <i class="fa fa-ban"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

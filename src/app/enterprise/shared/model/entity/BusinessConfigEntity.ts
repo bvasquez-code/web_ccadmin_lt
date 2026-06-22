@@ -24,6 +24,7 @@ export class BusinessConfigEntity {
     public Sta2Config: string;
     public Sta3Config: string;
     public Sta4Config: string;
+    public Status: string;
 
     constructor() {
         this.GroupId = 0;
@@ -49,5 +50,6 @@ export class BusinessConfigEntity {
         this.Sta2Config = '';
         this.Sta3Config = '';
         this.Sta4Config = '';
+        this.Status = '';
     }
 }
